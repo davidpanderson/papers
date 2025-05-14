@@ -1,4 +1,4 @@
-<div style="max-width: 600px">
+<div style="max-width: 600px; font-family:Trebuchet MS; line-height:1.4" align=justify>
 <center>
 <h1>Containerizing Volunteer Computing</h1>
 <p>
@@ -21,18 +21,19 @@ The pool of devices is heterogeneous:
 it includes computers with many types and versions
 of operating systems (Windows, MacOS, Linux)
 as well as varied installed software and libraries.
-This poses a technical challenge:
-it is difficult for computational scientists to develop
+This makes it difficult for scientists to develop
 versions of their applications that run on all these computers.
 Container systems such as Docker can help solve this problem:
 scientists can package applications and their
 software dependencies as Docker "images",
 which can then be run on any computer on which Docker is installed.
+<p>
 We have added support for Docker in BOINC,
 a widely-used platform for volunteer computing.
-We have also developed web-based interfaces for job submission and control.
+We have also developed web-based interfaces for job submission and control,
+and a web portal offering these features to all scientists.
 Together, these features simplify access to volunteer computing,
-making it usable by more computational scientists.
+making it usable by more scientists.
 
 <h2>1. Introduction</h2>
 
@@ -59,8 +60,10 @@ with runtimes on the order of minutes to a day or so,
 and preferably with the ability to use GPUs.
 A wide range of computational science workloads have these properties.
 <p>
-Most volunteer projects use BOINC, an open-source middleware system [12].
-BOINC lets scientists create and operate volunteer computing "projects",
+Most volunteer computing projects use BOINC,
+an open-source middleware system [12].
+BOINC lets scientists create and operate "projects"
+(for example, Einstein@home),
 and lets volunteers participate in these projects.
 Volunteers install an application (the BOINC client)
 and then choose one or more projects to support.
@@ -69,7 +72,7 @@ and for mobile devices running Android.
 <p>
 The use of BOINC by scientists has been limited by several factors.
 First, it can be difficult to convert applications to
-run under BOINC and on non-Linux platforms.
+run on BOINC and on non-Linux platforms.
 Second, BOINC's interfaces for submitting and handling jobs
 are complex and require programming.
 Third, creating and operating a BOINC project requires
@@ -78,8 +81,8 @@ a range of technical skills.
 This paper describes recent changes to BOINC that address
 each of these issues.
 First, we added support for applications that run in Docker containers.
-Second, we added simple web-based interfaces for job submission.
-Third, we created BOINC Central, a 'hub' that gives scientists
+Second, we created simple web-based interfaces for job submission.
+Third, we created BOINC Central, a Web portal that gives scientists
 access to these capabilities without creating their own BOINC project.
 
 <p>
@@ -183,15 +186,15 @@ and programs running in VirtualBox VMs cannot access GPUs.
 
 <p>
 In container systems,
-processes on a "host" system run in a "guest" environment
+processes on a "host" computer run in a "guest" environment.
 The guest environment provides software
 (operating system interfaces, libraries, installed software)
-that can be different from that of the host.
+that can differ from that of the host.
 In addition,
 the guest environment is 'contained': processes running in it
 cannot access files on the host system.
 Their resource usage and their network access can be limited.
-The users and groups can be different than those of the host.
+The namespaces of users and groups can differ from those of the host.
 
 <p>
 Support for containerization was implemented in Linux,
@@ -204,7 +207,7 @@ and with mechanisms like cgroups and namespaces [ref].
 <p>
 Building on these Linux features, several systems
 have been developed for describing and running containers.
-Of these, the most widely used is Docker [ref].
+Of these, the most widely used is Docker [Merkel].
 A Docker 'image' describes a guest environment;
 a 'container' is a running instance of an image.
 
@@ -223,7 +226,7 @@ and for creating and running containers from images.
 
 <p>
 Compared to VM systems, Docker is more efficient in terms
-of both storage and CPU time.
+of both storage, startup time, and runtime performance [Felter].
 A Docker base image does not include an OS kernel:
 that's provided by the host.
 It includes only the user-level part of the distro,
@@ -705,7 +708,9 @@ and that in turn leads to an expansion of the volunteer population.
 <li> D.P. Anderson, C. Christensen, and B. Allen. Designing a Runtime System for Volunteer Computing. Supercomputing '06 (The International Conference for High Performance Computing, Networking, Storage and Analysis), Tampa. November 2006
 <li> Calegari, P., Levrier, M. and Balczyński, P., 2019. Web portals for high-performance computing: a survey. ACM Transactions on the Web (TWEB), 13(1), pp.1-36.
 <li> Chalker, A., Franz, E., Rodgers, M., Dockendorf, T., Johnson, D., Sajdak, D., White, J.P., Plessinger, B.D., Zia, M., Gallo, S.M. and Settlage, R.E., 2021. Open OnDemand: State of the platform, project, and the future. Concurrency and Computation: Practice and Experience, 33(19), p.e6114.
+<li> Felter, W., Ferreira, A., Rajamony, R. and Rubio, J., 2015, March. An updated performance comparison of virtual machines and linux containers. In 2015 IEEE international symposium on performance analysis of systems and software (ISPASS) (pp. 171-172). IEEE.
 <li> Hudak, D., Johnson, D., Chalker, A., Nicklas, J., Franz, E., Dockendorf, T. and McMichael, B.L., 2018. Open OnDemand: A web-based client portal for HPC centers. Journal of Open Source Software, 3(25), p.622.
 <li> Levshina, T., Sehgal, C. and Slyz, M., 2012, December. Supporting Shared Resource Usage for a Diverse User Community: the OSG Experience and Lessons Learned. In Journal of Physics: Conference Series (Vol. 396, No. 3). IOP Publishing.
+<li>Merkel, Dirk. "Docker: lightweight linux containers for consistent development and deployment." Linux j 239.2 (2014): 2.
 </ol>
 </div>
