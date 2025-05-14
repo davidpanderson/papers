@@ -1,0 +1,65 @@
+Containerized Volunteer Computing
+
+David Anderson, Vitalii Koshura, Laurence Field, Charlie Fenton
+
+Abstract
+
+Intro
+    BOINC
+        summarize architecture
+        client/app interface
+        apps and app versions
+            plan classes
+            code signing
+        packaging apps
+        wrappers
+        vbox
+            issues: size, performance, no GPU access, proprietary
+    container systems
+        Docker and Podman
+            images
+            Dockerfiles
+        host systems
+            Win
+                WSL
+            Linux
+            Mac
+                QEMU
+
+Supporting Docker-based apps in BOINC
+    installing Docker on clients
+        part of BOINC installer
+        client: startup
+    Selecting and running Docker apps
+        detect Docker in the client
+            Win
+        report to server
+        plan class
+        report to app in init_data.xml
+    docker wrapper
+    cleanup
+        client
+    packaging Docker apps
+        single-, multi-purpose
+
+BUDA
+    goals
+        simple, web-based
+    apps and variants
+    scheduling issues: sub-plan-classes; client, server
+    describing batches
+    examples
+        use by LHC
+        Boolean Chains
+
+BOINC Central
+    goals
+    access control
+    resource allocation
+
+future work
+    ARM/Intel
+    GPUs
+    checkpointing
+
+Conclusion
