@@ -38,20 +38,20 @@ making it usable by more scientists.
 <h2>1. Introduction</h2>
 
 <p>
-The bulk of the world's computing power lies not in data centers,
+The bulk of the world's computing power resides not in data centers,
 but in the billions of CPUs and GPUs of
-consumer devices such as home computers.
+consumer devices such as home and laptop computers.
 "Volunteer computing" makes this computing power available,
 at little or no cost, to scientists.
-It lets people donate the
+People can donate the
 power of their computers to research projects of their choosing.
-Device owners participate by installing
+They participate by installing
 a program that downloads and executes jobs from
 servers operated by science projects.
 There are currently about 30 such projects in many scientific areas and at
 many institutions.
 The research enabled by this has
-resulted in numerous papers in top scientific journals [1].
+resulted in numerous papers in top scientific journals [ref].
 
 <p>
 Volunteer computing works best for large sets of independent jobs
@@ -61,7 +61,7 @@ and preferably with the ability to use GPUs.
 A wide range of computational science workloads have these properties.
 <p>
 Most volunteer computing projects use BOINC,
-an open-source middleware system [12].
+an open-source middleware system [ref].
 BOINC lets scientists create and operate "projects"
 (for example, Einstein@home),
 and lets volunteers participate in these projects.
@@ -129,27 +129,65 @@ Each BOINC project has an associated set of keywords.
 Science United directs clients to attach to projects
 based on keyword preferences.
 
+images:
+old model: volunteers -> projects <- scientists
+coordinated model: volunteers -> SU -> projects <- scientists
+portal model: volunteers -> SU -> (old projects) BOINC Central <- scientists
+
 <p>
-Each project maintains a set of 'apps' and 'app versions'
+Each project maintains a set of "apps" and "app versions".
 An app is the abstraction of a program;
 an app version is a specific executable for an app.
 Each app version is associated with a particular platform
 (e.g. Windows/Intel, MacOS/ARM).
-It can also be tagged with a 'plan class'
+It can also be tagged with a "plan class"
 that describes additional requirements and properties.
 For example, the plan class can indicate that
-it's a multithreaded app
-or that it uses a particular GPU type.
+the app version is multithreaded,
+or uses a particular GPU type, or requires a minimum driver version.
+
+<p>
+In the BOINC scheduler, each plan class C has an associated function C(H)
+that takes an argument H describing a host H, and returns
+<ul>
+<li> Whether a program of that plan class can run on H
+(i.e. whether H has the required hardware and software)
+<li> If so, what processing resources will be used
+(for example, what fraction of a CPU will be used by a GPU app).
+<li> The estimated FLOPS of the program running on H;
+this is used to estimate job runtimes on H.
+</ul>
+
+<p>
+Jobs are submitted to apps, not to app versions.
+A job submitted to an app may be processed using
+any of its app versions.
+Different versions of an app may be dispatched to a host:
+perhaps one to use its GPU
+and another to use the remaining CPUs.
+
+<p>
+The files making up app versions are "code-signed".
+Each project creates a public/private key pair.
+The private key is kept on a offline computer
+that is used to create cryptographic signatures of files.
+The BOINC client checks these signatures.
+This ensures that, even if a project server is hacked,
+BOINC cannot be used to distribute malware.
+However, it means that creating an app version requires
+manual work by project admins.
+
+figure:
+apps, app versions, platforms
 
 <p>
 The BOINC runs each job in its own 'slot directory',
 containing the job's input and output files.
-The directory is initialized with a 'job configuration'
-containing, for example, which GPU the job should use,
+The directory is initialized with a 'job config file'
+indicating, for example, which GPU the job should use,
 or how many cores a multithreaded app should use.
 <p>
-The BOINC client communicates with running apps:
-for example,
+The BOINC client communicates with running apps: for example,
 the client can tell the app to suspend itself, quit, or checkpoint;
 the app can tell the client that it has checkpointed,
 or it can report its CPU usage or working-set size.
@@ -382,8 +420,9 @@ that handles these functions.
 The Docker wrapper does the following:
 
 <ul>
-<li> On startup, read the app config file to learn
-whether to use Docker or Podman, and what WSL distro to use.
+<li> On startup, read the job config file
+(Section X) to learn
+whether to use Docker or Podman, and (on Windows) what WSL distro to use.
 
 <li> Check whether the image exists; build it if not.
 
@@ -397,6 +436,12 @@ CPU and RAM usage, and report these to client.
 <li> Every 10 seconds, check whether the container has exited.
 If so, get its stderr output and exit status.
 </ul>
+<p>
+<center>
+<img src=docker_win.gif width=500>
+<br>
+Figure 1: running a Docker container under BOINC on Windows
+</center>
 <p>
 File access: copy or mount
 
@@ -414,7 +459,6 @@ First, we introduce some terminology:
     for specific hardware, say a version of Autodock for CPU,
     or for NVIDIA GPU.
 </ul>
-
 
 <h3>4.4.1 The single-purpose model</h3>
 
@@ -468,16 +512,37 @@ Each workunit contains
 </ul>
 <p>
 In this model, new science apps and variants can be deployed
-without the need to create new BOINC apps or app versions,
+without the need to create BOINC apps or app versions,
 or to code-sign files.
 
 <p>
-In particular, the Dockerfile and science executables
-are not code signed.
+In particular, the Dockerfile and science executables are not code-signed.
 This is not a significant security vulnerability,
 because these files are used only within a container,
-and cannot access files on the host
-outside the job's slot directory.
+and cannot access files on the host outside the job's slot directory.
+
+<h3>4.4.3 BUDA plan classes
+
+<p>
+Recall (Section x) that BOINC uses "plan classes"
+to represent the requirements of app versions:
+for example, that it needs an NVIDIA GPU and OpenCL drivers
+with a minimum version number.
+But BUDA has only one app version per platform.
+How can we support BUDA apps with GPU or other requirements?
+
+<p>
+We do this by allowing workunits to have plan classes.
+This required changes to the BOINC client and scheduler.
+It the scheduler is deciding whether to send a workunit to a host H,
+and the workunit has a plan class C,
+the scheduler calls the plan class function C(H)
+to checks whether H can support C,
+and to get the resource usage and estimated FLOPS.
+<p>
+When the client receives a workunit with a plan class,
+it gets the job's resource usage from the workunit
+rather than from the app version.
 
 <h2>5. BUDA web interfaces</h2>
 
@@ -712,5 +777,6 @@ and that in turn leads to an expansion of the volunteer population.
 <li> Hudak, D., Johnson, D., Chalker, A., Nicklas, J., Franz, E., Dockendorf, T. and McMichael, B.L., 2018. Open OnDemand: A web-based client portal for HPC centers. Journal of Open Source Software, 3(25), p.622.
 <li> Levshina, T., Sehgal, C. and Slyz, M., 2012, December. Supporting Shared Resource Usage for a Diverse User Community: the OSG Experience and Lessons Learned. In Journal of Physics: Conference Series (Vol. 396, No. 3). IOP Publishing.
 <li>Merkel, Dirk. "Docker: lightweight linux containers for consistent development and deployment." Linux j 239.2 (2014): 2.
+<li> Publications by BOINC Projects (web page): https://boinc.berkeley.edu/pubs.php
 </ol>
 </div>
