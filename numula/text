@@ -1,0 +1,75 @@
+Abstract
+
+We present a model for describing musical 'nuance':
+the deviation (in timing, dynamics, and other parameters)
+between a musical score and a rendition.
+The model is designed to allow compact expression
+of complex and layered nuance,
+as is typically present in human performance.
+We describe an implementation of the model
+in a Python library,
+and discuss the applications and editing interfaces
+for musical nuance.
+
+
+=============
+Intro
+
+MNS (Musical Nuance Specification): a model
+
+Numula (Nuance Music Language)
+could also be expressed in JSON w/ embedded scripting language
+
+=============
+Model
+------
+
+Scores
+------
+Piecewise functions of time
+
+Many components of nuance involve quantities
+(like tempo and volume) that change over time.
+To describe these, MNS 
+A PFT is a list of 'primitives'
+'Interval primitives' had nonzero time duration dt,
+and typically describe a continuous function
+over the interval [0, dt].
+'Momentary primitives' have zero duration.
+
+MNS uses two types of PFTs:
+
+'Integral PFTs': these describe tempo and other timing nuance.
+The value of the PFT represents the rate of change
+of performance time with respect to score time.
+The interval primitives
+Each must provide a member function integral(t)
+that returns the integral of the primitive from 0 to t.
+The momentary primitives are like Dirac deltas
+in the tempo function; they represent pauses,
+or discontinuities in the map for score time to performance time.
+
+'Value PFTs': these represent time-varying quantities such
+as volume (relative or absolute).
+The interval primitives must provice a member function value(t)
+return the value at time t.
+
+
+
+------
+Timing
+------
+Volume
+
+=============
+Numula
+=============
+Examples
+=============
+Editing UIs
+=============
+Applications
+=============
+Related work
+=============
+Conclusions

@@ -1,0 +1,57 @@
+Musical nuance specification: a model and implementation
+
+Abstract
+    keyboard
+    model
+    realization in Python
+
+Intro
+    what is nuance
+    its importance
+    description in scores
+    auto-generated in score editors; AI
+    Numula
+    structure of paper
+
+A model for nuance description
+    Scores
+        time: score, real
+        notes
+        scores; tags
+        measures
+        note selectors
+    PFTs
+        value vs. integral
+        primitives
+        closure
+    Timing
+        tempo
+        pauses
+        shift
+        Layering
+    Volume
+        continuous
+        accents
+        Layering
+    Pedaling
+        MIDI, virtual
+
+Numula
+    Shorthand notations
+
+Structuring nuance specifications
+    layers, short/long term, delay
+
+User interfaces for editing nuance
+    ideal
+    program editing
+    IPA (TUI; text-based user interface)
+
+Applications of nuance specifications
+    performance pedagogy
+    virtual conductor
+
+related work
+
+Conclusion and future work
+    Thanks to Rich Kraft, Ron Kuivila
