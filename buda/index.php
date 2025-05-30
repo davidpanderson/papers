@@ -1,6 +1,6 @@
-<div style="max-width: 600px; font-family:Trebuchet MS; line-height:1.4" align=justify>
+<div style="max-width: 700px; font-family:Trebuchet MS; line-height:1.4" align=justify>
 <center>
-<h1>Containerizing Volunteer Computing</h1>
+<h1>Containerized Volunteer Computing</h1>
 <p>
 David P. Anderson
 <br>
@@ -17,16 +17,16 @@ June 1, 2025
 "Volunteer computing" is the use of consumer digital
 devices, such as desktop and laptop computers, tablets,
 and smartphones, for high-throughput scientific computing.
-The pool of devices is heterogeneous:
+The pool of such devices is heterogeneous:
 it includes computers with many types and versions
 of operating systems (Windows, MacOS, Linux)
-as well as varied installed software and libraries.
-This makes it difficult for scientists to develop
-versions of their applications that run on all these computers.
+as well as varied software and libraries.
+It is difficult for scientists to create
+versions of their applications that run natively on all these computers.
 Container systems such as Docker can help solve this problem:
 scientists can package applications and their
 software dependencies as Docker "images",
-which can then be run on any computer on which Docker is installed.
+which can run on any computer where Docker is installed.
 <p>
 We have added support for Docker in BOINC,
 a widely-used platform for volunteer computing.
@@ -38,7 +38,7 @@ making it usable by more scientists.
 <h2>1. Introduction</h2>
 
 <p>
-The bulk of the world's computing power resides not in data centers,
+The bulk of the world's computing power is not in data centers,
 but in the billions of CPUs and GPUs of
 consumer devices such as home and laptop computers.
 "Volunteer computing" makes this computing power available,
@@ -50,21 +50,21 @@ a program that downloads and executes jobs from
 servers operated by science projects.
 There are currently about 30 such projects in many scientific areas and at
 many institutions.
-The research enabled by this has
-resulted in numerous papers in top scientific journals [ref].
+Their research has
+resulted in numerous papers in top scientific journals [ref, ref].
 
 <p>
 Volunteer computing works best for large sets of independent jobs
 with moderate RAM and storage requirements,
-with runtimes ranging from minutes to a day or so,
+with runtimes ranging from minutes to days,
 and preferably with the ability to use GPUs.
 A wide range of computational science workloads have these properties.
 <p>
 Most volunteer computing projects use BOINC,
 an open-source middleware system [ref].
 BOINC lets scientists create and operate "projects"
-(for example, Einstein@home),
-and lets volunteers participate in these projects.
+(for example, LHC@home from CERN),
+and lets volunteers provide resources to these projects.
 Volunteers install an application (the BOINC client)
 and then choose one or more projects to support.
 The client is available for desktop platforms (Windows, MacOS, Linux)
@@ -76,18 +76,19 @@ run on BOINC and on non-Linux platforms.
 Second, BOINC's interfaces for submitting and handling jobs
 are complex and require programming.
 Third, creating and operating a BOINC project requires
-a range of technical skills.
+a range of skills and resources.
 <p>
 This paper describes recent changes to BOINC that address
 each of these issues.
 First, we added support for applications that run in Docker containers.
 Second, we created simple web-based interfaces for job submission.
 Third, we created BOINC Central, a Web portal that gives scientists
-access to these capabilities without creating their own BOINC project.
+access to volunteer computing power without creating a BOINC project.
 
 <p>
 Sections 2 and 3 describe BOINC and Docker respectively.
-Section 4 explains how BOINC has been extended to handle Docker-based apps,
+Section 4 explains how BOINC has been extended to
+handle Docker-based applications,
 Section 5 describes the job submission interfaces,
 Section 6 describes BOINC Central,
 and Section 7 offers conclusions.
@@ -100,36 +101,43 @@ Scientists create "projects" by installing the BOINC server
 software on a Linux host or cluster.
 The server uses a MySQL database to store information
 about applications, jobs, and user accounts.
-It includes a "scheduler" that handles RPC
+It includes a "scheduler" that handles RPCs
 requesting jobs and reporting completed jobs.
 It also includes scripts that provide a web site
 where volunteers can view their completed jobs,
-communicate with one another, and so on.
+message one another, and so on.
 <p>
 Volunteers install the BOINC client program on their computers.
-They can then "attach" the client to one or more project.
+They can then "attach" the client to one or more projects.
 The client detects the hardware and software properties
 of the computer (CPU and GPU type, driver versions, RAM size, etc.).
-It issues "scheduler RPCs" to attached projects;
-the request message describes the computer properties.
-The RPC reply can include descriptions of jobs.
+It issues RPCs to the schedulers of attached projects.
+The request message describes the computer properties, and
+the reply can include descriptions of jobs.
 The client downloads the job files,
 runs the job, uploads the output files,
 and reports the completed jobs in subsequent RPCs.
+All communication is over HTTP,
+so clients can be behind typical firewalls.
+
+<h3>2.1 Models of participation</h3>
 
 <p>
-In the original BOINC model (see Figure 1)
+The ways in which volunteers and scientists participate in BOINC
+has evolved over time.
+In the original model (see Figure 1),
 volunteers learn about projects (typically from the BOINC web site)
 and attach to them.
 Most volunteers stick with the same projects indefinitely.
-This means that a scientist starts a new project,
-it is difficult to attract volunteers;
+This creates a problem:
+when a scientist starts a new project,
+it can be difficult to attract volunteers;
 new projects have no guarantee of computing power.
 
 <p>
 To address this issue, we added the notion of "account manager",
-a Web service providing a level of indirection between client and projects.
-Volunteers link the BOINC client to an account manager,
+a web service providing a level of indirection between client and projects.
+Volunteers connect the BOINC client to an account manager,
 which then dynamically tells the client which projects to run.
 We developed an account manager called Science United [ref] that
 lets volunteers express preferences for science areas
@@ -140,13 +148,7 @@ Science United directs clients to attach to projects
 based on keyword preferences.
 In this model, new projects can be guaranteed
 a certain level of computing power, depending on their keywords.
-We call this the "coordinated model".
-
-<center>
-<img src=models.gif width=500>
-<br>
-Figure 1: The three models of participation.
-</center>
+We call this the "coordinated model" [ref].
 
 <p>
 In the coordinated model, scientists are still burdened with
@@ -157,18 +159,27 @@ The portal model involves a project called BOINC Central,
 operated by the BOINC project at UC Berkeley,
 which provides computing power to scientists
 from diverse institutions and science areas.
+<p>
+<center>
+<img src=models.gif width=500>
+<br>
+Figure 1: BOINC's three models.
+The "coordinated model" provides computing power to new projects,
+and the "portal model" eliminates the need for scientists to operate projects.
+</center>
+
 
 <h3>2.2 Apps, app versions, and plan classes</h3>
 <p>
-Each project maintains a set of "apps" and "app versions".
-An app is the abstraction of a program;
-an app version is a specific executable for an app.
+In BOINC terminology, "app" has a specific meaning.
+An "app" is the abstraction of a program;
+an "app version" is a specific executable for an app.
+Each project maintains a set of apps and app versions.
 Each app version is associated with a particular platform
-(e.g. Windows/Intel, MacOS/ARM).
+(such as Windows/Intel or MacOS/ARM).
 It can also be tagged with a "plan class"
-that describes additional requirements and properties.
-For example, the plan class can indicate that
-the app version is multithreaded,
+that specifies additional requirements and properties.
+For example, the plan class can indicate that the app version is multithreaded,
 or uses a particular GPU type, or requires a minimum driver version.
 
 <p>
@@ -191,9 +202,18 @@ volunteer computing has an unlimited number;
 a plan class selects a subset of them.
 
 <p>
-In BOINC, jobs are submitted to apps, not to app versions.
-A job submitted to an app may be processed using
-any of its app versions.
+In BOINC terminology, a job is called a "workunit".
+A workunit is a set of input files,
+together with parameters such as the estimated
+FLOP count and RAM usage.
+A workunit can have one or more "instances".
+If an instance fails, new instances are created up to a limit.
+Projects can optionally have each workunit replicated
+on two or more hosts, to ensure the correctness of the results.
+
+<p>
+Jobs are submitted to apps, not to app versions.
+Job instances may be processed using any of the app's versions.
 <p>
 Different versions of an app may be dispatched to a host:
 perhaps one to use its GPU
@@ -220,7 +240,7 @@ Figure 1: A BOINC app can have multiple versions.
 <p>
 The BOINC runs each job in its own "slot directory",
 containing the job's input and output files.
-The directory is initialized with a "job config file"
+The directory is initialized with a "job configuration file"
 indicating, for example, which GPU the job should use,
 or how many cores a multithreaded app should use.
 <p>
@@ -233,7 +253,7 @@ This message-passing is done via a shared memory segment.
 <p>
 Prior to the current work, BOINC offered three ways to package apps.
 <ol>
-<li> Native: app versions are is linked with a BOINC runtime library,
+<li> Native: app versions are linked with a BOINC runtime library,
 which manages communication with the client.
 A separate app version must be built separately for each platform.
 <li> Wrapper: the app version's main program is a BOINC-supplied
@@ -243,7 +263,7 @@ to control the worker process.
 <li> VirtualBox: the app version's main program is a BOINC-supplied
 "VirtualBox wrapper" program,
 and it includes a VM image containing the worker program.
-Such app versions have a plan class allowing them to be
+Such app versions have a plan class specifying that they can
 run only on computers on which VirtualBox is installed.
 </ol>
 
@@ -252,19 +272,21 @@ Each of these options has drawbacks.
 Options 1) and 2) require building apps on possibly unfamiliar
 systems such as Visual Studio (Windows) and XCode (MacOS).
 They also don't work for apps that require particular system libraries,
-or that
-Option 3) provides platform independence, but creating VM images
-is difficult and launching VMs is slow,
-and programs running in VirtualBox VMs cannot access GPUs.
+or that require software tools such as Python.
+Option 3) doesn't have these issues,
+but has several of its own:
+a) creating VM images is difficult;
+b) launching VMs is slow,
+and c) programs running in VirtualBox VMs cannot access GPUs.
 
 <h2>3. Container systems</h2>
 
 <p>
 In container systems,
 processes on a "host" computer run in a "guest" environment.
-The guest environment provides software
-(operating system interfaces, libraries, installed software)
-that can differ from that of the host.
+The guest environment provides 
+operating system interfaces, libraries, and installed software
+that can differ from those of the host.
 In addition,
 the guest environment is "contained": processes running in it
 cannot access files on the host system.
@@ -282,30 +304,30 @@ and with mechanisms like cgroups and namespaces [ref].
 <p>
 Building on these Linux features, several systems
 have been developed for describing and running containers.
-Of these, the most widely used is Docker [Merkel].
-A Docker "image" describes a guest environment;
+The most widely used is Docker [Merkel].
+In Docker terminology,
+an "image" describes a guest environment;
 a "container" is a running instance of an image.
 
 <p>
-Docker images are described by "Dockerfiles".
-These specify a "base image" (typically corresponding
+A Docker image is defined by a "Dockerfile".
+This specifies a "base image" (typically corresponding
 to a particular Linux distro, perhaps with some software
 already installed), followed by instructions for
 installing additional software and/or files.
 
 <p>
 The Docker client software manages the images and containers on a host.
-It provides a command-line interface for
-"building" images from Dockerfiles,
+It provides a command-line interface for "building" images from Dockerfiles,
 and for creating and running containers from images.
 
 <p>
-Compared to VM systems, Docker is more efficient in terms
-of both storage, startup time, and runtime performance [Felter].
+Docker is more efficient than VM systems in terms
+of storage, startup time, and runtime performance [Felter].
 A Docker base image does not include an OS kernel:
 that's provided by the host.
-It includes only the user-level part of the distro,
-so files are typically tens of MB instead of several GB.
+It includes only the user-level part of the system,
+so image files are typically tens of MB instead of several GB.
 Also, when Docker builds an image,
 each of the additions is stored as a separate "layer" file.
 If another image uses the same addition, it uses the same file.
@@ -315,7 +337,7 @@ Creating and running a Docker container does not involve
 booting an OS, as VMs do.
 So it's fairly fast - about 1 second.
 In contrast, launching a VirtualBox VM can
-take up to 60 seconds and does a lot of disk I/O.
+take up to 60 seconds and does lots of disk I/O.
 This difference is critical for BOINC.
 Typically a volunteer host with N CPUs has N BOINC jobs.
 If these are VirtualBox jobs, and the BOINC client runs them
@@ -325,22 +347,21 @@ for several minutes.
 <p>
 Unlike VirtualBox VMs, Docker containers are able to
 access the host's GPU(s).
-This is important for BOINC;
+This is important for BOINC, since
 the majority of floating-point capacity
-in home computers is in their GPUs.
+in home computers is in their GPUs [ref].
 
 <p>
 Docker is a commercial product.
 There is a free, open-source equivalent called Podman.
 The architecture of Podman is different from Docker:
 Docker uses a daemon process, while Podman does not.
-However, the features and command-line syntax of Podman are
-nearly identical.
+However, the features and command-line syntax of Podman are nearly identical.
 
 <p>
-We have chosen to use Podman in BOINC.
+We chose to use Podman in BOINC.
 However, BOINC works with Docker too:
-if a volunteer has Docker installed on their computer,
+if Docker is installed on a volunteered computer,
 BOINC will detect and use it.
 
 <p>
@@ -350,19 +371,18 @@ to refer to either Docker or Podman.
 <h3>3.2 Docker on non-Linux systems</h3>
 
 <p>
-About 80% of BOINC volunteer computers are Windows;
+About 80% of BOINC volunteer computers run Windows;
 the rest are about half Linux and half MacOS.
-Docker requires Linux to work.
-Fortunately, Docker can be used on both Windows and MacOS.
-Doing so requires a Linux VM on the host.
+Docker requires Linux.
+Fortunately, Docker can be used on both Windows and MacOS,
+by running a Linux VM on the system.
 
 <p>
-On Windows, such a VM can be created using "Windows Subsystem for Linux" (WSL),
+On Windows, such a VM can be provided by "Windows Subsystem for Linux" (WSL),
 which is built into recent versions of Windows (10 and 11) [ref].
 WSL uses files called "Linux distros",
-which contain the user part of distros such as Ubuntu and Red Hat.
-These can be downloaded from the Windows Store
-or from other sources.
+which contain the user-level part of distros such as Ubuntu and Red Hat.
+These can be downloaded from the Windows Store or from other servers.
 
 <p>
 On MacOS, Podman uses a Linux VM based on QEMU [ref].
@@ -381,25 +401,23 @@ This involved changes to many BOINC components.
 Many BOINC volunteers are non-technical.
 We have tried to make the installation of
 the BOINC client as simple as possible,
-so that users will complete the process.
+so that such users will complete the process.
 In the typical case it involves three mouse clicks.
 We now want to install Podman as part of this process.
 
 <p>
 On Linux this is simple.
-The BOINC installer is a package,
-and we include Podman as a dependency,
+The BOINC installer is a package, and we include Podman as a dependency,
 so that it is automatically installed along with the BOINC client.
 
 <p>
-On Windows, we created a WSL distro, "boinc_podman".
-This is a minimal Linux (Alpine) image in which Podman is installed.
+On Windows, we created a WSL distro:
+a minimal Linux (Alpine) image in which Podman is installed.
 The BOINC Windows installer enables WSL,
-and it downloads and installs this WSL distro.
+and downloads and installs this WSL distro.
 
 <p>
-On MacOS, the BOINC installer downloads and runs
-a Podman installer.
+On MacOS, the BOINC installer downloads and runs a Podman installer.
 This requires an additional step: running a podman command
 to initialize and start the QEMU virtual machine.
 We modified the BOINC client to do this on startup.
@@ -412,31 +430,31 @@ is Docker-capable, and sends it Docker jobs,
 involves several interconnected parts.
 
 <p>
-First, the BOINC client detects the presence of Docker or Podman
+First, the BOINC client detects the presence of Podman or Docker
 on startup.
 On Linux and MacOS, this is done by running a command
 ("docker --version" or "podman --version")
 and checking its output.
 On Windows, the client queries the Windows registry for
-the list of WSL distros.
+the list of installed WSL distros.
 For each distro, it runs a shell in the distro and
-issues the Docker/Podman commands.
-There may be multiple distros in which Docker/Podman is installed.
+checks for Podman or Docker as above.
+There may be multiple distros in which Podman or Docker is installed.
 
 <p>
-Second, the scheduler RPC request messages include the Docker information.
+Second, scheduler RPC request messages include the Docker information.
 
 <p>
 Third, the scheduler has a new plan class "docker".
 If an app version has this plan class,
-it will be dispatched only to clients that have Docker or Podman.
+it will be sent only to clients that have Docker or Podman.
 Variants of this plan class can be added if (for example)
-an app version requires a minimum version of Docker.
+an app version requires a minimum version of Docker or uses a GPU.
 
 <p>
-Finally, the client includes Docker info in the config
+Finally, the client includes Docker info in the configuration
 file passed to jobs (see Section x).
-For Docker apps (see below) this tells this app
+For Docker apps this tells this app
 whether to use Docker or Podman,
 and (on Windows) which WSL distro to use.
 
@@ -444,11 +462,12 @@ and (on Windows) which WSL distro to use.
 
 <p>
 To run a Docker app on a volunteer computer,
-we need to run various Docker/Podman commands to
+we need to run various Docker commands to
 create the image, create the container,
 start or restart the container, fetch its CPU and memory usage,
 check for its completion, and so on.
 
+<p>
 We could have added this logic to the BOINC client itself,
 but that would require that volunteers install a new client each
 time the logic changes.
@@ -457,9 +476,9 @@ that handles these functions.
 The Docker wrapper does the following:
 
 <ul>
-<li> On startup, read the job config file
-(Section X) to learn
-whether to use Docker or Podman, and (on Windows) what WSL distro to use.
+<li> On startup, read the job configuration file
+(Section X) to learn whether to use Docker or Podman,
+and (on Windows) what WSL distro to use.
 
 <li> Check whether the image exists; build it if not.
 
@@ -468,7 +487,7 @@ whether to use Docker or Podman, and (on Windows) what WSL distro to use.
 <li> Every 1 second, check for and handle quit/ abort message from client.
 
 <li> Every 10 seconds, query the container's
-CPU and RAM usage, and report these to client.
+CPU and RAM usage, and report these to the client.
 
 <li> Every 10 seconds, check whether the container has exited.
 If so, get its stderr output and exit status.
@@ -477,22 +496,28 @@ If so, get its stderr output and exit status.
 <center>
 <img src=docker_win.gif width=500>
 <br>
-Figure 1: running a Docker container under BOINC on Windows
+Figure 1: running a Docker container under BOINC on Windows.
 </center>
 <p>
-File access: copy or mount
+Docker is able to mount a directory on the host system
+within the container.
+The Docker wrapper mounts the job's slot directory
+(which contains the job's input files and executables)
+in the container,
+eliminating the need to copy these files into the container.
+The job's output files are written to this directory also.
 
 <h3>4.4 Packaging Docker applications</h3>
 
 <p>
 Given the BOINC app version architecture (Sec x)
 there are 2 ways to package Docker applications.
-First, we introduce some terminology:
+First, we introduce some new terminology for Docker apps:
 
 <p>
 <ul>
 <li> A "science app" is an (abstract) program, say Autodock.
-<li> A "science app variant" is a executable file or files
+<li> A "science app variant" is an executable file or files
     for specific hardware, say a version of Autodock for CPU,
     or for NVIDIA GPU.
 </ul>
@@ -500,15 +525,16 @@ First, we introduce some terminology:
 <h3>4.4.1 The single-purpose model</h3>
 
 <p>
-In this model, each science app is a BOINC app,
+In this model, BOINC apps have a single purpose:
+each science app is a BOINC app,
 and each science app variant is a BOINC app version.
 There is an app version for each platform.
 Each app version contains
 
 <p>
 <ul>
-<li> docker_wrapper, compiled for that platform.
-<li> the Dockerfile.
+<li> the Docker wrapper, compiled for that platform;
+<li> the Dockerfile;
 <li> the executables (compiled for Linux).
 </ul>
 
@@ -523,19 +549,19 @@ with the appropriate plan class, extending the "docker" plan class
 
 <p>
 This approach matches the BOINC architecture.
-However, it has a potential disadvantage:
-whenever a new science app is released,
+However, it has a limitation:
+when a new science app is released,
 or a new variant of an existing science app,
 new BOINC app versions must be created.
-This is a complex operation: for example, it requires code-signing
-files on a disconnected computer,
+This is a complex operation: for example,
+it requires code-signing files on a disconnected computer,
 and typically it requires login access to the BOINC server.
 
 <h3>4.4.2 The universal model</h3>
 
 <p>
 In this model, there is a single BOINC app
-(call it BOINC Universal Docker App, or BUDA)
+(called BOINC Universal Docker App, or BUDA)
 that handles all science applications.
 There is a BOINC app version (of the BUDA app) for each platform.
 Each app version contains only docker_wrapper,
@@ -554,7 +580,8 @@ without the need to create BOINC apps or app versions,
 or to code-sign files.
 
 <p>
-In particular, the Dockerfile and science executables are not code-signed.
+Because they're part of the workunit,
+the Dockerfile and science executables are not code-signed.
 This is not a significant security vulnerability,
 because these files are used only within a container,
 and cannot access files on the host outside the job's slot directory.
@@ -572,7 +599,7 @@ How can we support BUDA apps with GPU or other requirements?
 <p>
 We do this by extending BOINC to allow workunits to have plan classes.
 This required changes to the BOINC client and scheduler.
-It the scheduler is deciding whether to send a workunit to a host H,
+If the scheduler is deciding whether to send a workunit to a host H,
 and the workunit has a plan class C,
 the scheduler calls the plan class function C(H)
 to checks whether H can support C,
@@ -613,7 +640,7 @@ and/or permission to submit jobs.
 <p>
 Scientists can also be assigned "resource shares";
 BOINC also has a resource allocation system that allocates
-computing power fairly among competing userss
+computing power fairly among competing users
 based on their resource shares [ref].
 
 <h3>5.1 File sandbox</h3>
@@ -745,7 +772,8 @@ this deletes all input/output files and database records related to the batch.
 Using the features described above,
 a BOINC project can allow scientists to easily,
 and with no programming or BOINC-specific knowledge,
-do high-throughput computing with Docker-based apps.
+do high-throughput computing with Docker-based apps,
+using volunteered computing resources.
 
 <p>
 There remains the issue of creating a BOINC project,
@@ -753,7 +781,7 @@ which involves:
 
 <ul>
 <li> Getting a public-facing server,
-    either on dedicated hardware or using a commercial cloud.
+    either on dedicated hardware or on a commercial cloud.
 <li> Installing the BOINC server software and its dependencies.
 <li> Customizing web pages.
 <li> Administering the system on an ongoing basis
@@ -775,10 +803,11 @@ apps such as Autodock.
 <p>
 Scientists can apply to BOINC Central for computing power.
 If the application is approved,
-the scientist's user account is granted appropriate permissions.
+the scientist's user account is granted permission
+to submit jobs.
 
 <p>
-BOINC Central may host scientists from many institutions,
+BOINC Central can host scientists from many institutions,
 doing research in many science areas.
 To give volunteers control over who they support,
 we use the same system of keywords used by Science United (Section x).
@@ -786,6 +815,7 @@ When a scientist registers with BOINC Central,
 they are assigned location and science area keywords.
 
 <p>
+To implement this,
 Scheduler changes to support keywords
 
 <h2>7. Conclusion</h2>
@@ -809,21 +839,21 @@ not HTC
 web assembly efforts (volunteer)
 
 <p>
-Volunteer computing has the potential to provide
-large amounts of computing power.
+Volunteer computing has the potential to provide computational scientists
+with large amounts of computing power at low cost.
 It has been used successfully by a number of research projects:
 SETI@home, Einstein@home, Folding@Home, World Community Grid,
 LHC@home, etc.
-However, there have been significant difficulties
+However, there have been difficulties
 in adapting applications to volunteer computing frameworks,
 and in deploying and maintaining volunteer computing projects.
+This difficulties have limited the adoption of volunteer computing.
 
 <p>
 The work described in this paper is intended to eliminate these difficulties.
 Many scientists already use Docker to package their apps
 and run them on clouds and clusters.
-They can now run these containers, with no modifications,
-on the back end of BOINC volunteer computing.
+They can now run these containers, with no modifications, using BOINC.
 BUDA lets scientists manage apps and submit jobs
 entirely through simple web interfaces.
 BOINC Central eliminates the need for scientists to operate BOINC servers.
@@ -849,5 +879,8 @@ and that in turn leads to an expansion of the volunteer population.
 <li>Merkel, Dirk. "Docker: lightweight linux containers for consistent development and deployment." Linux j 239.2 (2014): 2.
 <li> Publications by BOINC Projects (web page): https://boinc.berkeley.edu/pubs.php
 <li> BOINC Central web site: https://boinc.berkeley.edu/central/
+<li> Cloud-native, high throughput grid computing using the AWS HTC-Grid solution
+by Carlos Manzanedo Rueda, Clement Rey, Kirill Bogdanov, and Richard Nicholson on 28 FEB 2022: https://aws.amazon.com/blogs/hpc/cloud-native-high-throughput-computing-with-aws-htc-grid/
+<li> Folding@home publications: https://foldingathome.org/papers-results/
 </ol>
 </div>

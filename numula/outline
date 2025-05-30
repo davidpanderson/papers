@@ -25,10 +25,20 @@ A model for nuance description
         primitives
         closure
     Timing
+        goals:
+            specify tempo functions as PFTs (tempo + pauses)
+                functions from score time to tempo
+            apply one to a score
+            apply a second one
+            apply one "normalized"
         tempo
-        pauses
-        shift
         Layering
+        pauses
+            typically in a separate layer after tempo
+            so that delay is performance time
+        shift
+            e.g. agogic accents, rolled chords
+            same
     Volume
         continuous
         accents
