@@ -135,8 +135,14 @@ or XML document.
 <p>
 In this paper we describe ScoreObjects and MNS specifications
 in terms of Python data structures and functions.
-We have implemented MNS in a Python library called Numula
+<p>
+Score + Spec -> MNS interpreter -> MIDI file
+Other appications: section X
+<p>
+We have implemented an MNS interpreter in a Python library called Numula
 (see Section x).
+Takes a ScoreObject (a Python data structure)
+and and MNS spec (Python code).
 <p>
 The remainder of this paper is structured as follows:
 Section 2 describes the basics of MNS.
@@ -535,7 +541,8 @@ perf_dur_func(f, pred)
 <p>
 Set the duration of a selected note N to the value f(N).
 
-<h2>3.1 Pedal control</h2>
+<h2>3 Pedal control</h2>
+<h3>3.1 Standard pedals</h3>
 <p>
 Grand pianos have three pedals:
 <ul>
@@ -555,8 +562,7 @@ This reduces loudness and typically softens the timbre.
 Fractional pedaling can also be used; its effects vary between pianos.
 </ul>
 <p>
-Some software synthesizers, such as PianoTeq,
-implement all three pedal types,
+Some software synthesizers, such as PianoTeq, implement all three pedal types,
 and implement fractional pedaling.
 <p>
 Like other aspects of nuance, pedaling is critical to
@@ -564,6 +570,11 @@ the sound of a performance, but it is seldom notated at all,
 much less in a complete and precise way.
 <p>
 pedal as PFT
+open/open: lift pedal, play notes, pedal X
+open/closed: lift pedal, pedal X, play notes
+closed/open: play notes, 
+closed/closed: play notes, pedal X
+<h3>3.2 Virtual pedals</h3>
 <p>
 The sustain pedal affects all keys.
 The sostenuto pedal affects a subset of keys,
@@ -579,8 +590,9 @@ if a note N is selected,
 and the pedal is down at its start time,
 N is sustained at least until the pedal is up again.
 <p>
-This can be used, for example, to sustain an accompaniment figure
-without blurring the melody.
+Virtual sustain pedals can be used, for example, to sustain an accompaniment figure
+without affecting the melody.
+<p>
 Example?
 
 An application of a pedal is represented by
@@ -800,17 +812,17 @@ This would provide a framework for sharing and discussing interpretations.
 <h3>7.2 Note selection</h3>
 <p>
 MNS's selection mechanism is low-level:
-notes are tagged based on chord position
-and metric position, and can be tagged explicitly.
+notes are tagged based on their pitch position and metric position,
+and can be tagged explicitly.
 One can imagine higher-level ways of selecting notes,
 based on musical semantics:
 <ul>
-<li> Harmony: tag various types of cadences and
-estimates of harmonic distance.
-<li> Phrase structure: suppose you want to add
+<li> Harmony: tag notes based on their roles
+in cadences, their chord position, and so on.
+<li> Phrase structure:
+add tags that allow the specification of, for example,
 a small ritardando at the end of each phrase,
-or accent the high points of phrases.
-It would be good to express this at a high level.
+or accents on the high points of phrases.
 </ul>
 ... and so on.
 <p>
@@ -891,7 +903,10 @@ but not the actual modeling of it.
 Rich Kraft contributed ...
 
 <h2>References</h2>
+<p>
 Malcolm Bilson:
 Video: "Knowing the Score: Do We Know How to Read Urtext Editions and How Can This Lead to Expressive and Passionate Performance? Ithaca".
 Cornell University Press, 2005
+<p>
+PianoTeq
 </div>
