@@ -270,10 +270,10 @@ For example,
 ]
 </pre>
 <p>
-might define a function that varies linearly
-from 25 to 15 over 1 4-beat measure,
+defines a function that varies linearly
+from 25 to 15 over 2 4-beat measures,
 from 15 to 20 over 1 measure,
-then from 10 to 15 over 1 measure.
+then from 10 to 15 over 2 measures.
 <p>
 <center>
 <img src=pft.png width=500>
@@ -290,26 +290,25 @@ There are variants for tempo control (representing pauses)
 and volume control (representing accents).
 </ul>
 <p>
-Interval primitives, depending on their use,
+Interval primitives are objects.
+Depending on their use, they
 may define various members functions:
 <p>
 <pre>
 closed_start(): bool
-</pre>
-Whether the primitive defines a value at its start time.
-<pre>
 closed_end(): bool
 </pre>
+Whether the primitive defines a value at its start and end times.
 <pre>
-value(t): float
+value(t: float): float
 </pre>
 the value of F at time t (0<=t<=dt).
 <pre>
-integral(t): float
+integral(t: float): float
 </pre>
 the integral of F from 0 to t (0<=t<=dt)
 <pre>
-integral_reciprocal(t): float
+integral_reciprocal(t: float): float
 </pre>
 the integral of the reciprocal of F from 0 to t.
 <p>
@@ -325,15 +324,15 @@ We describe two such types.
 <p>
 <h3>2.2.1 Linear PFT primitive</h3>
 <p>
-The interval primitive for a linear function is:
+The PFT primitive representing a linear function is:
 <p>
 <pre>
 Linear(
     y0: float,
     y1: float,
     dt: float,
-    closed_start=True,
-    closed_end=False
+    closed_start: bool = True,
+    closed_end: bool = False
 )
 </pre>
 <p>
@@ -351,8 +350,7 @@ where a is the slope (y1-y0)/dt.
 <p>
 <h3>2.2.2 Exponential PFT primitive</h3>
 <p>
-Another interval primitive represents
-an exponential function of the form
+Another PFT primitive represents an exponential function of the form
 <p>
 F(t) = y0 + y1*(1-C^(t/dt))/(1-C)
 </p>
@@ -393,17 +391,17 @@ There are several momentary primitives, used for different purposes.
 Accent(value: float)
 </pre>
 
-Represents a volume change for notes starting
+Represents a volume adjustment for notes starting
 at a particular time (see Section X).
 The surrounding interval segments must be open
-at the respective end.
+at their respective ends.
 
 <pre>
 Pause(value: float, after: bool)
 </pre>
 Represents a pause of the given performance time duration.
 The pause shifts the start times of all subsequent events.
-If <code>after</code> is set, the pause occurs
+If <code>after</code> is True, the pause occurs
 after the events at the current time;
 otherwise it occurs before them.
 There can be pauses of both types (before and after)
@@ -424,7 +422,7 @@ Unlike Pause, subsequent events are not affected.
 <p>
 MNS supports three classes of timing adjustment.
 <p>
-<b>Tempo control:</b> the performance times of note starts and
+<b>Tempo control</b>: the performance times of note starts and
 ends are changed according to a 'tempo function',
 which is integrated on the intervals between events.
 The tempo function can include pauses before and/or
@@ -488,14 +486,21 @@ their integral depends on whether the PFT
 is tempo or inverse tempo.
 <p>
 <pre>
-tempo_adjust_pft(pft, selector=None, normalize=False, bpm=True)
+Score.tempo_adjust_pft(
+    pft: PFT,
+    t0: float,
+    selector=None,
+    normalize: bool =False,
+    bpm: bool =True
+)
 </pre>
 <p>
-This adjusts the performance time of the selected notes
-according to a function F specified by pft.
+This adjusts the performance time of the selected notes,
+starting at t0,
+according to the tempo function specified by the PFT.
 
 <p>
-If bpm is False, the value of F is
+If bpm is False, the value of the tempo function is
 the rate of change of performance time with respect to score time.
 The performance duration of a score-time interval
 is the integral of F over that interval.
@@ -504,31 +509,43 @@ larger values mean slower:
 2.0 means go half as fast, 0.5 means go twice as fast.
 <p>
 If "bpm" is True,
-the value of F is in beats per minute.
+the value of the tempo function is in beats per minute.
 For example, 120 means go twice as fast.
-F represents tempo rather than inverse tempo.
+The tempo function represents tempo rather than inverse tempo.
 <p>
-If "normalize" is set, F is scaled so
-that its average value is one.
+In either case, the tempo function can also contain
+Pause primitives, which represent a pause of
+a given performance time.
+<p>
+If "normalize" is set, the tempo function is scaled
+so that its average value is one;
+in other words, its start and end points remain fixed,
+but events between them can move.
 This can be used, for example, to apply rubato
 a particular voice over a given period,
 and have it synch up with other voices at the end of that period.
 <p>
-The semantics of this function (see Figure X):
+Example: Chopin
+<p>
+The semantics of tempo_adjust_pft() (see Figure X):
 <p>
 <ul>
 <li> Make a list of all "events" (note start/end, pedal start/end)
 ordered by score time.
 Each event has a score time and a performance time.
-<li> Scan this list, processing events the satisfy the note selector
-(if any) and that lie within the domain of the PFT.
+<li> Scan this list, processing events that satisfy the note selector
+(if given) and that lie within the domain of the PFT.
 <li> For each pair of consecutive events E1 and E2,
 compute the average A of the PFT between the score times of E1 and E2
 (i.e. the integral of the PFT over this interval divided by the interval size).
 <li>
 Let dt be the difference in original performance time between E1 and E2.
-Change the performance time of E2 to be A*dt seconds after
-the (updated) performance time of E1.
+Change the performance time of E2 to be
+the (updated) performance time of E1 plus A*dt.
+<li>
+What about pauses?
+before: Earlier notes that end at or after t are elongated.
+after: Notes that start at t are elongated.
 </ul>
 <center>
 <img src=timing.png width=600>
@@ -536,26 +553,17 @@ the (updated) performance time of E1.
 <b>Figure 1: The semantics of tempo control PFTs.</b>
 </center>
 <p>
-<pre>
-pause_before(t, dt)
-</pre>
-<p>
-Add a pause of dt seconds before score time t.
-Earlier notes that end at or after t are elongated.
-<p>
-<pre>
-pause_after(t, dt)
-</pre>
-<p>
-Add a pause of dt seconds after score time t.
-Notes that start at t are elongated.
 
 <h3>3.2 Time shifts</h3>
 <p>
 In the following: when change start perf time,
 adjust perf duration to keep same end time.
 <pre>
-time_shift_pft(pft: PFT, t0: float=0, selector: Selector=None)
+Score.time_shift_pft(
+    pft: PFT,
+    t0: float=0,
+    selector: Selector=None
+)
 </pre>
 For notes N that satisfy the selector
 and for which t0 < N.time <= t0+pft.duration(),
@@ -563,7 +571,12 @@ add pft.value(N.time - t0) to N.perf_time.
 This can be used to give agogic accents to notes at particular times,
 or to shift notes by continuously-varying amounts.
 <pre>
-roll(t: float, offsets: list[float], is_up=True, selector: Selector=None)
+Score.roll(
+    t: float,
+    offsets: list[float],
+    is_up=True,
+    selector: Selector=None
+)
 </pre>
 <p>
 Roll a chord.
@@ -574,45 +587,65 @@ If "is_up" is true, they are applied from bottom pitch upwards;
 otherwise from top pitch downward.
 <p>
 <pre>
-t_adjust_list(offsets: list[float], selector: Selector)
+Score.t_adjust_list(
+    offsets: list[float],
+    selector: Selector
+)
 </pre>
 <p>
 "offsets" is a list of time offsets (seconds).
 They are added to the start times of notes satisfying the selector,
 in time order.
+Example?
 <p>
 <pre>
-t_adjust_notes(offset: float, selector: Selector)
+Score.t_adjust_notes(
+    offset: float,
+    selector: Selector
+)
 </pre>
 <p>
 The given time offset (seconds) is added to the start times of
 all notes satisfying the selector.
 <p>
 <pre>
-t_adjust_func(func: NotetoFloat, selector: Selector):
+Score.t_adjust_func(
+    func: NotetoFloat,
+    selector: Selector
+):
 </pre>
 <p>
 For each note satisfying the selector,
 the given function is called with that note,
 and the result is added to the note's start time.
+Example?
 <p>
 
 <h3>3.3. Articulation</h3>
 <p>
 <pre>
-perf_dur_rel(factor: float, selector: Selector=None)
+Score.perf_dur_rel(
+    factor: float,
+    selector: Selector=None
+)
 </pre>
 <p>
 Multiply the duration of the selected notes by the given factor.
 <p>
 <pre>
-perf_dur_abs(t: float, selector: Selector=None)
+Score.perf_dur_abs(
+    t: float,
+    selector: Selector=None
+)
 </pre>
 <p>
 Set the duration of the selected notes to the given value (seconds).
 <p>
 <pre>
-perf_dur_func(f: NotetoFloat, selector: Selector=None)
+Score.perf_dur_func(
+    f: NotetoFloat,
+    selector: Selector=None
+)
 </pre>
 <p>
 Set the duration of a selected note N to the value f(N).
@@ -702,7 +735,11 @@ with values ranging from 127 to 64.
 <p>
 To apply pedal PFT to a ScoreObject starting at time t0:
 <pre>
-Score.pedal_pft(pft: PFT, type: PedalType, t0: float)
+Score.pedal_pft(
+    pft: PFT,
+    type: PedalType,
+    t0: float
+)
 </pre>
 
 <h3>4.2 Virtual sustain pedals</h3>
