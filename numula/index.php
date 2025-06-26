@@ -16,9 +16,25 @@ By 'performance nuance' we mean deviations between score and performance
 in timing, dynamics, articulation, and pedaling.
 The model allows concise expression of complex and layered nuance,
 as is typically present in human performances.
-We discuss the possible applications of these nuance specifications,
+We discuss possible applications of these nuance specifications,
 and interfaces for editing them.
 
+<ul>
+<li> <a href=#intro>Introduction</a>
+<li> <a href=#model>The MNS model</a>
+<li> <a href=#timing>Timing</a>
+<li> <a href=#pedal>Pedal control</a>
+<li> <a href=#dynamics>Dynamics</a>
+<li> <a href=#numula>Numula</a>
+<li> <a href=#examples>Examples</a>
+<li> <a href=#editing>Editing interfaces</a>
+<li> <a href=#applications>Applications of nuance specification</a>
+<li> <a href=#related>Related work</a>
+<li> <a href=#future>Future work</a>
+<li> <a href=#conclusion>Conclusion</a>
+</ul>
+
+<a name=intro></a>
 <h2>1. Introduction</h2>
 <p>
 This paper is concerned with performance nuance in notated music.
@@ -70,7 +86,7 @@ or it may be an unintended consequence of the performer's technique.
 
 <p>
 To some performers, nuance is ineffable &mdash;
-it's something magical that happens during performances,
+it happens magically during performances,
 and to analyze or formalize it is pointless.
 This viewpoint is understandable.
 But as music evolves,
@@ -84,7 +100,7 @@ rather, it will provide tools that can enhance these processes
 and that enable new ways of making music.
 
 <p>
-Here we present such a formalism,
+We present such a formalism,
 called MNS (Musical Nuance Specification).
 MNS is analogous to
 <a href=https://en.wikipedia.org/wiki/CSS>Cascading Style Sheets</a>
@@ -120,8 +136,8 @@ This represents a set of transformations that
 are applied to a ScoreObject to produce a rendition of the work.
 </ul>
 <p>
-MNS defines the structure of MNS specifications,
-and the semantics of applying these specifications to ScoreObjects.
+MNS defines the structure of the specifications,
+and the semantics of applying them to ScoreObjects.
 It does not dictate how these abstractions are implemented.
 A ScoreObject could correspond to a MusicXML file,
 a Music21 object hierarchy, or a MIDI file.
@@ -155,6 +171,7 @@ and and MNS spec (Python code).
 The remainder of this paper is structured as follows:
 Section 2 describes the basics of MNS.
 
+<a name=model></a>
 <h2>2. The MNS model</h2>
 <h3>2.1 Time</h3>
 <p>
@@ -402,20 +419,19 @@ in which melody notes are brought out by
 shifting them slightly after accompaniment notes.
 Unlike Pause, subsequent events are not affected.
 
+<a name=timing></a>
 <h2>3. Timing</h2>
 <p>
 MNS supports three classes of timing adjustment.
-<ul>
-<li>
-Tempo control: the performance times of note starts and
+<p>
+<b>Tempo control:</b> the performance times of note starts and
 ends are changed according to a 'tempo function',
 which is integrated on the intervals between events.
 The tempo function can include pauses before and/or
 after particular score times.
 Tempo functions are represented as PFTs.
-
-<li>
-Time shifting.
+<p>
+<b>Time shifting</b>.
 Notes can be shifted &mdash; moved earlier or later &mdash;
 in performance time.
 Generally the duration is changed so that the end time of the note
@@ -427,16 +443,14 @@ For example, you can "roll" a chord with specified shifts for each chord note.
 You can specify, using a PFT,
 a pattern of shifts for creating "agogic accents"
 in which melody notes are played slightly after accompaniment notes.
-
-<li>
-Articulation control: Note durations
+<p>
+<b>Articulation control:</b> Note durations
 (in either score time or performance time)
 can be scaled or set to particular values,
 to express legato, portamento, and staccato.
 You can do this in various ways,
 including continuous variation of articulation using a PFT.
 
-</ul>
 <p>
 These adjustments can be layered.
 For example, you could use several layers of tempo adjustment,
@@ -615,6 +629,7 @@ A typical order of adjustments (see Section X):
 <li> Shift PFTs
 </ul>
 
+<a name=pedal></a>
 <h2>4. Pedal control</h2>
 <h3>4.1 Standard pedals</h3>
 <p>
@@ -642,8 +657,8 @@ and implement fractional pedaling for each one.
 <p>
 Like other aspects of nuance,
 pedaling is critical to the sound of a performance,
-but it is seldom notated at all,
-much less in a complete and precise way.
+but few scores notate it at all,
+much less completely and precisely.
 <p>
 MNS provides a mechanism for specifying pedal use.
 The level of a particular pedal can be specified as a PFT
@@ -651,7 +666,6 @@ consisting of Linear primitives with value in [0,1],
 where 1 means the pedal is fully depressed
 and 0 means it's lifted.
 <p>
-<ul>
 When a pedal change is simultaneous with notes,
 we need to be able to specify
 whether the change occurs before or after the notes are played.
@@ -660,11 +674,11 @@ we also need to be able to specify momentary lifting of the pedal.
 We handle these requirements using the closure attributes
 of PFT primitives.
 Suppose that P1 and P2 are consecutive primitives;
-P1 ends and P2 begins at a time t,
-and some notes start at t.
-The semantics of the PFT
-depend on the closures of P1 and P2 as follows:
-<table>
+P1 ends and P2 begins at time t,
+and one or more notes start at t.
+The semantics of the PFT depend on the closure of P1 and P2 as follows:
+<p>
+<table border=1>
 <tr><td>end of P1</td><td>start of P2</td></tr>
 <tr><td>open</td><td>open</td><td>lift pedal, play notes, pedal X</td></tr>
 <tr><td>open</td><td>closed</td><td>lift pedal, pedal X, play notes</td></tr>
@@ -673,8 +687,8 @@ depend on the closures of P1 and P2 as follows:
 <table>
 
 <p>
-The Linear primitive allows expression of changing
-fractional pedal.
+The Linear primitive allows expression of
+continuously-changing fractional pedal.
 For example,
 <code>
 Linear(1/1, 1.0, .5)
@@ -686,9 +700,9 @@ a sequence of continuous-controller commands
 with values ranging from 127 to 64.
 
 <p>
-A pedal PFT can be applied to a ScoreObject using
+To apply pedal PFT to a ScoreObject starting at time t0:
 <pre>
-pedal_pft(pft: PFT, type: PedalType, t0: float)
+Score.pedal_pft(pft: PFT, type: PedalType, t0: float)
 </pre>
 
 <h3>4.2 Virtual sustain pedals</h3>
@@ -706,7 +720,11 @@ is specified by the same type of PFT as for standard pedals;
 the only allowed values are 0 (pedal off) or 1 (pedal on).
 Such a PFT is applied to a score with
 <pre>
-vsustain_pft(pft: PFT, t0: float, selector: Selector)
+Score.vsustain_pft(
+    pft: PFT,
+    t0: float,
+    selector: Selector
+)
 </pre>
 The semantics are: if a note N is selected,
 and the pedal is on at its start (score) time,
@@ -739,6 +757,7 @@ Uses of the standard pedals can't be layered;
 that is, two PFTs controlling a particular pedal can't overlap in time.
 However, virtual sustain PFTs can overlap standard pedal PFTs.
 
+<a name=dynamics></a>
 <h2>5. Dynamics</h2>
 <p>
 In MNS, the volume of a note is represented by floating point 0..1
@@ -772,7 +791,11 @@ Multiple adjustments can result in levels > 1; if this happens, a warning messag
 The primitive
 <p>
 <pre>
-vol_adjust_pft(pft: PFT, t0: float=0, selector=None)
+Score.vol_adjust_pft(
+    pft: PFT,
+    t0: float=0,
+    selector=None
+)
 </pre>
 <p>
 adjusts the volume of a set of notes according to a function of time.
@@ -789,8 +812,14 @@ the tag used for that voice.
 Other primitives adjust volume explicitly
 (not necessarily as a function of time).
 <pre>
-vol_adjust(factor: float, selector=None)
-vol_adjust(func, selector=None)
+Score.vol_adjust(
+    factor: float,
+    selector: Selector=None
+)
+Score.vol_adjust(
+    func: NoteToFloat,
+    selector: Selector=None
+)
 </pre>
 These adjust the volumes of the selected notes.
 If the 1st argument is a function,
@@ -799,16 +828,16 @@ Otherwise the 1st argument is an adjustment factor.
 For example,
 <p>
 <pre>
-vol_adjust(lambda n: random.normal()*.01)
+score.vol_adjust(lambda n: random.normal()*.01)
 </pre>
 <p>
 makes a small normally-distributed adjustment to the volume of all notes.
 
 <p>
 <pre>
-vol_adjust(ns, .9, lambda n: n.measure_offset == 2)
-vol_adjust(ns, .8, lambda n: n.measure_offset in [1,3])
-vol_adjust(ns, .7, lambda n: n.measure_offset not in [0,1,2,3])
+score.vol_adjust(ns, .9, lambda n: n.measure_offset == 2)
+score.vol_adjust(ns, .8, lambda n: n.measure_offset in [1,3])
+score.vol_adjust(ns, .7, lambda n: n.measure_offset not in [0,1,2,3])
 </pre>
 <p>
 emphasizes the strong beats of 4/4 measures.
@@ -826,6 +855,7 @@ Typically the order is:
 <li> adjustments set volume to specific values
 </ul>
 
+<a name=numula></a>
 <h2>6. Numula</h2>
 <p>
 Numula has 
@@ -850,8 +880,7 @@ volume
 pedal
 
 
-
-
+<a name=examples></a>
 <h2>7. Examples</h2>
 <p>
 Appassionata
@@ -913,6 +942,7 @@ nuance specification.
 <li> Work on one layer at a time.
 </ul>
 
+<a name=editing></a>
 <h2>8. Editing interfaces</h2>
 <p>
 What kind of UI (user interface) would facilitate creating
@@ -1031,6 +1061,7 @@ Type:
 <li> space to play the selected part of the score.
 </ul>
 
+<a name=applications></a>
 <h2>9. Applications of nuance specification</h2>
 <p>
 Let's assume that we have a formalism describing nuance,
@@ -1086,7 +1117,9 @@ This would provide a framework for sharing and discussing interpretations.
 <a name=mns></a>
 <p>
 
+<a name=related></a>
 <h2>10. Related work</h2>
+<a name=future></a>
 <h2>11. Future work</h2>
 
 <h3>11.2 Note selection</h3>
@@ -1178,7 +1211,8 @@ There has been some research in this general area.
 Some papers study the statistics of deviation from the score,
 but not the actual modeling of it.
 
-<h2>12. Conclusions</h2>
+<a name=conclusion></a>
+<h2>12. Conclusion</h2>
 <p>
 Rich Kraft contributed ...
 
