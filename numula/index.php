@@ -1,11 +1,13 @@
 <?php
 
-$score = '<code style="font-size: 18px;">Score</code>';
-$note = '<code style="font-size: 18px;">Note</code>';
-$measure = '<code style="font-size: 18px;">Measure</code>';
+$score = 'NScore';
+$note = 'NNote';
+$measure = 'NMeasure';
+$mns = 'MNS';
 
 echo "
 <div style=\"max-width: 700px; font-family:Trebuchet MS; line-height:1.4\" align=justify>
+<a href=outline.html>Outline</a>
 <center>
 <h1>Specifying and inferring nuance in notated music</h1>
 
@@ -20,9 +22,9 @@ June 1, 2025
 Performances of notated music typically deviate from the score
 in timing, dynamics, articulation, and pedaling.
 We call these deviations 'performance nuance'.
-We present a model, Musical Nuance Specification (MNS),
+We present a model, Musical Nuance Specification ($mns),
 for describing performance nuance in notated keyboard music.
-MNS allows concise and precise expression of 'hi-res' nuance,
+$mns allows concise and precise expression of 'hi-res' nuance,
 which can closely approximate the complex nuance
 found in typical human performance.
 
@@ -35,27 +37,6 @@ and the possible interfaces for creating and editing nuance specifications.
 It is also possible to 'infer' hi-res nuance specifications
 from recorded human performances.
 This enables various studies of performance practice.
-
-<ul>
-<li> <a href=#intro>Introduction</a>
-    <ul>
-    <li> Performance nuance
-    <li> Describing nuance
-    <li> The structure of nuance
-    </ul>
-<li> <a href=#model>The MNS model</a>
-<li> <a href=#timing>Timing</a>
-<li> <a href=#pedal>Pedal control</a>
-<li> <a href=#dynamics>Dynamics</a>
-<li> <a href=#numula>Numula</a>
-<li> <a href=#examples>Examples</a>
-<li> <a href=#editing>Editing interfaces</a>
-<li> <a href=#applications>Applications of nuance specification</a>
-<li> <a href=#applications>Applications of nuance inference</a>
-<li> <a href=#related>Related work</a>
-<li> <a href=#future>Future work</a>
-<li> <a href=#conclusion>Conclusion</a>
-</ul>
 
 <a name=intro></a>
 <h2>1. Introduction</h2>
@@ -148,7 +129,7 @@ and it has worked in practice (see section X).
 A nuance specification starts with a 'score':
 a set of notes with pitches, start times, and durations.
 It applies a sequence of 'transformations' to the score,
-each of which modifies paramters of some or all of the notes.
+each of which modifies parameters of some or all of the notes.
 <p>
 There are two general types of transformations:
 
@@ -164,7 +145,7 @@ whole notes or 64ths.
 <li> Discrete:
 pauses (tempo) and accents (volume).
 These occur at specific points in time.
-They may occur in repeating patterns,
+They may occur in repeating time patterns,
 at irregular times, or at single times.
 </ul>
 <p>
@@ -183,38 +164,38 @@ or pauses within a measure).
 or agogic accents on particular melody notes).
 </ul>
 
-<h3>1.3  Musical Nuance Specification (MNS)</h3>
+<h3>1.3  Musical Nuance Specification ($mns)</h3>
 
 <p>
 We new describe our nuance specification formalism in detail.
-We call it MNS (Musical Nuance Specification).
+We call it $mns (Musical Nuance Specification).
 <p>
-MNS is an abstract model that can be implemented in several ways.
+$mns is an abstract model that can be implemented in several ways.
 It defines two classes:
 <ul>
 <li> $score.
 This represents the basic parts of a musical work:
 note pitches and notated timings, and measure boundaries if present.
-<li> <b>MNS specification</b>.
+<li> <b>$mns specification</b>.
 This represents a set of transformations that
 are applied to a $score to produce a rendition of the work.
 </ul>
 <p>
-MNS defines the structure of the specifications,
+$mns defines the structure of the specifications,
 and the semantics of applying them to ".$score."s.
 It does not dictate how these abstractions are implemented.
 A $score could correspond to a MusicXML file,
 a Music21 object hierarchy, or a MIDI file.
 These embodiments may contain additional information &mdash;
 slurs, dynamic markings, note stem directions, etc. &mdash;
-that are not included in the ScoreObject.
-An MNS specification could be represented as a JSON or XML document.
+that are not included in the $score.
+An $mns specification could be represented as a JSON or XML document.
 
 <p>
-In this paper we describe $score s and MNS specifications
+In this paper we describe $score objects and $mns specifications
 in terms of Python data structures and functions.
 <p>
-MNS could be used in a variety of musical contexts.
+$mns could be used in a variety of musical contexts.
 For example, it could be used in combination
 with a graphical score editor to generate a MIDI-based
 rendition of a composition; see Figure 1.
@@ -222,44 +203,47 @@ rendition of a composition; see Figure 1.
 <center>
 <img src=flow.gif width=400>
 <br>
-Figure 1: MNS as part of a system for composition.
+Figure 1: $mns as part of a system for composition.
 </center>
 <p>
-Section X discusses other possible applications of MNS.
+Section X discusses other possible applications of $mns.
 <p>
-We have implemented an MNS interpreter in a Python library called Numula
+We have implemented an $mns interpreter in a Python library called Numula
 (see Section x).
-Takes a ScoreObject (a Python data structure)
-and and MNS spec (Python code).
+Takes a $score (a Python data structure)
+and and $mns spec (Python code).
 
 <p>
 The remainder of this paper is structured as follows:
-Section 2 describes the basics of MNS.
+Section 2 describes the basics of $mns.
 
 <p>
 
 <a name=model></a>
-<h2>2. The MNS model</h2>
+<h2>2. The $mns model</h2>
 <h3>2.1 Time</h3>
 <p>
-MNS uses two notions of time:
+$mns uses two notions of time:
 <ul>
 <li> 'Score time': time as notated in a score,
 represented as floating-point numbers.
 The scale is arbitrary,
 but our convention is that the unit is a 4-beat measure.
-Thus 0.25 (1/4) is a quarter note and so on.
-<li> 'Performance time': a modified version of score time.
-In the final result of applying
-an MNS specification, performance time is real time, measured in seconds.
+Thus, 0.25 (1/4) is a quarter note, and so on.
+<li> 'Performance time': a transformed version of score time.
+In the final result of applying an $mns specification to a score,
+performance time is real time, measured in seconds.
 </ul>
 
 <p>
 
 <h3>2.2 $score</h3>
 <p>
+The class $score represents the skeleton of a composition:
+the notes and measures.
+
 <p>
-A $score includes a set of $note objects.
+The class $note represents a note.
 The attributes of a $note N include:
 <ul>
 <li> Its start time <code>N.time</code> and duration
@@ -285,22 +269,24 @@ with the same start time as `n`, and `n.nchord_pos` is `n`'s pitch order in this
 </ul>
 
 <p>
-A $score can include a set of $measure objects.
-Each is described by its start time and duration,
+The class $measure$ represent a measure.
+Each measure is described by its start time and duration,
 which are score times.
 Measures must be non-overlapping.
 A Measure can also have a 'type' tag,
 typically a string representing the measure's
 duration and structure (e.g. '2+2+3/8').
 <p>
-If measures are specified,
-a note N has two additional attributes:
+If a note N lies within a measure, it has two additional attributes:
 <ul>
 <li>
 N.measure_offset: the time offset from the last measure start.
 <li>
 N.measure_type: the type of the measure.
 </ul>
+<p>
+If a note lies on the boundary between two measures,
+it's considered to be in the second one.
 
 <h3>2.3 Note selectors</h3>
 <p>
@@ -321,7 +307,7 @@ at a particular measure offset, and so on.
 <p>
 In Python, note selectors are of the type
 <pre>
-type Selector = Callable[[Note], bool] | None
+type Selector = Callable[[$note], bool] | None
 </pre>
 <p>
 
@@ -329,13 +315,42 @@ type Selector = Callable[[Note], bool] | None
 <p>
 Many components of nuance involve quantities
 (like tempo and volume) that change over time.
-In MNS, these are typically described as functions of (score) time.
+In $mns, these are typically described as functions of score time.
 These functions are specified as a sequence of 'primitives',
-each of which represents
-a parameterized function defined over a time interval with a given duration.
 A function defined in this way is called a 'piecewise function of time' (PFT).
 <p>
-For example, in Python
+In Python, PFT primitives are represented by objects
+derived from a base class PFTPrimitive.
+There are two kinds of PFT primitives:
+<p>
+'Interval primitives' 
+describe a function over a time interval [0, dt] where dt>0.
+Examples:
+<pre>
+class Linear(PFTPrimitive)      # a linear function
+class ExpCurve(PFTPrimitive)    # an exponential function
+</pre>
+Primitives could be defined for other functions
+(polynomial, spline, etc.).
+
+<p>
+'Momentary primitives'
+represent a value at a single moment;
+they have zero duration.
+Examples:
+<pre>
+class Accent(PFTPrimitive)      # an accent (volume)
+class Pause(PFTPrimitive)       # a pause (timing)
+class Shift(PFTPrimitive)       # a time shift (timing)
+</pre>
+<p>
+PFTs are represented by lists of PFT primitives:
+<pre>
+type PFT = list[PFTPrimitive]
+</pre>
+
+<p>
+For example:
 <pre>
 [
     Linear(25, 15, 2/1, closed_start = True)
@@ -344,7 +359,7 @@ For example, in Python
 ]
 </pre>
 <p>
-might define a function that varies linearly
+defines a function that varies linearly
 from 25 to 15 over 2 4-beat measures,
 from 15 to 20 over 1 measure,
 then from 10 to 15 over 2 measures.
@@ -355,17 +370,7 @@ then from 10 to 15 over 2 measures.
 Figure 2: A piecewise function of time is a concatenation of primitives.
 </center>
 <p>
-There are two types of PFT primitives:
-<ul>
-<li> 'Interval primitives' 
-describe a function over a time interval [0, dt] where dt>0.
-<li> 'Momentary primitives' have zero duration.
-There are variants for tempo control (representing pauses)
-and volume control (representing accents).
-</ul>
-<p>
-Interval primitives are objects.
-Depending on their use, they
+Depending on their use, interval primitives objects
 may define various members functions:
 <p>
 <pre>
@@ -386,15 +391,12 @@ integral_reciprocal(t: float): float
 </pre>
 the integral of the reciprocal of F from 0 to t.
 <p>
-MNS uses PFTs for several purposes.
+$mns uses PFTs for several purposes.
 When a PFT is used to describe tempo (see below)
 its integrals are used, not its values,
 and closure at endpoints is not relevant.
 When a PFT is used to describe volume,
 the value is used, and closure matters.
-<p>
-There are potentially many types of PFT primitives (see Section x).
-We describe two such types.
 <p>
 <h3>2.2.1 Linear PFT primitive</h3>
 <p>
@@ -493,17 +495,9 @@ Unlike Pause, subsequent events are not affected.
 
 <a name=timing></a>
 
-<p>
-In Python, PFT primitives
-are derived from a base class <code>PFT_Primitive</code>,
-and PFTs are objects of the type
-<pre>
-type PFT = list[PFT_Primitive]
-</pre>
-
 <h2>3. Timing</h2>
 <p>
-MNS supports three classes of timing adjustment.
+$mns supports three kinds of timing adjustment.
 <p>
 <b>Tempo control</b>: the performance times of note starts and
 ends are changed according to a 'tempo function',
@@ -519,7 +513,7 @@ Generally the duration is changed so that the end time of the note
 remains fixed.
 Other notes are not changed
 (unlike pauses, which postpone all subsequent notes).
-MNS defines several time-shift transformations:
+$mns defines several time-shift transformations:
 for example,
 'rolling' a chord with specified shifts for each chord note,
 or using a PFT to specify varying 'agogic accents'
@@ -555,7 +549,7 @@ with respect to performance time.
 The PFT scales time by
 the integral of the inverse of the PFT.
 <li> Pseudo-tempo:
-an approximation to tempo for primitive types  where
+an approximation to tempo for PFT primitive types where
 it's hard to compute the integral of the inverse.
 Instead, we invert the tempo parameters of
 the PFT primitives, and treat that as a slowness function.
@@ -609,7 +603,7 @@ and have it synch up with other voices at the end of that period.
 <p>
 Example: Chopin
 <p>
-The semantics of tempo_adjust_pft() (see Figure X):
+The semantics of tempo_adjust_pft() are as follows (see Figure X):
 <p>
 <ul>
 <li> Make a list of all 'events' (note start/end, pedal start/end)
@@ -776,7 +770,7 @@ pedaling is critical to the sound of a performance,
 but few scores notate it at all,
 much less completely and precisely.
 <p>
-MNS provides a mechanism for specifying pedal use.
+$mns provides a mechanism for specifying pedal use.
 The level of a particular pedal can be specified as a PFT
 consisting of Linear primitives with value in [0,1],
 where 1 means the pedal is fully depressed
@@ -794,11 +788,11 @@ P1 ends and P2 begins at time t,
 and one or more notes start at t.
 The semantics of the PFT depend on the closure of P1 and P2 as follows:
 <p>
-<table border=1>
-<tr><td>end of P1</td><td>start of P2</td></tr>
+<table border=1 cellpadding=4>
+<tr><td>end of P1</td><td>start of P2</td><td></td></tr>
 <tr><td>open</td><td>open</td><td>lift pedal, play notes, pedal X</td></tr>
 <tr><td>open</td><td>closed</td><td>lift pedal, pedal X, play notes</td></tr>
-<tr><td>closed</td><td>open</td><td>play notes, </td></tr>
+<tr><td>closed</td><td>open</td><td>play notes</td></tr>
 <tr><td>closed</td><td>closed</td><td>play notes, pedal X</td></tr>
 <table>
 
@@ -816,7 +810,7 @@ a sequence of continuous-controller commands
 with values ranging from 127 to 64.
 
 <p>
-To apply pedal PFT to a ScoreObject starting at time t0:
+To apply pedal PFT to a $score starting at time t0:
 <pre>
 Score.pedal_pft(
     pft: PFT,
@@ -831,7 +825,7 @@ Sometimes it's useful to sustain only certain keys.
 The sustain pedal can't do this: it affects all keys.
 The sostenuto pedal affects a subset of keys,
 but its semantics limit its use to a fairly small set of situations.
-MNS has a mechanism called 'virtual sustain pedal'
+$mns has a mechanism called 'virtual sustain pedal'
 that is like a sustain pedal that applies to only a specific subset of notes.
 
 <p>
@@ -861,7 +855,7 @@ Compared to standard sustain pedals,
 virtual sustain pedals are more flexible
 in terms of what keys are sustained.
 They lack two features of standard pedals: there is no fractional pedal,
-and no sympathetic resonance of open strings.
+and, acoustically, there is no sympathetic resonance of open strings.
 
 <h3>4.3 Implementation and layering of pedal specifications</h3>
 <p>
@@ -880,7 +874,7 @@ However, virtual sustain PFTs can overlap standard pedal PFTs.
 <a name=dynamics></a>
 <h2>5. Dynamics</h2>
 <p>
-In MNS, the volume of a note is represented by floating point 0..1
+In $mns, the volume of a note is represented by floating point 0..1
 (soft to loud).
 This may be mapped to a MIDI velocity (0..127),
 in which case the actual loudness depends on the synthesis engine.
@@ -978,7 +972,7 @@ Typically the order is:
 <a name=numula></a>
 <h2>6. Numula</h2>
 <p>
-Numula is a Python library that implements MNS.
+Numula is a Python library that implements $mns.
 It implements the classes listed above:
 Score, Note, PFT, etc.
 Its Score class implements the transformation functions.
@@ -988,7 +982,7 @@ completely in Python.
 picture:
 score shorthand -> Score object
 nuance shorthand -> PFTs
-                -> MNS engine
+                -> $mns engine
                 -> MIDI
 
 MIDI file -> Score object
@@ -1008,7 +1002,7 @@ pedal
 <a name=examples></a>
 <h2>7. Examples</h2>
 <p>
-We have used MNS to create nuanced performances
+We have used Numula to create nuanced performances
 of piano pieces in a variety of styles,
 ranging from Beethoven to Berio.
 Our goal was to create performances that approximated
@@ -1055,7 +1049,7 @@ Pedal control:
 
 <h3>7.2 The process of developing a nuance specification</h3>
 <p>
-Developing a nuanced performance of a work with MNS is
+Developing a nuanced performance of a work with $mns is
 analogous to practicing on a physical instrument.
 One starts by developing a mental model of the piece
 and a 'rough draft' of a nuance specification.
@@ -1272,7 +1266,7 @@ or different countries or conservatories.
 <a name=related></a>
 <h2>10. Related work</h2>
 <p>
-MNS is analogous to
+$mns is analogous to
 <a href=https://en.wikipedia.org/wiki/CSS>Cascading Style Sheets</a>
 (CSS),
 a system for specifying the appearance of web pages.
@@ -1293,13 +1287,13 @@ using 'selectors' involving the element tags, classes, and IDs.
 </ul>
 
 <p>
-MNS has similar properties.
+$mns has similar properties.
 <a name=future></a>
 <h2>11. Future work</h2>
 
 <h3>11.2 Note selection</h3>
 <p>
-MNS's selection mechanism is low-level:
+$mns's selection mechanism is low-level:
 notes are tagged based on their pitch position and metric position,
 and can be tagged explicitly.
 One can imagine higher-level ways of selecting notes,
@@ -1316,11 +1310,11 @@ or accents on the high points of phrases.
 <p>
 <h3>7.3 Non-keyboard instruments</h3>
 <p>
-MNS could be extended to handle scores with multiple instruments.
+$mns could be extended to handle scores with multiple instruments.
 Note tags could include the instrument type
 (e.g. 'violin') and instance (e.g. 'violin 1').
 <p>
-MNS could be extended to include other note parameters:
+$mns could be extended to include other note parameters:
 <ul>
 <li> Attack parameters.
 <li> Variation in pitch, timbre or volume during a note.
@@ -1328,7 +1322,7 @@ MNS could be extended to include other note parameters:
 
 <h3>11.1 PFT primitives</h3>
 <p>
-MNS currently defines linear and exponential primitive,
+$mns currently defines linear and exponential primitive,
 and various delta functions.
 Many other primitives are possible:
 polynomial, logarithmic, trigonometric, spline functions, and so on.
@@ -1339,7 +1333,7 @@ each with a small number of parameters,
 that can achieve the desired specifications &mdash;
 for example, that can closely approximate typical human performances.
 <p>
-MNS, for example, has linear and exponential primitives
+$mns, for example, has linear and exponential primitives
 for tempo and volume change.
 These were easy to implement &mdash; but can they approximate
 ritardandos and accelerandos in practice?

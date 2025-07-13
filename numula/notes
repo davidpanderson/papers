@@ -65,4 +65,14 @@ error E(spec, rendition)
             periods
             nationalities
             schools e.g. Juliard
+------------------
+volume PFTs:
+a linear segment is linear in score time -
+not performance time, if there are tempo transformations.
+Same for exp and other functions.
 
+It would be possible to make the volume change linear in perf time.
+- Find the start and end perf times of the volume primitive.
+    (insert marker events if needed)
+- Go through notes in the range of score times
+    and adjust volume based on PFT value at their perf time.
