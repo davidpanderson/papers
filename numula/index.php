@@ -1,6 +1,13 @@
-<div style="max-width: 700px; font-family:Trebuchet MS; line-height:1.4" align=justify>
+<?php
+
+$score = '<code style="font-size: 18px;">Score</code>';
+$note = '<code style="font-size: 18px;">Note</code>';
+$measure = '<code style="font-size: 18px;">Measure</code>';
+
+echo "
+<div style=\"max-width: 700px; font-family:Trebuchet MS; line-height:1.4\" align=justify>
 <center>
-<h1>Specifying nuance in notated music</h1>
+<h1>Specifying and inferring nuance in notated music</h1>
 
 <p>
 David P. Anderson
@@ -10,17 +17,32 @@ June 1, 2025
 
 <h2>Abstract</h2>
 
-We present a model for describing performance nuance
-in notated keyboard music.
-By 'performance nuance' we mean deviations between score and performance
+Performances of notated music typically deviate from the score
 in timing, dynamics, articulation, and pedaling.
-The model allows concise expression of complex and layered nuance,
-as is typically present in human performances.
-We discuss possible applications of these nuance specifications,
-and interfaces for editing them.
+We call these deviations 'performance nuance'.
+We present a model, Musical Nuance Specification (MNS),
+for describing performance nuance in notated keyboard music.
+MNS allows concise and precise expression of 'hi-res' nuance,
+which can closely approximate the complex nuance
+found in typical human performance.
+
+<p>
+The ability to describe hi-res nuance creates many musical possibilities.
+Some of these involve nuance specifications created by humans.
+This has application in composition, virtual performance, musical pedagogy.
+We describe these applications,
+and the possible interfaces for creating and editing nuance specifications.
+It is also possible to 'infer' hi-res nuance specifications
+from recorded human performances.
+This enables various studies of performance practice.
 
 <ul>
 <li> <a href=#intro>Introduction</a>
+    <ul>
+    <li> Performance nuance
+    <li> Describing nuance
+    <li> The structure of nuance
+    </ul>
 <li> <a href=#model>The MNS model</a>
 <li> <a href=#timing>Timing</a>
 <li> <a href=#pedal>Pedal control</a>
@@ -29,6 +51,7 @@ and interfaces for editing them.
 <li> <a href=#examples>Examples</a>
 <li> <a href=#editing>Editing interfaces</a>
 <li> <a href=#applications>Applications of nuance specification</a>
+<li> <a href=#applications>Applications of nuance inference</a>
 <li> <a href=#related>Related work</a>
 <li> <a href=#future>Future work</a>
 <li> <a href=#conclusion>Conclusion</a>
@@ -36,26 +59,38 @@ and interfaces for editing them.
 
 <a name=intro></a>
 <h2>1. Introduction</h2>
+<h3>1.1  Performance nuance</h3>
 <p>
-This paper is concerned with performance nuance in notated music.
+This paper is concerned with 'performance nuance' in notated music.
+By this we mean the difference between the music as notated
+and the music as performed.
 We focus on keyboard instruments such as piano.
-For other instruments (and voice)
-a note has additional properties such as attack and timbre,
-and its properties may change during the note.
-The ideas presented here do not encompass these additional factors,
-but could be extended to do so.
-<p>
-In the context of keyboard music, nuance has several components:
+In this context, nuance has several components:
 <p>
 <ul>
-<li> Timing: tempo variation, rubato, pauses, rolled
-or other non-simultaneous chords, etc.
+<li> Timing: tempo variation, rubato, pauses, rolled chords
+and other time-shifting of notes.
 <li> Dynamics: crescendos and diminuendos, accents, voicing, etc.
 <li> Articulation: legato, staccato, portamento, etc.
 <li> The use of pedal (sustain, soft, sostenuto).
 </ul>
+For other instruments, and voice,
+notes have additional properties such as attack and timbre,
+and these properties may change during the note.
+The ideas presented here do not encompass these additional factors,
+but could be extended to do so.
 <p>
-Some scores have indications of nuance:
+The role of nuance varies between genres and composers.
+In many cases - for example, Romantic-era piano music -
+nuance is a critical component in the expression of a performance,
+and the deviations from the score
+(for example, local tempo fluctuations)
+can be significant.
+
+<h3>1.2  Describing nuance</h3>
+<p>
+We are concerned with how to describe nuance.
+Some scores have nuance indications:
 tempo markings, slurs, crescendo marks, fermatas, pedal markings, etc.
 These do not completely describe the nuance in a human rendition, because:
 <ul>
@@ -65,81 +100,110 @@ or how much silence follows.
 <li> The indications are ambiguous:
 the meaning of marks such as slurs, wedges, and staccato dots
 has changed over time, and varies between composers.
-Malcolm Bilson "Knowing the score"
+Malcolm Bilson \"Knowing the score\"
 <li> The indications are incomplete:
 they describe the broad strokes of the composer's intended nuance,
 but not the details.
 Indeed, western music notation is unable to express
-basic aspects of nuance such as chord voicing dynamics
-(the relative dynamics of simultaneous notes).
+basic aspects of nuance such the relative dynamics of notes in a chord.
 </ul>
 <p>
-A computer rendition of a work using only the score's nuance indications
-typically sounds mechanical.
-<p>
-Some musical styles have associated conventions for nuance.
-Score markings and stylistic conventions are just guidelines.
-In the end, nuance is up to the performer.
-Nuance may be planned in advance,
-it may be spontaneous during a particular performance,
-or it may be an unintended consequence of the performer's technique.
+In a typical human performance, nuance is guided by score indications
+but has other factors:
+
+<li> the expressive intent of the performer;
+<li> stylistic conventions (as understood by the performer);
+<li> consequences of the performer's technique.
 
 <p>
-To some performers, nuance is ineffable &mdash;
-it happens magically during performances,
-and to analyze or formalize it is pointless.
-This viewpoint is understandable.
-But as music evolves,
-and as computers are increasingly important tools for
-composition, pedagogy, and performance,
-there are reasons to expand our ability to represent and manipulate nuance:
-to make it a first-class citizen, along with scores and sounds.
-Doing so will not replace the human component of nuance,
-or the spontaneity of performance;
+Our goal in this paper is to study how nuance can be described
+more thoroughly than with score indications.
+We seek to define a language for describing nuance:
+what we will call \"high-resolution nuance specification\".
+This should have these properties:
+
+<li> It's a formal language, with precisely-defined semantics.
+<li> It can describe typical human nuance in a compact way;
+for example, idioms like crescendos are described in a single primitive
+rather than by per-note deviations.
+This facilitates editing and visualizing nuance.
+
+<p>
+As music evolves, and as computers are increasingly important tools for
+composition, pedagogy, and performance.
+High-resolution nuance specification makes nuance a first-class citizen,
+along with scores and sounds.
+This will not replace the human component of nuance,
+or the spontaneity of live performance;
 rather, it will provide tools that can enhance these processes
 and that enable new ways of making music.
 
+<h3>1.3  The structure of nuance</h3>
 <p>
-We present such a formalism,
-called MNS (Musical Nuance Specification).
-MNS is analogous to
-<a href=https://en.wikipedia.org/wiki/CSS>Cascading Style Sheets</a>
-(CSS),
-a system for specifying the appearance of web pages.
-The properties of CSS include:
+Before getting into details,
+we describe the framework of our approach.
+This framework corresponds to the intuition of performers,
+and it has worked in practice (see section X).
+<p>
+A nuance specification starts with a 'score':
+a set of notes with pitches, start times, and durations.
+It applies a sequence of 'transformations' to the score,
+each of which modifies paramters of some or all of the notes.
+<p>
+There are two general types of transformations:
+
 <ul>
-<li> A CSS specification is separate from the web page
-(which is typically described in HTML and/or Javascript).
-When a CSS specification is applied to a web page,
-it can change the attributes of the page's elements
-(size, color, etc.) and the layout of the page.
+<li> Continuous:
+a smooth (or piecewise smooth) change in tempo, volume,
+or other parameter.
+For keyboard music they affect only note starts and ends,
+but conceptually they are continuous.
+The same transformation could be applied to
+whole notes or 64ths.
 
-<li> CSS files can be "layered".
-They are applied in a particular order,
-and later files can extend or override the effects of earlier files.
-
-<li> CSS specifications can refer to subsets of the HTML elements
-using 'selectors' involving the element tags, classes, and IDs.
+<li> Discrete:
+pauses (tempo) and accents (volume).
+These occur at specific points in time.
+They may occur in repeating patterns,
+at irregular times, or at single times.
+</ul>
+<p>
+We developed nuance specifications to produced
+renditions of piano pieces in a variety of styles,
+with the goal of approximating human performances.
+We found that, to do this, we ended up using
+<li> One or more layers of continous transformation:
+typically a layer at the phrase level (1-8 measures or so)
+and a layer at shorter time scale (1-4 beats).
+<li> A layer of repeating discrete change
+(for example, patterns of accents on the beats within a measure,
+or pauses within a measure).
+<li> A layer of irregular discrete change
+(for example, pauses at phrase ends,
+or agogic accents on particular melody notes).
 </ul>
 
+<h3>1.3  Musical Nuance Specification (MNS)</h3>
+
 <p>
-MNS has similar properties.
+We new describe our nuance specification formalism in detail.
+We call it MNS (Musical Nuance Specification).
 <p>
-MNS is conceptual.
-It defines two abstract classes:
+MNS is an abstract model that can be implemented in several ways.
+It defines two classes:
 <ul>
-<li> <b>ScoreObject</b>.
+<li> $score.
 This represents the basic parts of a musical work:
 note pitches and notated timings, and measure boundaries if present.
 <li> <b>MNS specification</b>.
 This represents a set of transformations that
-are applied to a ScoreObject to produce a rendition of the work.
+are applied to a $score to produce a rendition of the work.
 </ul>
 <p>
 MNS defines the structure of the specifications,
-and the semantics of applying them to ScoreObjects.
+and the semantics of applying them to ".$score."s.
 It does not dictate how these abstractions are implemented.
-A ScoreObject could correspond to a MusicXML file,
+A $score could correspond to a MusicXML file,
 a Music21 object hierarchy, or a MIDI file.
 These embodiments may contain additional information &mdash;
 slurs, dynamic markings, note stem directions, etc. &mdash;
@@ -147,7 +211,7 @@ that are not included in the ScoreObject.
 An MNS specification could be represented as a JSON or XML document.
 
 <p>
-In this paper we describe ScoreObjects and MNS specifications
+In this paper we describe $score s and MNS specifications
 in terms of Python data structures and functions.
 <p>
 MNS could be used in a variety of musical contexts.
@@ -167,9 +231,12 @@ We have implemented an MNS interpreter in a Python library called Numula
 (see Section x).
 Takes a ScoreObject (a Python data structure)
 and and MNS spec (Python code).
+
 <p>
 The remainder of this paper is structured as follows:
 Section 2 describes the basics of MNS.
+
+<p>
 
 <a name=model></a>
 <h2>2. The MNS model</h2>
@@ -177,27 +244,28 @@ Section 2 describes the basics of MNS.
 <p>
 MNS uses two notions of time:
 <ul>
-<li> "Score time": time as notated in a score,
+<li> 'Score time': time as notated in a score,
 represented as floating-point numbers.
 The scale is arbitrary,
 but our convention is that the unit is a 4-beat measure.
 Thus 0.25 (1/4) is a quarter note and so on.
-<li> "Performance time": a modified version of score time.
+<li> 'Performance time': a modified version of score time.
 In the final result of applying
 an MNS specification, performance time is real time, measured in seconds.
 </ul>
 
 <p>
 
-<h3>2.2 ScoreObject</h3>
+<h3>2.2 $score</h3>
 <p>
 <p>
-A ScoreObject includes a set of Note objects.
-The attributes of a note N include:
+A $score includes a set of $note objects.
+The attributes of a $note N include:
 <ul>
-<li> Its start time <code>N.time</code> and duration N.dur in units of score time.
-<li> Its pitch (e.g. a MIDI pitch number).
-<li> A set of "tags" (character strings).
+<li> Its start time <code>N.time</code> and duration
+<code>N.dur</code> in units of score time.
+<li> Its pitch (represented, for example, as a MIDI pitch number).
+<li> A set of 'tags' (character strings).
 For example, `rh` and `lh` could be used to tag
 notes in the right and left hand parts.
 In a fugue, tags could indicate that a note is part of the fugue theme,
@@ -205,7 +273,7 @@ or a particular instance of the theme.
 Grace notes could be tagged, and so on.
 </ul>
 <p>
-Some attributes of a note N are implicit,
+Some attributes of a $note N are implicit,
 based on its context in the score:
 <p>
 <ul>
@@ -217,13 +285,13 @@ with the same start time as `n`, and `n.nchord_pos` is `n`'s pitch order in this
 </ul>
 
 <p>
-A ScoreObject can include a set of Measure objects.
+A $score can include a set of $measure objects.
 Each is described by its start time and duration,
 which are score times.
 Measures must be non-overlapping.
-A Measure can also have a "type" tag,
+A Measure can also have a 'type' tag,
 typically a string representing the measure's
-duration and structure (e.g. "2+2+3/8").
+duration and structure (e.g. '2+2+3/8').
 <p>
 If measures are specified,
 a note N has two additional attributes:
@@ -236,10 +304,10 @@ N.measure_type: the type of the measure.
 
 <h3>2.3 Note selectors</h3>
 <p>
-A "note selector" is a Boolean-valued expression involving the attributes
+A 'note selector' is a Boolean-valued expression involving the attributes
 of a note N.
 Note selectors
-identify sets of notes within a ScoreObject.
+identify sets of notes within a $score.
 We use Python syntax for these expressions.
 For example, the expression
 <p>
@@ -250,27 +318,33 @@ For example, the expression
 selects all half notes in the right hand.
 We could select notes in a particular range of score time,
 at a particular measure offset, and so on.
+<p>
+In Python, note selectors are of the type
+<pre>
+type Selector = Callable[[Note], bool] | None
+</pre>
+<p>
 
 <h3>2.4 Piecewise functions of time</h3>
 <p>
 Many components of nuance involve quantities
 (like tempo and volume) that change over time.
 In MNS, these are typically described as functions of (score) time.
-These functions are specified as a sequence of "primitives",
+These functions are specified as a sequence of 'primitives',
 each of which represents
 a parameterized function defined over a time interval with a given duration.
-A function defined in this way is called a "piecewise function of time" (PFT).
+A function defined in this way is called a 'piecewise function of time' (PFT).
 <p>
-For example,
+For example, in Python
 <pre>
 [
-    linear(25, 15, 2/1, closed_start = True)
-    linear(15, 20, 1/1, closed_end = True)
-    linear(10, 15, 2/1, closed_start = False)
+    Linear(25, 15, 2/1, closed_start = True)
+    Linear(15, 20, 1/1, closed_end = True)
+    Linear(10, 15, 2/1, closed_start = False)
 ]
 </pre>
 <p>
-defines a function that varies linearly
+might define a function that varies linearly
 from 25 to 15 over 2 4-beat measures,
 from 15 to 20 over 1 measure,
 then from 10 to 15 over 2 measures.
@@ -418,6 +492,15 @@ shifting them slightly after accompaniment notes.
 Unlike Pause, subsequent events are not affected.
 
 <a name=timing></a>
+
+<p>
+In Python, PFT primitives
+are derived from a base class <code>PFT_Primitive</code>,
+and PFTs are objects of the type
+<pre>
+type PFT = list[PFT_Primitive]
+</pre>
+
 <h2>3. Timing</h2>
 <p>
 MNS supports three classes of timing adjustment.
@@ -436,10 +519,10 @@ Generally the duration is changed so that the end time of the note
 remains fixed.
 Other notes are not changed
 (unlike pauses, which postpone all subsequent notes).
-There are various functions for doing this.
-For example, you can "roll" a chord with specified shifts for each chord note.
-You can specify, using a PFT,
-a pattern of shifts for creating "agogic accents"
+MNS defines several time-shift transformations:
+for example,
+'rolling' a chord with specified shifts for each chord note,
+or using a PFT to specify varying 'agogic accents'
 in which melody notes are played slightly after accompaniment notes.
 <p>
 <b>Articulation control:</b> Note durations
@@ -451,7 +534,7 @@ including continuous variation of articulation using a PFT.
 
 <p>
 These adjustments can be layered.
-For example, you could use several layers of tempo adjustment,
+For example, one could specify several layers of tempo adjustment,
 followed by time shifting.
 The only constraint is that adjustments to score time must precede adjustments to performance time.
 
@@ -489,8 +572,8 @@ is tempo or inverse tempo.
 Score.tempo_adjust_pft(
     pft: PFT,
     t0: float,
-    selector=None,
-    normalize: bool =False,
+    selector: Selector = None,
+    normalize: bool = False,
     bpm: bool =True
 )
 </pre>
@@ -504,20 +587,19 @@ If bpm is False, the value of the tempo function is
 the rate of change of performance time with respect to score time.
 The performance duration of a score-time interval
 is the integral of F over that interval.
-We call this an "inverse tempo function" because
+We call this an 'inverse tempo function' because
 larger values mean slower:
 2.0 means go half as fast, 0.5 means go twice as fast.
 <p>
-If "bpm" is True,
+If 'bpm' is True,
 the value of the tempo function is in beats per minute.
 For example, 120 means go twice as fast.
 The tempo function represents tempo rather than inverse tempo.
 <p>
 In either case, the tempo function can also contain
-Pause primitives, which represent a pause of
-a given performance time.
+Pause primitives, which represent a pause of a given performance time.
 <p>
-If "normalize" is set, the tempo function is scaled
+If 'normalize' is set, the tempo function is scaled
 so that its average value is one;
 in other words, its start and end points remain fixed,
 but events between them can move.
@@ -530,7 +612,7 @@ Example: Chopin
 The semantics of tempo_adjust_pft() (see Figure X):
 <p>
 <ul>
-<li> Make a list of all "events" (note start/end, pedal start/end)
+<li> Make a list of all 'events' (note start/end, pedal start/end)
 ordered by score time.
 Each event has a score time and a performance time.
 <li> Scan this list, processing events that satisfy the note selector
@@ -561,8 +643,8 @@ adjust perf duration to keep same end time.
 <pre>
 Score.time_shift_pft(
     pft: PFT,
-    t0: float=0,
-    selector: Selector=None
+    t0: float = 0,
+    selector: Selector = None
 )
 </pre>
 For notes N that satisfy the selector
@@ -574,16 +656,16 @@ or to shift notes by continuously-varying amounts.
 Score.roll(
     t: float,
     offsets: list[float],
-    is_up=True,
-    selector: Selector=None
+    is_up: bool = True,
+    selector: Selector = None
 )
 </pre>
 <p>
 Roll a chord.
-"offsets" is a list of time offsets.
+'offsets' is a list of time offsets.
 These offsets are added to the performance start times of notes
 that start at score time t.
-If "is_up" is true, they are applied from bottom pitch upwards;
+If 'is_up' is true, they are applied from bottom pitch upwards;
 otherwise from top pitch downward.
 <p>
 <pre>
@@ -593,7 +675,7 @@ Score.t_adjust_list(
 )
 </pre>
 <p>
-"offsets" is a list of time offsets (seconds).
+'offsets' is a list of time offsets (seconds).
 They are added to the start times of notes satisfying the selector,
 in time order.
 Example?
@@ -626,7 +708,7 @@ Example?
 <pre>
 Score.perf_dur_rel(
     factor: float,
-    selector: Selector=None
+    selector: Selector = None
 )
 </pre>
 <p>
@@ -635,20 +717,21 @@ Multiply the duration of the selected notes by the given factor.
 <pre>
 Score.perf_dur_abs(
     t: float,
-    selector: Selector=None
+    selector: Selector = None
 )
 </pre>
 <p>
-Set the duration of the selected notes to the given value (seconds).
+Set the performance duration of the selected notes to the given value
+(performance time).
 <p>
 <pre>
 Score.perf_dur_func(
     f: NotetoFloat,
-    selector: Selector=None
+    selector: Selector = None
 )
 </pre>
 <p>
-Set the duration of a selected note N to the value f(N).
+Set the performance duration of selected notes N to the value f(N).
 
 <h3>3.4 Layering timing adjustment</h3>
 <p>
@@ -748,7 +831,7 @@ Sometimes it's useful to sustain only certain keys.
 The sustain pedal can't do this: it affects all keys.
 The sostenuto pedal affects a subset of keys,
 but its semantics limit its use to a fairly small set of situations.
-MNS has a mechanism called "virtual sustain pedal"
+MNS has a mechanism called 'virtual sustain pedal'
 that is like a sustain pedal that applies to only a specific subset of notes.
 
 <p>
@@ -803,7 +886,7 @@ This may be mapped to a MIDI velocity (0..127),
 in which case the actual loudness depends on the synthesis engine.
 Notes initially have volume 0.5.
 <p>
-There are three "modes" of volume adjustment.
+There are three 'modes' of volume adjustment.
 In each case there is an adjustment factor X,
 which may vary continuously over time.
 
@@ -818,7 +901,7 @@ X is typically around .1 or .2.
 This is useful for bringing out melody notes when the overall volume is low.
 
 <li> VOL_SET: the note volume is set to X/2. X is in [0, 2].
-(The division by 2 means that you use the same scale as for VOL_MULT).
+(The division by 2 means that the scale is the same as as for VOL_MULT).
 
 </ul>
 
@@ -830,14 +913,14 @@ The primitive
 <pre>
 Score.vol_adjust_pft(
     pft: PFT,
-    t0: float=0,
-    selector=None
+    t0: float = 0,
+    selector = None
 )
 </pre>
 <p>
 adjusts the volume of a set of notes according to a function of time.
-"pft" is a PFT,
-and "selector" is a note selector
+'pft' is a PFT,
+and 'selector' is a note selector
 The volume of a selected note N
 in the domain of the PFT is adjusted by the factor pft(t),
 where t is N.time - t<sub>0</sub>.
@@ -851,11 +934,11 @@ Other primitives adjust volume explicitly
 <pre>
 Score.vol_adjust(
     factor: float,
-    selector: Selector=None
+    selector: Selector = None
 )
 Score.vol_adjust(
     func: NoteToFloat,
-    selector: Selector=None
+    selector: Selector = None
 )
 </pre>
 These adjust the volumes of the selected notes.
@@ -895,8 +978,13 @@ Typically the order is:
 <a name=numula></a>
 <h2>6. Numula</h2>
 <p>
-Numula has 
-
+Numula is a Python library that implements MNS.
+It implements the classes listed above:
+Score, Note, PFT, etc.
+Its Score class implements the transformation functions.
+<p>
+Numula is a stand-alone system for creating nuanced music
+completely in Python.
 picture:
 score shorthand -> Score object
 nuance shorthand -> PFTs
@@ -920,13 +1008,19 @@ pedal
 <a name=examples></a>
 <h2>7. Examples</h2>
 <p>
+We have used MNS to create nuanced performances
+of piano pieces in a variety of styles,
+ranging from Beethoven to Berio.
+Our goal was to create performances that approximated
+performances by a skilled human.
+<p>
 Appassionata
 <h3>7.1 Nuance structure</h3>
 <p>
 The first step in developing a nuance specification
 is to decide on a structure:
 a set of layers, each of which has a particular purpose.
-The goal is that when you want to change something,
+The goal is that when one wants to change something,
 it's clear which layer is involved.
 <p>
 For example, the examples listed above use variants
@@ -964,7 +1058,7 @@ Pedal control:
 Developing a nuanced performance of a work with MNS is
 analogous to practicing on a physical instrument.
 One starts by developing a mental model of the piece
-and a "rough draft" of a nuance specification.
+and a 'rough draft' of a nuance specification.
 This is followed by an iterative process of
 <ul>
 <li> Listening to (part of) the rendition
@@ -989,23 +1083,25 @@ in particular, for transcribing one's mental model of a performance?
 This generally involves changing every parameter &mdash;
 start time, duration, volume &mdash; of every note.
 We can imagine a GUI that shows a piano-roll representation
-of the score and lets you click on notes to change their parameters.
-This low-level approach would let you do whatever you want,
-but it would be impossibly tedious.
+of the score and lets one click on notes to change their parameters.
+This low-level approach would be impossibly tedious.
 <p>
 Desirable properties of a UI for editing nuance:
 <ul>
-<li> You can describe nuance at a high level:
-if you want an accelerando from 80 to 120 from measures 8 to 13,
-you can express this directly rather than adjusting individual notes.
+<li> It can describe nuance at a high level:
+an accelerando from 80 to 120 from measures 8 to 13
+can be expressed directly rather than by adjusting individual notes.
 
-<li> You can express repetition.
-E.g., if you want to emphasize the strong beats in each measure,
-you can define a pattern of emphases,
+<li> It can express repetition.
+E.g., to emphasize the strong beats in each measure,
+one can define a pattern of emphases,
 and then apply it to multiple measures.
-<li> Parameterization
+<li> Parameterization:
+transformations parameters can be variables,
+and changing the value of a variable affects
+all the transformations that use it.
 <li>
-You can make an adjustment and hear the effect
+One can make an adjustment and hear the effect
 quickly and with a minumum of keystrokes and mouse clicks.
 </ul>
 <p>
@@ -1024,19 +1120,16 @@ the way the score is displayed:
 e.g. to use color or note-head size to express dynamics.
 
 <li> Express nuance in a programming language.
-I've done this in
+This has been done in
 <a href=https://github.com/davidpanderson/music/wiki>Numula</a>,
 a Python-based system for virtual performance and algorithmic composition.
-It's quite powerful, but the user experience isn't great.
-You have think in terms of numbers.
-In general the nuance editing cycle
-(hearing part of the rendition,
-modifying the nuance, hearing it again)
-takes lots of clicks.
 </ul>
 <p>
-Numula provides a feature called "Interactive Parameter Adjustment" (IPA)
-that streamlines the listen/edit cycle,
+In its original form, the nuance editing cycle in Numula was cumbersome;
+each adjustment required locating and editing a value in the source code,
+then re-running the program.
+To address this, Numula provides a feature called 'Interactive Parameter Adjustment' (IPA)
+that streamlines the editing cycle,
 reducing it to two keystrokes.
 
 <pre>
@@ -1103,7 +1196,7 @@ Type:
 <p>
 Let's assume that we have a formalism describing nuance,
 and that we have software tools
-that make it easy to create and edit "nuance specifications" for pieces.
+that make it easy to create and edit 'nuance specifications' for pieces.
 These capabilities would have several applications:
 <p>
 <h3>9.1 Composition</h3>
@@ -1130,9 +1223,9 @@ A piano teacher's instruction to a student could be represented
 as a nuance specification which guides the student's practice.
 Feedback could be given in various ways.
 For example, as a student practices a piece they could see a
-"virtual conductor" that shows, on a screen,
+'virtual conductor' that shows, on a screen,
 a representation of the target nuance.
-Or a "virtual coach" could make suggestions
+Or a 'virtual coach' could make suggestions
 (musical and/or technical) to the student based on
 the differences between their playing and the nuance specification.
 
@@ -1141,7 +1234,7 @@ the differences between their playing and the nuance specification.
 When an ensemble (say, a piano duo) rehearses together,
 they could record their interpretive decisions as a nuance specification.
 They could then use this to guide their individual practice
-(perhaps using a "virtual conductor" as described above).
+(perhaps using a 'virtual conductor' as described above).
 
 <h3>9.5 Sharing and archival</h3>
 <p>
@@ -1154,8 +1247,53 @@ This would provide a framework for sharing and discussing interpretations.
 <a name=mns></a>
 <p>
 
+<h3>9.4 Performance style analysis</h3>
+<p>
+Having a framework for describing nuance would
+enable rigorous comparative analysis of performance practice.
+
+<p>
+Select a nuance structure (as described in Section x).
+Assume the existence of software to do
+Nuance Data Fitting (section X).
+<p>
+We could then 
+
+Compare the performance styles of individual performers:
+for example, the amount of long- and short-term tempo fluctuation,
+the use of different continuous-change functions
+and their parameters, and so on.
+
+We could compare particular performers,
+or look for stylistic trends from different time periods,
+or different countries or conservatories.
+
+
 <a name=related></a>
 <h2>10. Related work</h2>
+<p>
+MNS is analogous to
+<a href=https://en.wikipedia.org/wiki/CSS>Cascading Style Sheets</a>
+(CSS),
+a system for specifying the appearance of web pages.
+The properties of CSS include:
+<ul>
+<li> A CSS specification is separate from the web page
+(which is typically described in HTML and/or Javascript).
+When a CSS specification is applied to a web page,
+it can change the attributes of the page's elements
+(size, color, etc.) and the layout of the page.
+
+<li> CSS files can be \"layered\".
+They are applied in a particular order,
+and later files can extend or override the effects of earlier files.
+
+<li> CSS specifications can refer to subsets of the HTML elements
+using 'selectors' involving the element tags, classes, and IDs.
+</ul>
+
+<p>
+MNS has similar properties.
 <a name=future></a>
 <h2>11. Future work</h2>
 
@@ -1180,7 +1318,7 @@ or accents on the high points of phrases.
 <p>
 MNS could be extended to handle scores with multiple instruments.
 Note tags could include the instrument type
-(e.g. "violin") and instance (e.g. "violin 1").
+(e.g. 'violin') and instance (e.g. 'violin 1').
 <p>
 MNS could be extended to include other note parameters:
 <ul>
@@ -1196,16 +1334,17 @@ Many other primitives are possible:
 polynomial, logarithmic, trigonometric, spline functions, and so on.
 <p>
 The goal in designing the set of primitives
-is to find a small "basis set" of transformations,
+is to find a small 'basis set' of transformations,
 each with a small number of parameters,
 that can achieve the desired specifications &mdash;
 for example, that can closely approximate typical human performances.
 <p>
-MNS, for example, has linear and exponential primitives for tempo change.
-This was easy to implement &mdash; but can these approximate
+MNS, for example, has linear and exponential primitives
+for tempo and volume change.
+These were easy to implement &mdash; but can they approximate
 ritardandos and accelerandos in practice?
-There may be better choices:
-Bezier curves, trig functions, polynomials.
+There may be classes of functions that are better:
+Bezier curves, trig functions, polynomials, and so on.
 <p>
 It would be possible to calculate the nuance in human performances,
 and find the primitives that approximate it best.
@@ -1240,8 +1379,8 @@ linear, polynomial, exponential, logarithmic, etc.
 The software would use data-fitting techniques to find an optimal basis set.
 <p>
 It may turn out that the optimal set of primitives depends on
-the performance period,
-the period and style of music being played,
+the period of the performance,
+the period and style of the composition,
 the individual performer, and so on.
 <p>
 There has been some research in this general area.
@@ -1255,11 +1394,17 @@ Rich Kraft contributed ...
 
 <h2>References</h2>
 <p>
-Malcolm Bilson:
-Video: "Knowing the Score: Do We Know How to Read Urtext Editions and How Can This Lead to Expressive and Passionate Performance? Ithaca".
-Cornell University Press, 2005
+Malcolm Bilson.
+Video: 'Knowing the Score: Do We Know How to Read Urtext Editions and How Can This Lead to Expressive and Passionate Performance?'
+Cornell University Press, Ithaca, 2005.
+https://www.youtube.com/watch?v=mVGN_YAX03A
 <p>
 Cascading Style Sheets: https://en.wikipedia.org/wiki/CSS
 <p>
 PianoTeq: https://en.wikipedia.org/wiki/Pianoteq
+<p>
+Numula: https://github.com/davidpanderson/numula/
 </div>
+";
+
+?>

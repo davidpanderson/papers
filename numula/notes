@@ -1,0 +1,68 @@
+terms
+
+'tagged score'
+    a score with tags, e.g. rh/lh, melody etc.
+
+'nuance structure'
+    a list of transformations
+        function
+        selector
+        PFT not specified
+    e.g. 2 continuous tempo transformations
+        1 discrete pause layer
+        1 discrete shift layer
+        2 continuous volume transformations
+        1 volume transform for tag 'rh'
+        1 accent transform
+
+'constrained nuance structure'
+    ... some constraints on each transformation,
+        e.g. max number or min length of primitives.
+
+'nuance specification'
+    list of transformations with the PFTs given
+
+'Complexity' C(S) of a nuance spec S
+    this can be defined in various ways:
+        number of PFT primitives
+        or Kolmogorov: min length of program that generates S
+
+'Score rendition'
+    a score, and a list of notes with start/dur/volume, and pedals
+    with a mapping from some the notes to the score notes
+    
+error E(spec, rendition)
+    RMS (or max) of
+        time diff
+        vol diff
+
+'nuance inference'
+    idea:
+        given a performance, how simply can we describe its nuance?
+        a nuance structure has a "complexity" C and an "error" E.
+        For given C, how low can be make E?
+        For a given E, how simple a structure can we make?
+    given a
+        nuance structure
+        performance
+        score w/ tags
+        set of PFT primitives
+    ... find the transformations that most closely approximate the perf
+
+    what about tags and note selectors?
+        are these pre-assigned?  (maybe)
+
+    Nuance inference is probably an iterative process
+        create a nuance structure
+        loop
+            automated data fitting
+            look at result, tweak nuance structure
+
+    purposes of inference
+        evaluate continuous primitives
+        characterize/compare
+            performers
+            periods
+            nationalities
+            schools e.g. Juliard
+

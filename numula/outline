@@ -1,4 +1,4 @@
-Musical nuance specification: a model and implementation
+Specifying and inferring nuance in notated music
 
 Abstract
     keyboard
@@ -6,11 +6,36 @@ Abstract
     realization in Python
 
 Intro
-    what is nuance
-    its importance
-    description in scores
-    auto-generated in score editors; AI
-    Numula
+    nuance in notated keyboard music
+    its importance in some genres
+    vague description in scores
+
+    hi-res description of nuance
+        high-level and concise
+        as precise as possible, given that
+            can closely approximate human performances
+    why do we care:
+        1) create specification for a new or existing pieces
+            composition
+            virtual performance
+            pedagogy
+        2) extract a specification from performance
+            study performance style
+            find useful primitives
+    the structure of nuance
+        continuous transformations
+            tempo, dynamics
+        discrete transformations
+            tempo, dynamics
+        layering
+
+    NSL
+        language for specifying the above
+        defines
+            an extensible set of continuous primitives
+            the math of combining layers
+            framework for other transformations
+        Reference implementation: Numula
     structure of paper
 
 A model for nuance description
