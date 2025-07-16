@@ -29,7 +29,7 @@ terms
 
 'Score rendition'
     a score, and a list of notes with start/dur/volume, and pedals
-    with a mapping from some the notes to the score notes
+    with a (partial) mapping from rendition notes to the score notes
     
 error E(spec, rendition)
     RMS (or max) of
@@ -50,7 +50,8 @@ error E(spec, rendition)
     ... find the transformations that most closely approximate the perf
 
     what about tags and note selectors?
-        are these pre-assigned?  (maybe)
+        are these pre-assigned?
+        yes, exponential complexity otherwise
 
     Nuance inference is probably an iterative process
         create a nuance structure

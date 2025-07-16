@@ -9,7 +9,7 @@ echo "
 <div style=\"max-width: 700px; font-family:Trebuchet MS; line-height:1.4\" align=justify>
 <a href=outline.html>Outline</a>
 <center>
-<h1>Specifying and inferring nuance in notated music</h1>
+<h1>Describing and inferring nuance in notated music</h1>
 
 <p>
 David P. Anderson
@@ -24,49 +24,51 @@ in timing, dynamics, articulation, and pedaling.
 We call these deviations 'performance nuance'.
 We present a model, Musical Nuance Specification ($mns),
 for describing performance nuance in notated keyboard music.
-$mns allows concise and precise expression of 'hi-res' nuance,
-which can closely approximate the complex nuance
+$mns allows concise and precise expression of nuance
+at a level of detail that can closely approximate the nuance
 found in typical human performance.
+$mns is not intended to model musical cognition or compositional structure.
 
 <p>
-The ability to describe hi-res nuance creates many musical possibilities.
+The ability to describe complex nuance creates many musical possibilities.
 Some of these involve nuance specifications created by humans.
-This has application in composition, virtual performance, musical pedagogy.
+This has application in composition, virtual performance,
+and performance pedagogy.
 We describe these applications,
 and the possible interfaces for creating and editing nuance specifications.
-It is also possible to 'infer' hi-res nuance specifications
+Conversely, it is possible to 'infer' nuance specifications
 from recorded human performances.
 This enables various studies of performance practice.
+
+<p>
 
 <a name=intro></a>
 <h2>1. Introduction</h2>
 <h3>1.1  Performance nuance</h3>
 <p>
-This paper is concerned with 'performance nuance' in notated music.
-By this we mean the difference between the music as notated
-and the music as performed.
+This paper is concerned with 'performance nuance' in notated music,
+by which we mean the differences between music as notated
+and music as performed.
 We focus on keyboard instruments such as piano.
 In this context, nuance has several components:
 <p>
-<ul>
 <li> Timing: tempo variation, rubato, pauses, rolled chords
 and other time-shifting of notes.
 <li> Dynamics: crescendos and diminuendos, accents, voicing, etc.
 <li> Articulation: legato, staccato, portamento, etc.
 <li> The use of pedal (sustain, soft, sostenuto).
-</ul>
-For other instruments, and voice,
+<p>
+For other instruments and voice,
 notes have additional properties such as attack and timbre,
 and these properties may change during the note.
 The ideas presented here do not encompass these additional factors,
-but could be extended to do so.
+but could possibly be extended to do so.
 <p>
 The role of nuance varies between genres and composers.
-In many cases - for example, Romantic-era piano music -
+In many cases &mdash; for example, Romantic-era piano music &mdash;
 nuance is a critical component in the expression of a performance,
-and the deviations from the score
-(for example, local tempo fluctuations)
-can be significant.
+and the deviations from the score (for example, tempo fluctuations)
+can be large.
 
 <h3>1.2  Describing nuance</h3>
 <p>
@@ -74,7 +76,7 @@ We are concerned with how to describe nuance.
 Some scores have nuance indications:
 tempo markings, slurs, crescendo marks, fermatas, pedal markings, etc.
 These do not completely describe the nuance in a human rendition, because:
-<ul>
+<p>
 <li> The indications are imprecise:
 e.g. a fermata mark doesn't say how long the sound lasts,
 or how much silence follows.
@@ -87,37 +89,35 @@ they describe the broad strokes of the composer's intended nuance,
 but not the details.
 Indeed, western music notation is unable to express
 basic aspects of nuance such the relative dynamics of notes in a chord.
-</ul>
 <p>
 In a typical human performance, nuance is guided by score indications
 but has other factors:
 
 <li> the expressive intent of the performer;
 <li> stylistic conventions (as understood by the performer);
-<li> consequences of the performer's technique.
+<li> the performer's technique.
 
 <p>
-Our goal in this paper is to study how nuance can be described
+Our goal of this paper is to study how nuance can be described
 more thoroughly than with score indications.
-We seek to define a language for describing nuance:
-what we will call \"high-resolution nuance specification\".
-This should have these properties:
+We seek to define a way to describing nuance
+having these properties:
 
-<li> It's a formal language, with precisely-defined semantics.
+<li> It has precisely-defined semantics.
 <li> It can describe typical human nuance in a compact way;
 for example, idioms like crescendos are described in a single primitive
 rather than by per-note deviations.
-This facilitates editing and visualizing nuance.
 
 <p>
-As music evolves, and as computers are increasingly important tools for
+We call this \"high-resolution nuance specification\".
+As music evolves, computers are increasingly important tools for
 composition, pedagogy, and performance.
 High-resolution nuance specification makes nuance a first-class citizen,
 along with scores and sounds.
 This will not replace the human component of nuance,
 or the spontaneity of live performance;
 rather, it will provide tools that can enhance these processes
-and that enable new ways of making music.
+and that enable new ways of making expressive music.
 
 <h3>1.3  The structure of nuance</h3>
 <p>
@@ -149,7 +149,7 @@ They may occur in repeating time patterns,
 at irregular times, or at single times.
 </ul>
 <p>
-We developed nuance specifications to produced
+We developed nuance specifications to produce
 renditions of piano pieces in a variety of styles,
 with the goal of approximating human performances.
 We found that, to do this, we ended up using
@@ -191,6 +191,11 @@ slurs, dynamic markings, note stem directions, etc. &mdash;
 that are not included in the $score.
 An $mns specification could be represented as a JSON or XML document.
 
+<p>
+Some $mns transformations can involve logic
+(for example, 'note selector' functions; see Section X).
+This requires basic features of a programming language.
+Python is well-suited to this purpose, but other languages could be used.
 <p>
 In this paper we describe $score objects and $mns specifications
 in terms of Python data structures and functions.
@@ -462,7 +467,8 @@ and the integral of the reciprocal is
 
 <h3>2.2.3 Momentary PFT primitives</h3>
 <p>
-There are several momentary primitives, used for different purposes.
+MNS defines
+several momentary primitives, used for different purposes.
 <pre>
 Accent(value: float)
 </pre>
@@ -492,6 +498,25 @@ This can be used for 'agogic accents',
 in which melody notes are brought out by
 shifting them slightly after accompaniment notes.
 Unlike Pause, subsequent events are not affected.
+
+<h3>2.3  Transformations</h3>
+<p>
+A MNS specification consists of a sequence of 'transformations'.
+<p>
+Each transformation consists of
+
+<p>
+<li> An 'operator' indicating the type of the transformation.
+The set of operators is listed in the following section.
+<li> A PFT
+<li> A note selector
+
+<p>
+A transformation acts on a $score, modifying it in some way.
+In the following, we notate transformations
+as member functions of the $score class,
+there the name of the function is the operator.
+<p>
 
 <a name=timing></a>
 
@@ -789,7 +814,7 @@ and one or more notes start at t.
 The semantics of the PFT depend on the closure of P1 and P2 as follows:
 <p>
 <table border=1 cellpadding=4>
-<tr><td>end of P1</td><td>start of P2</td><td></td></tr>
+<tr><td>end of P1</td><td>start of P2</td><td>Semantics</td></tr>
 <tr><td>open</td><td>open</td><td>lift pedal, play notes, pedal X</td></tr>
 <tr><td>open</td><td>closed</td><td>lift pedal, pedal X, play notes</td></tr>
 <tr><td>closed</td><td>open</td><td>play notes</td></tr>
@@ -1000,15 +1025,7 @@ pedal
 
 
 <a name=examples></a>
-<h2>7. Examples</h2>
-<p>
-We have used Numula to create nuanced performances
-of piano pieces in a variety of styles,
-ranging from Beethoven to Berio.
-Our goal was to create performances that approximated
-performances by a skilled human.
-<p>
-Appassionata
+<h2>7. Developing nuance specifications</h2>
 <h3>7.1 Nuance structure</h3>
 <p>
 The first step in developing a nuance specification
@@ -1240,31 +1257,137 @@ for these works.
 This would provide a framework for sharing and discussing interpretations.
 <a name=mns></a>
 <p>
+<h3> 9.2 Examples</h3>
+<p>
+We have used Numula to create nuanced performances
+of piano pieces in a variety of styles,
+ranging from Beethoven to Berio.
+Our goal was to create performances that approximated
+performances by a skilled human.
+<p>
+Appassionata
 
-<h3>9.4 Performance style analysis</h3>
+<h2>10. Nuance inference</h2>
+<p>
+How can we 'extract' the nuance from a human performance?
+More precisely:
+given a score and a performance of the score
+(as a sound file or MIDI file)
+how can we find an MNS nuance spec S
+which, when applied to the score, generates the performance?
+<p>
+This problem is ill-posed: there are infinitely many specs
+that exactly reproduce the performance
+by specifying the time and volume of each note.
+This type of spec is not what we're looking for.
+<p>
+So we need to refine the problem.
+For some notion of the 'complexity' of a spec,
+what is the least complex that generates
+the performance within some tolerance?
+<p>
+Even this is a bit ill-posed;
+the solution is not necessarily unique.
+For example, a crescendo and a sequence of accents
+might have the same effect,
+or a ritardando and a sequence of pauses.
+
+<h3>10.1 Terminology</h3>
+<p>
+Tagged score
+<p>
+Constrained nuance structure
+<p>
+Complexity of a spec
+<p>
+Score rendition, error
+
+<h3>10.1 How to infer nuance</h3>
+<p>
+Volume:
+inuitively, we want to work from long to short:
+to identify phrase-level features, then measure-level, then single notes.
+So we might start by:
+<p>
+<li> Identify a segment of the performance where the volume trends up or down.
+<li> Find the primitive type (linear, exponential, etc.)
+that best fits the volume contour,
+and find the best-fit (e.g. least-squares) parameters
+<li> Continue, finding more such disjoint segments,
+and assembling the resulting primitives into a PFT.
+<p>
+We can then subtract this volume adjustment from the performance,
+leaving a residue.
+We then fit shorter (beat- or measure-level) primitives in a similar way.
+From the resulting residue, we fit accents or patterns of accents.
+<p>
+We can analyze timing in a similar way:
+fitting long tempo primitives,
+then shorter primitives, then pauses.
+<p>
+The above processes might be automated, or manual,
+or a hybrid of the two.
+We might manually find the endpoints of a crescendo,
+then let the computer choose the best primitive and parameters.
+<p>
+We might need to change the nuance structure along the way.
+
+<p>
+<h3>10.2 Applications of nuance inference</h3>
+<p>
+The first step in this process is to extract
+nuance from a large set human performances:
+<li> Get a corpus of performances as MIDI files,
+or audio recordings converted to MIDI by software.
+For each performance get a representation of the score,
+e.g. as MusicXML or MIDI.
+<li> Computationally find the correspondence of notes between
+performance and score (there might be mistakes or other noise).
+
+<p>
+<h3>10.2.1 Performance style analysis</h3>
 <p>
 Having a framework for describing nuance would
 enable rigorous comparative analysis of performance practice.
-
 <p>
-Select a nuance structure (as described in Section x).
-Assume the existence of software to do
-Nuance Data Fitting (section X).
+Compare the performance styles of individual performers
+playing the same piece.
+Infer one to get nuance structure,
+then others using same structure.
+Find 'nuance signature' of performers.
 <p>
-We could then 
-
-Compare the performance styles of individual performers:
-for example, the amount of long- and short-term tempo fluctuation,
-the use of different continuous-change functions
-and their parameters, and so on.
-
-We could compare particular performers,
-or look for stylistic trends from different time periods,
+We could 
+look for stylistic trends from different time periods,
 or different countries or conservatories.
+
+<h3>10.2.2 PFT primitive selection</h3>
+<p>
+The goal in designing the set of primitives
+is to find a small 'basis set' of transformations,
+each with a small number of parameters,
+that can achieve the desired specifications &mdash;
+for example, that can closely approximate typical human performances.
+<p>
+Having the mechanism of nuance inference
+also lets us evaluate PFT primitives.
+We have discussed linear and (more generally) exponential primitives,
+but there are many other possibilities:
+polynomial, trigonometric, and logarithmic functions, spline curves, etc.
+Nuance inference lets us demonstrate whether each of these
+is actually used in human performance.
+<p>
+It may turn out that the optimal set of primitives depends on
+the period of the performance,
+the period and style of the composition,
+the individual performer, and so on.
 
 
 <a name=related></a>
 <h2>10. Related work</h2>
+<p>
+There has been some research in this general area.
+Some papers study the statistics of deviation from the score,
+but not the actual modeling of it.
 <p>
 $mns is analogous to
 <a href=https://en.wikipedia.org/wiki/CSS>Cascading Style Sheets</a>
@@ -1289,6 +1412,7 @@ using 'selectors' involving the element tags, classes, and IDs.
 <p>
 $mns has similar properties.
 <a name=future></a>
+
 <h2>11. Future work</h2>
 
 <h3>11.2 Note selection</h3>
@@ -1308,7 +1432,7 @@ or accents on the high points of phrases.
 </ul>
 ... and so on.
 <p>
-<h3>7.3 Non-keyboard instruments</h3>
+<h3>11.3 Non-keyboard instruments</h3>
 <p>
 $mns could be extended to handle scores with multiple instruments.
 Note tags could include the instrument type
@@ -1320,66 +1444,13 @@ $mns could be extended to include other note parameters:
 <li> Variation in pitch, timbre or volume during a note.
 </ul>
 
-<h3>11.1 PFT primitives</h3>
+<h3>11.4 PFT primitives</h3>
 <p>
-$mns currently defines linear and exponential primitive,
-and various delta functions.
-Many other primitives are possible:
-polynomial, logarithmic, trigonometric, spline functions, and so on.
+<h3>11.5 Uses of AI</h3>
 <p>
-The goal in designing the set of primitives
-is to find a small 'basis set' of transformations,
-each with a small number of parameters,
-that can achieve the desired specifications &mdash;
-for example, that can closely approximate typical human performances.
+use of AI for nuance inference
 <p>
-$mns, for example, has linear and exponential primitives
-for tempo and volume change.
-These were easy to implement &mdash; but can they approximate
-ritardandos and accelerandos in practice?
-There may be classes of functions that are better:
-Bezier curves, trig functions, polynomials, and so on.
-<p>
-It would be possible to calculate the nuance in human performances,
-and find the primitives that approximate it best.
-<p>
-The first step in this process is to extract
-nuance from a large set human performances:
-
-<ul>
-<li> Get a corpus of performances as MIDI files,
-or audio recordings converted to MIDI by software.
-For each performance get a representation of the score,
-e.g. as MusicXML or MIDI.
-
-<li> Computationally find the correspondence of notes between
-performance and score (there might be mistakes or other noise).
-</ul>
-<p>
-We can then use software to find a transformation
-that maps the score to the performance.
-This transformation would typically have multiple levels.
-A first level would model large-scale fluctuations.
-The second level would take the residue from this,
-and fit it, possibly with different types of primitives.
-At some point the residue presumably would be noise-like,
-and its statistical properties could measured.
-
-<p>
-Each level would consist of a set of primitives.
-The software would consider various families of primitives:
-in the case of continuous fluctuations this might include
-linear, polynomial, exponential, logarithmic, etc.
-The software would use data-fitting techniques to find an optimal basis set.
-<p>
-It may turn out that the optimal set of primitives depends on
-the period of the performance,
-the period and style of the composition,
-the individual performer, and so on.
-<p>
-There has been some research in this general area.
-Some papers study the statistics of deviation from the score,
-but not the actual modeling of it.
+other uses of AI
 
 <a name=conclusion></a>
 <h2>12. Conclusion</h2>
