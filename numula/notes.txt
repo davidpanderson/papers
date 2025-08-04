@@ -77,3 +77,30 @@ It would be possible to make the volume change linear in perf time.
     (insert marker events if needed)
 - Go through notes in the range of score times
     and adjust volume based on PFT value at their perf time.
+-----------------
+Big picture:
+There are two levels to MNS:
+
+- Nuance descriptions
+    a sequence of transformations, each of which is generally
+        - operation
+        - a PFT
+        - a note selector
+    These are static; all values are hardwired
+
+- Nuance generators
+    Code (Python or other) that generates a nuance description.
+    This lets you have
+    - parameterization: e.g. you can have variables that appear
+        throughout the PFTs.
+    - looping and functions
+        e.g. repeat this dynamic pattern 4 times
+
+For long/complex pieces you need nuance generators.
+
+Numula is a nuance generator implemented as a Python module.
+One can also imagine a nuance generator that's more graphical
+and less code-like,
+e.g. you can create a volume contour by drag and drop,
+have its parameters controlled by a slider,
+and be able to replicate it.
