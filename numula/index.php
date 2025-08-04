@@ -6,7 +6,7 @@ $measure = 'NMeasure';
 $mns = 'MNS';
 
 echo "
-<div style=\"max-width: 700px; font-family:Trebuchet MS; line-height:1.4\" align=justify>
+<div style=\"max-width: 700px; font-size:14px; font-family:Trebuchet MS; line-height:1.4\" align=justify>
 <a href=outline.html>Outline</a>
 <center>
 <h1>Describing and inferring nuance in notated music</h1>

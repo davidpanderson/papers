@@ -29,7 +29,7 @@ terms
 
 'Score rendition'
     a score, and a list of notes with start/dur/volume, and pedals
-    with a (partial) mapping from rendition notes to the score notes
+    with a (partial) one-to-one mapping from rendition notes to score notes
     
 error E(spec, rendition)
     RMS (or max) of
