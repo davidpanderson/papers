@@ -3,13 +3,13 @@
 $score = 'NScore';
 $note = 'NNote';
 $measure = 'NMeasure';
-$mns = 'MNS';
+$mns = 'NDF';
 
 echo "
 <div style=\"max-width: 700px; font-size:14px; font-family:Trebuchet MS; line-height:1.4\" align=justify>
 <a href=outline.html>Outline</a>
 <center>
-<h1>Describing and inferring nuance in notated music</h1>
+<h1>Describing musical performance nuance</h1>
 
 <p>
 David P. Anderson
@@ -19,26 +19,21 @@ June 1, 2025
 
 <h2>Abstract</h2>
 
-Performances of notated music typically deviate from the score
-in timing, dynamics, articulation, and pedaling.
-We call these deviations 'performance nuance'.
-We present a model, Musical Nuance Specification ($mns),
-for describing performance nuance in notated keyboard music.
-$mns allows concise and precise expression of nuance
-at a level of detail that can closely approximate the nuance
-found in typical human performance.
-$mns is not intended to model musical cognition or compositional structure.
-
-<p>
-The ability to describe complex nuance creates many musical possibilities.
-Some of these involve nuance specifications created by humans.
-This has application in composition, virtual performance,
+We present a model, Nuance Description Framework (NDF)
+for describing performance nuance
+(timing, dynamics, articulation, and pedaling)
+in notated keyboard music.
+$mns can concisely express nuance
+at a level of detail that closely approximates typical human performance.
+This capability creates many musical possibilities.
+Some of these involve human-created 'nuance specifications';
+this has application in composition, virtual performance,
 and performance pedagogy.
 We describe these applications,
 and the possible interfaces for creating and editing nuance specifications.
-Conversely, it is possible to 'infer' nuance specifications
-from recorded human performances.
-This enables various studies of performance practice.
+It is also possible to 'infer' nuance descriptions
+from recorded human performances;
+this enables studies of performance practice.
 
 <p>
 
@@ -52,11 +47,11 @@ and music as performed.
 We focus on keyboard instruments such as piano.
 In this context, nuance has several components:
 <p>
-<li> Timing: tempo variation, rubato, pauses, rolled chords
+<li> Timing: tempo, tempo variation, rubato, pauses, rolled chords
 and other time-shifting of notes.
 <li> Dynamics: crescendos and diminuendos, accents, voicing, etc.
 <li> Articulation: legato, staccato, portamento, etc.
-<li> The use of pedal (sustain, soft, sostenuto).
+<li> The use of pedals (sustain, soft, sostenuto).
 <p>
 For other instruments and voice,
 notes have additional properties such as attack and timbre,
@@ -64,15 +59,11 @@ and these properties may change during the note.
 The ideas presented here do not encompass these additional factors,
 but could possibly be extended to do so.
 <p>
-The role of nuance varies between genres and composers.
-In many cases &mdash; for example, Romantic-era piano music &mdash;
-nuance is a critical component in the expression of a performance,
-and the deviations from the score (for example, tempo fluctuations)
-can be large.
-
-<h3>1.2  Describing nuance</h3>
+Nuance has a central role in classical music,
+as evidenced by the fact that standard repertoire works
+are performed and recorded thousands of time,
+with the primary difference being the performance nuance.
 <p>
-We are concerned with how to describe nuance.
 Some scores have nuance indications:
 tempo markings, slurs, crescendo marks, fermatas, pedal markings, etc.
 These do not completely describe the nuance in a human rendition, because:
@@ -94,135 +85,74 @@ In a typical human performance, nuance is guided by score indications
 but has other factors:
 
 <li> the expressive intent of the performer;
-<li> stylistic conventions (as understood by the performer);
-<li> the performer's technique.
+<li> stylistic conventions, as understood by the performer;
+<li> the performer's technique and physical limitations.
+These can convey the difficulty of hard sections,
+and thus have an expressive role.
 
 <p>
-Our goal of this paper is to study how nuance can be described
-more thoroughly than with score indications.
-We seek to define a way to describing nuance
-having these properties:
-
-<li> It has precisely-defined semantics.
-<li> It can describe typical human nuance in a compact way;
+The work described in this paper began with the goal
+of developing a computer-based framework for describing performance nuance.
+We called this Nuance Description Framework (NDF).
+NDF has precisely-defined semantics,
+and can describe typical human nuance in a compact way;
 for example, idioms like crescendos are described in a single primitive
 rather than by per-note deviations.
-
 <p>
-We call this \"high-resolution nuance specification\".
-As music evolves, computers are increasingly important tools for
-composition, pedagogy, and performance.
-High-resolution nuance specification makes nuance a first-class citizen,
-along with scores and sounds.
-This will not replace the human component of nuance,
-or the spontaneity of live performance;
-rather, it will provide tools that can enhance these processes
-and that enable new ways of making expressive music.
-
-<h3>1.3  The structure of nuance</h3>
+NDF has several key features.
+<li>
+It can express both continuous and discrete nuance components.
+'Continuous' means things like crescendos and accelerandos;
+'discrete' means momentary things like accents and pauses.
+Time-varying components are expressed in data structures
+called 'piecewise functions of time'.
+<li>
+It provides a powerful way of selecting subsets of notes,
+based either on explicit 'tags',
+or on note attributes such as chord or metric position.
+A 'note selector' is a boolean-valued function of these.
+<li>
+It allows nuance to be factored;
+an NDF nuance description is a list of 'transformations',
+each of which includes an operation, a PFT, and a note selector.
+Each transformation, when applied to a score,
+modifies parameters of some or all of the notes.
 <p>
-Before getting into details,
-we describe the framework of our approach.
-This framework corresponds to the intuition of performers,
-and it has worked in practice (see section X).
+NDF is based on an abstract model
+with two classes: 'Score', which represents that
+based parts of a musical work,
+and 'nuance description'.
+NDF defines the structure of these classes,
+and the semantics of applying a nuance description to a score.
+It doesn't specify how they are implemented;
+for example, a score could be a MusicXML or MIDI file,
+or a Music21 object hierarchy.
 <p>
-A nuance specification starts with a 'score':
-a set of notes with pitches, start times, and durations.
-It applies a sequence of 'transformations' to the score,
-each of which modifies parameters of some or all of the notes.
+We have developed a 'reference implementation' of NDF in Python
+(Section X),
+and we describe NDF in terms of Python data structures and APIs.
+However it could be implemented using other languages
+or data representations, such as JSON.
 <p>
-There are two general types of transformations:
-
-<ul>
-<li> Continuous:
-a smooth (or piecewise smooth) change in tempo, volume,
-or other parameter.
-For keyboard music they affect only note starts and ends,
-but conceptually they are continuous.
-The same transformation could be applied to
-whole notes or 64ths.
-
-<li> Discrete:
-pauses (tempo) and accents (volume).
-These occur at specific points in time.
-They may occur in repeating time patterns,
-at irregular times, or at single times.
-</ul>
+NDF has two broad areas of use.
+In the first, a human musician develops a nuance description
+for a given score,
+using an editing system of some sort.
+We call this 'nuance specification'.
+This could be used, for example, to create a 'virtual performance' of a work.
+We discuss this and other applications in Section X.
 <p>
-We developed nuance specifications to produce
-renditions of piano pieces in a variety of styles,
-with the goal of approximating human performances.
-We found that, to do this, we ended up using
-<li> One or more layers of continous transformation:
-typically a layer at the phrase level (1-8 measures or so)
-and a layer at shorter time scale (1-4 beats).
-<li> A layer of repeating discrete change
-(for example, patterns of accents on the beats within a measure,
-or pauses within a measure).
-<li> A layer of irregular discrete change
-(for example, pauses at phrase ends,
-or agogic accents on particular melody notes).
-</ul>
-
-<h3>1.3  Musical Nuance Specification ($mns)</h3>
-
+The second area, called 'nuance inference',
+involves taking a score for a work
+and a human performance of the work,
+and finding (algorithmically and/or manually)
+a nuance description that maps the score to
+a rendition that closely approximates the human performance.
+This is discussed in Section X.
 <p>
-We new describe our nuance specification formalism in detail.
-We call it $mns (Musical Nuance Specification).
-<p>
-$mns is an abstract model that can be implemented in several ways.
-It defines two classes:
-<ul>
-<li> $score.
-This represents the basic parts of a musical work:
-note pitches and notated timings, and measure boundaries if present.
-<li> <b>$mns specification</b>.
-This represents a set of transformations that
-are applied to a $score to produce a rendition of the work.
-</ul>
-<p>
-$mns defines the structure of the specifications,
-and the semantics of applying them to ".$score."s.
-It does not dictate how these abstractions are implemented.
-A $score could correspond to a MusicXML file,
-a Music21 object hierarchy, or a MIDI file.
-These embodiments may contain additional information &mdash;
-slurs, dynamic markings, note stem directions, etc. &mdash;
-that are not included in the $score.
-An $mns specification could be represented as a JSON or XML document.
-
-<p>
-Some $mns transformations can involve logic
-(for example, 'note selector' functions; see Section X).
-This requires basic features of a programming language.
-Python is well-suited to this purpose, but other languages could be used.
-<p>
-In this paper we describe $score objects and $mns specifications
-in terms of Python data structures and functions.
-<p>
-$mns could be used in a variety of musical contexts.
-For example, it could be used in combination
-with a graphical score editor to generate a MIDI-based
-rendition of a composition; see Figure 1.
-
-<center>
-<img src=flow.gif width=400>
-<br>
-Figure 1: $mns as part of a system for composition.
-</center>
-<p>
-Section X discusses other possible applications of $mns.
-<p>
-We have implemented an $mns interpreter in a Python library called Numula
-(see Section x).
-Takes a $score (a Python data structure)
-and and $mns spec (Python code).
-
-<p>
-The remainder of this paper is structured as follows:
-Section 2 describes the basics of $mns.
-
-<p>
+The remainder of the paper expands on the above topics.
+Section X discusses related work,
+and Section X discusses future work and conclusions.
 
 <a name=model></a>
 <h2>2. The $mns model</h2>
@@ -236,7 +166,7 @@ The scale is arbitrary,
 but our convention is that the unit is a 4-beat measure.
 Thus, 0.25 (1/4) is a quarter note, and so on.
 <li> 'Performance time': a transformed version of score time.
-In the final result of applying an $mns specification to a score,
+In the final result of applying an $mns description to a score,
 performance time is real time, measured in seconds.
 </ul>
 
@@ -244,8 +174,13 @@ performance time is real time, measured in seconds.
 
 <h3>2.2 $score</h3>
 <p>
-The class $score represents the skeleton of a composition:
-the notes and measures.
+The class $score represents the basic parts of a musical work:
+note pitches and notated timings, and measure boundaries if present.
+A $score could correspond to a MusicXML file,
+a Music21 object hierarchy, or a MIDI file.
+These embodiments may contain additional information &mdash;
+slurs, dynamic markings, note stem directions, etc. &mdash;
+that are not included in the $score.
 
 <p>
 The class $note represents a note.
@@ -274,13 +209,13 @@ with the same start time as `n`, and `n.nchord_pos` is `n`'s pitch order in this
 </ul>
 
 <p>
-The class $measure$ represent a measure.
+The class $measure represents a measure.
 Each measure is described by its start time and duration,
 which are score times.
 Measures must be non-overlapping.
 A Measure can also have a 'type' tag,
 typically a string representing the measure's
-duration and structure (e.g. '2+2+3/8').
+duration and metric structure (e.g. '2+2+3/8').
 <p>
 If a note N lies within a measure, it has two additional attributes:
 <ul>
@@ -310,13 +245,30 @@ selects all half notes in the right hand.
 We could select notes in a particular range of score time,
 at a particular measure offset, and so on.
 <p>
-In Python, note selectors are of the type
+In Python, the type of note selectors is
 <pre>
 type Selector = Callable[[$note], bool] | None
 </pre>
 <p>
 
 <h3>2.4 Piecewise functions of time</h3>
+<p>
+There are two general types of transformations:
+<ul>
+<li> Continuous:
+a smooth (or piecewise smooth) change in tempo, volume,
+or other parameter.
+For keyboard music they affect only note starts and ends,
+but conceptually they are continuous.
+The same transformation could be applied to
+whole notes or 64ths.
+
+<li> Discrete:
+pauses (tempo) and accents (volume).
+These occur at specific points in time.
+They may occur in repeating time patterns,
+at irregular times, or at single times.
+</ul>
 <p>
 Many components of nuance involve quantities
 (like tempo and volume) that change over time.
@@ -1028,6 +980,22 @@ pedal
 <h2>7. Developing nuance specifications</h2>
 <h3>7.1 Nuance structure</h3>
 <p>
+We developed nuance specifications to produce
+renditions of piano pieces in a variety of styles,
+with the goal of approximating human performances.
+We found that, to do this, we ended up using
+<li> One or more layers of continous transformation:
+typically a layer at the phrase level (1-8 measures or so)
+and a layer at shorter time scale (1-4 beats).
+<li> A layer of repeating discrete change
+(for example, patterns of accents on the beats within a measure,
+or pauses within a measure).
+<li> A layer of irregular discrete change
+(for example, pauses at phrase ends,
+or agogic accents on particular melody notes).
+</ul>
+
+<p>
 The first step in developing a nuance specification
 is to decide on a structure:
 a set of layers, each of which has a particular purpose.
@@ -1220,6 +1188,18 @@ use this to produce nuanced renditions of the piece.
 This would facilitate the composition process
 and would convey the composer's musical intentions
 to prospective performers.
+<p>
+$mns could be used in a variety of musical contexts.
+For example, it could be used in combination
+with a graphical score editor to generate a MIDI-based
+rendition of a composition; see Figure 1.
+
+<center>
+<img src=flow.gif width=400>
+<br>
+Figure 1: $mns as part of a system for composition.
+</center>
+<p>
 
 <h3>9.2 Virtual performance</h3>
 <p>
@@ -1454,6 +1434,14 @@ other uses of AI
 
 <a name=conclusion></a>
 <h2>12. Conclusion</h2>
+<p>
+As music evolves, computers are increasingly important tools for
+composition, pedagogy, and performance.
+High-resolution nuance specification makes nuance a first-class citizen,
+along with scores and sounds.
+This will not replace the human component of nuance,
+or the spontaneity of live performance;
+rather, it will provide tools that can enhance these processes
 <p>
 Rich Kraft contributed ...
 

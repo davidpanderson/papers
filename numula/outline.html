@@ -2,13 +2,25 @@
 Describing and inferring nuance in notated music
 
 <a href=index.php#intro>Introduction</a>
+    [summarize the paper]
+    [should have subsections? no]
     Performance nuance
-    Describing nuance
-    The structure of nuance
-    Musical Nuance Specification (MNS)
-<a href=index.php#model>The MNS model</a>
+    nuance markings in scores
+    Nuance Description framework
+        continuous/discrete
+        layering/factoring
+        note selectors, tagging
+        abstract model; Python implementation
+    nuance specification and its applications
+        nuance generators
+        Numula
+        other options
+    nuance inference and applications
+
+<a href=index.php#model>The NDF model</a>
+    (intro: using Python notation)
     Time
-    Score
+    Score; tags
     Note selectors
     Piecewise functions of time
         Linear PFT primitive
@@ -19,26 +31,29 @@ Describing and inferring nuance in notated music
             operator
             PFT
             Note selector
-        nuance specification:
-            a sequence of transformations
+    nuance descriptions
+        a sequence of transformations
+
 <a href=index.php#timing>Timing</a>
-    (intro: types of adjustment)
-    Tempo control
-    Time shifts
-    Articulation
+    intro: types of adjustment
+        Tempo control
+        Time shifts
+        Articulation
     Layering timing adjustments
+
 <a href=index.php#pedal>Pedals and virtual pedals</a>
     Standard pedals
     Virtual sustain pedals
     Implementation and layering
+
 <a href=index.php#dynamics>Dynamics</a>
     (intro: types of adjustment)
     Layering
-<a href=index.php#numula>Numula</a>
-<a href=index.php#applications>Developing nuance specifications</a>
+
+<a href=index.php#applications>Specifying nuance</a>
     Nuance structure
         a list of transformations with operator and selector,
-            but PTF unspecified
+            but PFTs unspecified
         goal:
             each layer has a purpose;
             if something is off, it's clear what layer to change
@@ -59,13 +74,18 @@ Describing and inferring nuance in notated music
     <a href=index.php#editing>Editing interfaces</a>
         (GUI, program)
         repetition, parameterization
-    Applications
+
+    <a href=index.php#examples>Examples</a>
+
+Applications of nuance specifications
         Composition
         Virtual performance
         Performance pedagogy
         Ensemble rehearsal and practice
         Sharing and archival
-    <a href=index.php#examples>Examples</a>
+
+<a href=index.php#numula>Numula</a>
+
 <a href=index.php#applications>Nuance inference</a>
     idea:
         given a score and performance of the score,
@@ -102,13 +122,14 @@ Describing and inferring nuance in notated music
                 find signature nuance
             performers of different periods / nationalities/ conservatories
         find new primitives
+
 <a href=index.php#related>Related work</a>
-<a href=index.php#future>Future work</a>
+
+<a href=index.php#future>Conclusions and future work</a>
     higher-level Note selection: integrate with Music 21 for harmony
     Non-keyboard instruments
     PFT primitive selection
     use of AI for nuance inference?
     other uses of AI
-<a href=index.php#conclusion>Conclusion</a>
 
 </pre>

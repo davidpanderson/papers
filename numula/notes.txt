@@ -81,26 +81,36 @@ It would be possible to make the volume change linear in perf time.
 Big picture:
 There are two levels to MNS:
 
-- Nuance descriptions
+- Nuance description
     a sequence of transformations, each of which is generally
         - operation
         - a PFT
         - a note selector
-    These are static; all values are hardwired
+    These are static; values are hardwired
+    Analogous to a CSS file
 
-- Nuance generators
-    Code (Python or other) that generates a nuance description.
+- Nuance scripting
+    Scriptable (Python or other) system that generates a nuance description.
     This lets you have
     - parameterization: e.g. you can have variables that appear
         throughout the PFTs.
+        e.g. variables that control the relative volume of melody
+        and accompaniment,
+        or the extent of tempo changes and rubato
     - looping and functions
         e.g. repeat this dynamic pattern 4 times
+    Analogous to SASS: https://en.wikipedia.org/wiki/Sass_(style_sheet_language)
 
-For long/complex pieces you need nuance generators.
+For long/complex pieces you need nuance scripting;
+otherwise you'll get bored and stop
 
-Numula is a nuance generator implemented as a Python module.
+A nuance script can be a program.
+E.g. Numula is a nuance generator implemented as a Python API.
 One can also imagine a nuance generator that's more graphical
 and less code-like,
 e.g. you can create a volume contour by drag and drop,
 have its parameters controlled by a slider,
 and be able to replicate it.
+----------------
+$mns is not intended to model musical cognition or compositional structure.
+
