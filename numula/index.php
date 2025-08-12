@@ -879,7 +879,7 @@ This is useful for bringing out melody notes when the overall volume is low.
 Multiple adjustments can result in levels > 1; if this happens, a warning message is shown and the volume is set to 1.
 
 <p>
-The primitive
+The transformation
 <p>
 <pre>
 Score.vol_adjust_pft(
@@ -900,7 +900,7 @@ This can be used to set the overall volume of the piece.
 It can be used to shape the dynamics of an inner voice by selecting
 the tag used for that voice.
 <p>
-Other primitives adjust volume explicitly
+Other transformations adjust volume explicitly
 (not necessarily as a function of time).
 <pre>
 Score.vol_adjust(
@@ -933,7 +933,7 @@ score.vol_adjust(ns, .7, lambda n: n.measure_offset not in [0,1,2,3])
 <p>
 emphasizes the strong beats of 4/4 measures.
 
-<h3>5.1 Layering</h3>
+<h3>5.1 Layering volume transformations</h3>
 <p>
 Volume adjustments are typically layered (see Section X).
 Multiplicative adjustments commute,
@@ -946,44 +946,30 @@ Typically the order is:
 <li> adjustments set volume to specific values
 </ul>
 
-<a name=numula></a>
-<h2>6. Numula</h2>
+<h2>7. Specifying nuance</h2>
 <p>
-Numula is a Python library that implements $mns.
-It implements the classes listed above:
-Score, Note, PFT, etc.
-Its Score class implements the transformation functions.
-<p>
-Numula is a stand-alone system for creating nuanced music
-completely in Python.
-picture:
-score shorthand -> Score object
-nuance shorthand -> PFTs
-                -> $mns engine
-                -> MIDI
-
-MIDI file -> Score object
-
-JSON file -> PFT
-<p>
-Shorthand notations
-<p>
-Numula provides a number of textual shorthands
-for expressing both scores and nuance.
-For example
-tempo
-volume
-pedal
-
-
-<a name=examples></a>
-<h2>7. Developing nuance specifications</h2>
-<h3>7.1 Nuance structure</h3>
+In many applications of NDF, a human musician
+(composer or performer) manually creates a nuance description for a work.
+We call this 'nuance specification'.
 <p>
 We developed nuance specifications to produce
 renditions of piano pieces in a variety of styles,
 with the goal of approximating human performances.
-We found that, to do this, we ended up using
+In this section we describe some principles that we found useful.
+But nuance specification - like practicing for a physical performance -
+is a personal process.
+
+<h3>7.1 Nuance structure</h3>
+<p>
+The first step in developing a nuance specification
+is to decide on a structure:
+a set of layers, each of which has a particular purpose.
+The goal is that when one wants to change something,
+it's clear which layer is involved.
+<p>
+We found that, to do this, we ended up using,
+for both timing and dynamics:
+
 <li> One or more layers of continous transformation:
 typically a layer at the phrase level (1-8 measures or so)
 and a layer at shorter time scale (1-4 beats).
@@ -995,30 +981,6 @@ or pauses within a measure).
 or agogic accents on particular melody notes).
 </ul>
 
-<p>
-The first step in developing a nuance specification
-is to decide on a structure:
-a set of layers, each of which has a particular purpose.
-The goal is that when one wants to change something,
-it's clear which layer is involved.
-<p>
-For example, the examples listed above use variants
-of the following structure:
-<p>
-Timing control:
-<ul>
-<li> A PFT for tempo control at the phrase level (8+ measures).
-<li> A PFT for tempo control at the measure level.
-<li> A PFT that specifies pauses.
-</ul>
-<p>
-Volume control:
-<p>
-<ul>
-<li> PFTs for volume control at the phrase level (8+ measures).
-<li> PFTs for volume control at the measure level.
-<li> PFTs that specifies accents.
-</ul>
 <p>
 Typically one can use separate controls for the different parts:
 for example, the left and right hand parts,
@@ -1052,6 +1014,42 @@ nuance specification.
 <li> Work on one layer at a time.
 </ul>
 
+<h3>8. Nuance scripting</h3>
+<p>
+A long and complex piece typically has repetition at multiple levels.
+The nuance for such a piece will typically also have structure.
+It's convenient to be able to express:
+
+
+<li> Repetition.
+you might want to define a dynamic pattern
+and apply it 16 times in a row,
+rather than defining it 16 times.
+
+<li> Parameterization:
+transformations parameters can be variables,
+and changing the value of a variable affects
+all the transformations that use it.
+E.g., to emphasize the strong beats in each measure,
+one can define a pattern of emphases,
+and then apply it to multiple measures.
+
+<li> Functions.
+More generally
+
+<p>
+These are features of every programming language,
+so we can achieve these capabilities by
+wrapping NDF in a programming language:
+i.e., providing an API for describing and layering transformations.
+We call this 'nuance scripting'.
+We have done this in Numula, using Python (see Section X).
+Other languages could be used as well.
+<p>
+Graphical interfaces for editing nuance
+could potentially be enhanced to provide scripting-like capabilities.
+We believe that these are necessary for non-trivial applications.
+
 <a name=editing></a>
 <h2>8. Editing interfaces</h2>
 <p>
@@ -1071,14 +1069,6 @@ Desirable properties of a UI for editing nuance:
 an accelerando from 80 to 120 from measures 8 to 13
 can be expressed directly rather than by adjusting individual notes.
 
-<li> It can express repetition.
-E.g., to emphasize the strong beats in each measure,
-one can define a pattern of emphases,
-and then apply it to multiple measures.
-<li> Parameterization:
-transformations parameters can be variables,
-and changing the value of a variable affects
-all the transformations that use it.
 <li>
 One can make an adjustment and hear the effect
 quickly and with a minumum of keystrokes and mouse clicks.
@@ -1111,64 +1101,21 @@ To address this, Numula provides a feature called 'Interactive Parameter Adjustm
 that streamlines the editing cycle,
 reducing it to two keystrokes.
 
-<pre>
-var('if_pauses', IPA_LAYER, 'on')
-var('if_tbeat', IPA_LAYER, 'on')
-...
-var('if_soprano', IPA_BOOL, True)
-var('if_bass', IPA_BOOL, True)
-</pre>
-<p>
-<pre>
-var('dv1', IPA_VOL, .07, ['if_vmeas'])        # volume swells in vmeas
-var('dv2', IPA_VOL, .1, ['if_vmeas'])
-
-var('p_start', IPA_DT_SEC, .04, ['if_pauses'])
-
-var('tph_1_1', IPA_TEMPO, 40, ['if_tphrase'])
-var('tph_1_2', IPA_TEMPO, 60, ['if_tphrase'])
-</pre>
-
-<pre>
-vm_4_sm = f'[ 0 3/4 {dv1} 1/4 0'
-</pre>
-
-<pre>
-if if_pauses != 'off':
-    ns.tempo_adjust_pft(pauses)
-</pre>
-
-<p>
-<pre>
-variables:
-#   name        value  type        tags        description
-1   if_pauses   on     Layer
-2   if_tbeat    on     Layer
-3   if_tphrase  on     Layer
-4   if_accents  on     Layer
-5   if_vmeas    on     Layer
-6   if_vphrase  on     Layer
-7   if_soprano  True   Boolean
-8   if_bass     True   Boolean
-9*  dv1         0.07   Volume      if_vmeas
-10  dv2         0.10   Volume      if_vmeas
-11  dv3         0.13   Volume      if_vmeas
-12  rha1        0.14   Volume      if_accents
-13  rha2        0.10   Volume      if_accents
-14  rha3        0.05   Volume      if_accents
-...
-38  start       0/1    Score time              playback start time
-39  dur         1/1    Score time              playback duration
-40  show        False  Boolean                 show score on playback
-
-</pre>
-
-Type:
 <ul>
 <li> a number to select a variable
 <li> up or own arrow keys to increment or decrement the variable value
 <li> space to play the selected part of the score.
 </ul>
+
+<h3> 9.2 Examples</h3>
+<p>
+We have used Numula to create nuanced performances
+of piano pieces in a variety of styles,
+ranging from Beethoven to Berio.
+Our goal was to create performances that approximated
+performances by a skilled human.
+<p>
+Appassionata
 
 <a name=applications></a>
 <h2>9. Applications of nuance specification</h2>
@@ -1237,19 +1184,49 @@ for these works.
 This would provide a framework for sharing and discussing interpretations.
 <a name=mns></a>
 <p>
-<h3> 9.2 Examples</h3>
+
+<a name=numula></a>
+<h2>6. Numula</h2>
 <p>
-We have used Numula to create nuanced performances
-of piano pieces in a variety of styles,
-ranging from Beethoven to Berio.
-Our goal was to create performances that approximated
-performances by a skilled human.
+Numula is a Python library that implements $mns.
+It implements the classes listed above:
+Score, Note, PFT, etc.
+Its Score class implements the transformation functions.
 <p>
-Appassionata
+Numula is a stand-alone system for creating nuanced music
+completely in Python.
+
+MIDI file -> Score object
+
+JSON file -> PFT
+<p>
+Shorthand notations
+<p>
+Numula provides a number of textual shorthands
+for expressing both scores and nuance.
+For example
+tempo
+volume
+pedal
+<p>
+These are compiled into PFTs (or Scores)
+picture:
+score shorthand -> Score object
+nuance shorthand -> PFTs
+                -> $mns engine
+                -> MIDI
+<p>
+common features:
+nested looping
+params (f strings)
+measure checking
+
+<p>
+IPA
 
 <h2>10. Nuance inference</h2>
 <p>
-How can we 'extract' the nuance from a human performance?
+How can we infer the nuance from a human performance?
 More precisely:
 given a score and a performance of the score
 (as a sound file or MIDI file)
@@ -1299,6 +1276,7 @@ and assembling the resulting primitives into a PFT.
 We can then subtract this volume adjustment from the performance,
 leaving a residue.
 We then fit shorter (beat- or measure-level) primitives in a similar way.
+<p>
 From the resulting residue, we fit accents or patterns of accents.
 <p>
 We can analyze timing in a similar way:
@@ -1360,7 +1338,6 @@ It may turn out that the optimal set of primitives depends on
 the period of the performance,
 the period and style of the composition,
 the individual performer, and so on.
-
 
 <a name=related></a>
 <h2>10. Related work</h2>
