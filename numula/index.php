@@ -1236,38 +1236,68 @@ This would provide a framework for sharing and discussing interpretations.
 Numula is a Python library that implements NDF.
 It implements the classes listed above:
 Score, Note, PFT, etc.
-Its Score class implements the transformation functions.
+The transformation functions described in Sections x-y.
+are member functions of the Score class.
 <p>
-Numula is a stand-alone system for creating nuanced music
+Numula can be used in various ways.
+It can be used as a stand-alone system for creating nuanced music
 completely in Python.
+Or it can be integrated with other systems to provide nuance;
+for example, it can import a MIDI file as a Score object,
+and then apply a nuance description to it.
+<p>
+A Score, after a nuance description has been applied,
+can be output as a MIDI file.
+Alternatively, Numula can play this MIDI output
+using a local Pianoteq server controlled by RPCs.
+<p>
+Numula provides a number of textual 'shorthand notations'
+for expressing both scores and different types of PFTs
+(tempo, volume, pedal).
+For example,
+<pre>
+sh_vol('pp 2/4 mf 4/4 pp')
+</pre>
+returns a PFT representing a crescendo
+from pp to mf over 2 beats,
+then a diminuendo to pp over 4 beats.
+'pp' and 'mf' are constants representing
+.45 and 1.11 respectively.
+<pre>
+sh_tempo('60 8/4 80 4/4 60')
+</pre>
+returns a PFT for a tempo that varies linearly from 60 to 80 BPM 
+beats per minute) over 8 beats, then back to 60 over 4 beats. 
+<pre>
+sh_pedal('1/4 (1/4 0 1.) (1/4) 4/4')
+</pre>
+defines a pedal that off for 1 beat,
+changes linearly from off to on over 1 beat,
+is on for 1 beat, then off for 4 beats.
+<pre>
+sh_score('1/4 c5 d e')
+</pre>
+returns a Score that plays 3 quarter notes starting at middle C.
+The shorthand notation scores has lots of features
+that enable compact representation of complex scores;
+see [ref].
+<p>
+All of the shorthand notations have a set of core features:
+<p>
+Nestable looping:
+<pre>
+</pre>
 
-MIDI file -> Score object
+Parameterization (using the Python f-string feature):
+<pre>
+med = 60
+fast = 80
+sh_tempo(f'{med} 8/4 {fast} 4/4 {med}')
+</pre>
 
-JSON file -> PFT
-<p>
-Shorthand notations
-<p>
-Numula provides a number of textual shorthands
-for expressing both scores and nuance.
-For example
-tempo
-volume
-pedal
-<p>
-These are compiled into PFTs (or Scores)
-picture:
-score shorthand -> Score object
-nuance shorthand -> PFTs
-                -> NDF engine
-                -> MIDI
-<p>
-common features:
-nested looping
-params (f strings)
-measure checking
-
-<p>
-IPA
+Measure checking:
+<pre>
+</pre>
 
 <h2>10. Nuance inference</h2>
 <p>
