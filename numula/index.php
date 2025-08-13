@@ -3,13 +3,12 @@
 $score = 'NScore';
 $note = 'NNote';
 $measure = 'NMeasure';
-$mns = 'NDF';
 
 echo "
 <div style=\"max-width: 700px; font-size:14px; font-family:Trebuchet MS; line-height:1.4\" align=justify>
 <a href=outline.html>Outline</a>
 <center>
-<h1>Describing musical performance nuance</h1>
+<h1>Describing performance nuance</h1>
 
 <p>
 David P. Anderson
@@ -23,23 +22,22 @@ We present a model, Nuance Description Framework (NDF)
 for describing performance nuance
 (timing, dynamics, articulation, and pedaling)
 in notated keyboard music.
-$mns can concisely express nuance
+NDF can concisely express nuance
 at a level of detail that closely approximates typical human performance.
 This capability creates many musical possibilities.
 Some of these involve human-created 'nuance specifications';
 this has application in composition, virtual performance,
 and performance pedagogy.
 We describe these applications,
-and the possible interfaces for creating and editing nuance specifications.
-It is also possible to 'infer' nuance descriptions
-from recorded human performances;
-this enables studies of performance practice.
+and the challenges in creating and editing
+long and complex nuance specifications.
+We also discuss the idea of 'inferring' nuance descriptions
+from recorded human performances,
+and the studies of performance practice this would enable.
 
 <p>
 
-<a name=intro></a>
 <h2>1. Introduction</h2>
-<h3>1.1  Performance nuance</h3>
 <p>
 This paper is concerned with 'performance nuance' in notated music,
 by which we mean the differences between music as notated
@@ -61,7 +59,7 @@ but could possibly be extended to do so.
 <p>
 Nuance has a central role in classical music,
 as evidenced by the fact that standard repertoire works
-are performed and recorded thousands of time,
+are performed and recorded thousands of times,
 with the primary difference being the performance nuance.
 <p>
 Some scores have nuance indications:
@@ -154,11 +152,13 @@ The remainder of the paper expands on the above topics.
 Section X discusses related work,
 and Section X discusses future work and conclusions.
 
-<a name=model></a>
-<h2>2. The $mns model</h2>
+<h2>2. The NDF model</h2>
+<p>
+Use Python notation for classes and functions
+
 <h3>2.1 Time</h3>
 <p>
-$mns uses two notions of time:
+NDF uses two notions of time:
 <ul>
 <li> 'Score time': time as notated in a score,
 represented as floating-point numbers.
@@ -166,7 +166,7 @@ The scale is arbitrary,
 but our convention is that the unit is a 4-beat measure.
 Thus, 0.25 (1/4) is a quarter note, and so on.
 <li> 'Performance time': a transformed version of score time.
-In the final result of applying an $mns description to a score,
+In the final result of applying an NDF description to a score,
 performance time is real time, measured in seconds.
 </ul>
 
@@ -272,7 +272,7 @@ at irregular times, or at single times.
 <p>
 Many components of nuance involve quantities
 (like tempo and volume) that change over time.
-In $mns, these are typically described as functions of score time.
+In NDF, these are typically described as functions of score time.
 These functions are specified as a sequence of 'primitives',
 A function defined in this way is called a 'piecewise function of time' (PFT).
 <p>
@@ -348,13 +348,14 @@ integral_reciprocal(t: float): float
 </pre>
 the integral of the reciprocal of F from 0 to t.
 <p>
-$mns uses PFTs for several purposes.
+NDF uses PFTs for several purposes.
 When a PFT is used to describe tempo (see below)
 its integrals are used, not its values,
 and closure at endpoints is not relevant.
 When a PFT is used to describe volume,
 the value is used, and closure matters.
 <p>
+
 <h3>2.2.1 Linear PFT primitive</h3>
 <p>
 The PFT primitive representing a linear function is:
@@ -470,11 +471,10 @@ as member functions of the $score class,
 there the name of the function is the operator.
 <p>
 
-<a name=timing></a>
 
 <h2>3. Timing</h2>
 <p>
-$mns supports three kinds of timing adjustment.
+NDF supports three kinds of timing adjustment.
 <p>
 <b>Tempo control</b>: the performance times of note starts and
 ends are changed according to a 'tempo function',
@@ -490,7 +490,7 @@ Generally the duration is changed so that the end time of the note
 remains fixed.
 Other notes are not changed
 (unlike pauses, which postpone all subsequent notes).
-$mns defines several time-shift transformations:
+NDF defines several time-shift transformations:
 for example,
 'rolling' a chord with specified shifts for each chord note,
 or using a PFT to specify varying 'agogic accents'
@@ -716,7 +716,6 @@ A typical order of adjustments (see Section X):
 <li> Shift PFTs
 </ul>
 
-<a name=pedal></a>
 <h2>4. Pedal control</h2>
 <h3>4.1 Standard pedals</h3>
 <p>
@@ -747,7 +746,7 @@ pedaling is critical to the sound of a performance,
 but few scores notate it at all,
 much less completely and precisely.
 <p>
-$mns provides a mechanism for specifying pedal use.
+NDF provides a mechanism for specifying pedal use.
 The level of a particular pedal can be specified as a PFT
 consisting of Linear primitives with value in [0,1],
 where 1 means the pedal is fully depressed
@@ -802,7 +801,7 @@ Sometimes it's useful to sustain only certain keys.
 The sustain pedal can't do this: it affects all keys.
 The sostenuto pedal affects a subset of keys,
 but its semantics limit its use to a fairly small set of situations.
-$mns has a mechanism called 'virtual sustain pedal'
+NDF has a mechanism called 'virtual sustain pedal'
 that is like a sustain pedal that applies to only a specific subset of notes.
 
 <p>
@@ -834,7 +833,7 @@ in terms of what keys are sustained.
 They lack two features of standard pedals: there is no fractional pedal,
 and, acoustically, there is no sympathetic resonance of open strings.
 
-<h3>4.3 Implementation and layering of pedal specifications</h3>
+<h3>4.3 Implementation and layering</h3>
 <p>
 Pedal specifications must precede timing adjustments.
 Timing adjustments (including time shifts)
@@ -848,11 +847,10 @@ Uses of the standard pedals can't be layered;
 that is, two PFTs controlling a particular pedal can't overlap in time.
 However, virtual sustain PFTs can overlap standard pedal PFTs.
 
-<a name=dynamics></a>
 <h2>5. Dynamics</h2>
 <p>
-In $mns, the volume of a note is represented by floating point 0..1
-(soft to loud).
+In NDF, the volume of a note is represented by floating point number
+in [0, 1] (soft to loud).
 This may be mapped to a MIDI velocity (0..127),
 in which case the actual loudness depends on the synthesis engine.
 Notes initially have volume 0.5.
@@ -876,13 +874,15 @@ This is useful for bringing out melody notes when the overall volume is low.
 
 </ul>
 
-Multiple adjustments can result in levels > 1; if this happens, a warning message is shown and the volume is set to 1.
+Multiple adjustments can result in levels > 1;
+if this happens, a warning message is shown and the volume is set to 1.
 
 <p>
 The transformation
 <p>
 <pre>
 Score.vol_adjust_pft(
+    mode: int,
     pft: PFT,
     t0: float = 0,
     selector = None
@@ -904,18 +904,19 @@ Other transformations adjust volume explicitly
 (not necessarily as a function of time).
 <pre>
 Score.vol_adjust(
+    mode: int,
     factor: float,
     selector: Selector = None
 )
-Score.vol_adjust(
+Score.vol_adjust_func(
+    mode: int,
     func: NoteToFloat,
     selector: Selector = None
 )
 </pre>
 These adjust the volumes of the selected notes.
-If the 1st argument is a function,
-its argument is a note and it returns an adjustment factor.
-Otherwise the 1st argument is an adjustment factor.
+For vol_adjust_func(), the 2nd argument is a function,
+its argument is a $note and it returns an adjustment factor.
 For example,
 <p>
 <pre>
@@ -935,35 +936,54 @@ emphasizes the strong beats of 4/4 measures.
 
 <h3>5.1 Layering volume transformations</h3>
 <p>
-Volume adjustments are typically layered (see Section X).
-Multiplicative adjustments commute,
+Volume transformations are typically layered (see Section X).
+Multiplicative transformations commute,
 so the order in which they're applied doesn't matter.
-Other adjustments generally do not commute.
+Other transformations generally do not commute.
 Typically the order is:
 <ul>
-<li> one or more multiplicative adjustments
-<li> adjustments that increment volume
-<li> adjustments set volume to specific values
+<li> one or more transformations with mode VOL_MULT;
+<li> transformations with mode VOL_ADD;
+<li> transformations with mode VOL_SET.
 </ul>
 
 <h2>7. Specifying nuance</h2>
 <p>
-In many applications of NDF, a human musician
-(composer or performer) manually creates a nuance description for a work.
-We call this 'nuance specification'.
+In many applications of NDF, a human musician (composer or performer)
+manually creates a nuance description for a work.
+We call this process 'nuance specification'.
 <p>
-We developed nuance specifications to produce
-renditions of piano pieces in a variety of styles,
-with the goal of approximating human performances.
+Developing a nuanced specification of a work is
+analogous to practicing on a physical instrument.
+You start by developing a mental model of a rendition:
+how you want the piece to sound.
+Then you create a 'rough draft' of a nuance description:
+a set of transformations and their roles.
+<p>
+This is followed by an iterative process:
+<ul>
+<li> Listen to part of the rendition;
+<li> Identify a deviation from the mental model;
+<li> Identify and change the relevant part of the nuance description.
+</ul>
+<p>
+This cycle may be repeated thousands of times,
+so it's important that it be as easy as possible
+(in terms of mouse clicks).
+We discuss this in Section X below.
+<p>
+We created nuance specifications
+for piano pieces in a variety of styles,
+with the goal of creating expressive and human-like virtual performances.
 In this section we describe some principles that we found useful.
-But nuance specification - like practicing for a physical performance -
+But specifying nuance - like practicing for a physical performance -
 is a personal process.
 
 <h3>7.1 Nuance structure</h3>
 <p>
 The first step in developing a nuance specification
 is to decide on a structure:
-a set of layers, each of which has a particular purpose.
+a set of layered transformations, each of which has a particular purpose.
 The goal is that when one wants to change something,
 it's clear which layer is involved.
 <p>
@@ -994,32 +1014,51 @@ Pedal control:
 (e.g. left or right hand).
 </ul>
 
-<h3>7.2 The process of developing a nuance specification</h3>
+<h3>7.2 Developing nuance specifications</h3>
 <p>
-Developing a nuanced performance of a work with $mns is
-analogous to practicing on a physical instrument.
-One starts by developing a mental model of the piece
-and a 'rough draft' of a nuance specification.
-This is followed by an iterative process of
-<ul>
-<li> Listening to (part of) the rendition
-<li> Identifying a deviation from the mental model
-<li> Identifying and changing the relevant part of the
-nuance specification.
-</ul>
+As discussed above, the first step in developing a nuance specification
+is to develop a mental model of how you want it to sound.
 <p>
+Next, you tag notes in the score.
+If you want the left and right hands to have independent dynamics,
+you could tag notes with 'lh' or 'rh'.
+If you want to bring out or shape the dynamics of melodies,
+you'd tag their notes.
+If you want to use rubato - tempo fluctuations
+in one voice but not others - you'd take those notes.
+<p>
+The way in which notes are tagged depends on the way
+in which scores are described.
+Numula has a flexible scheme for tagging notes; see section X.
+<p>
+The next step is to define a nuance structure.
+<p>
+Finally we come to the hard part:
+the listen/edit cycle described earlier.
+We can be a daunting task.
+We found the following useful:
 <ul>
 <li> Work on a short part of the piece (say, one measure or phrase).
 <li> Work on one voice at a time.
-<li> Work on one layer at a time.
+It may or may not be useful to hear other voices at the same time.
+<li> Work on one nuance layer at a time.
+It may or may not be useful to enable other layers at the same time.
 </ul>
+
+<p>
+When you're done with a section, it may be useful to
+make the nuance into a function (see below)
+so that you can reuse it for analogous sections later in the piece.
+<p>
+In the course of doing low-level editing,
+you may decide to make high-level changes,
+e.g. to add new note tags for change the nuance structure.
 
 <h3>8. Nuance scripting</h3>
 <p>
 A long and complex piece typically has repetition at multiple levels.
 The nuance for such a piece will typically also have structure.
 It's convenient to be able to express:
-
 
 <li> Repetition.
 you might want to define a dynamic pattern
@@ -1034,8 +1073,11 @@ E.g., to emphasize the strong beats in each measure,
 one can define a pattern of emphases,
 and then apply it to multiple measures.
 
-<li> Functions.
-More generally
+<li> Functions:
+logic - possibly parameterized,
+possibly with loops and conditionals -
+that generates PFTs,
+or that applies transformations.
 
 <p>
 These are features of every programming language,
@@ -1050,7 +1092,6 @@ Graphical interfaces for editing nuance
 could potentially be enhanced to provide scripting-like capabilities.
 We believe that these are necessary for non-trivial applications.
 
-<a name=editing></a>
 <h2>8. Editing interfaces</h2>
 <p>
 What kind of UI (user interface) would facilitate creating
@@ -1078,10 +1119,10 @@ Some general approaches:
 <ul>
 <li> Integrate nuance editing with score editing
 (e.g. in Musescore).
-Nuance layers would be displayed as 'tracks' below the score.
+Nuance layers are displayed as 'tracks' below the score,
+with their PFTs shown graphically.
 You can use the mouse to drag and drop nuance primitives,
 adjust their parameters, and hear the results.
-I think this might be the best approach.
 
 <p>
 It would also be possible to use the nuance to modify
@@ -1089,23 +1130,30 @@ the way the score is displayed:
 e.g. to use color or note-head size to express dynamics.
 
 <li> Express nuance in a programming language.
-This has been done in
-<a href=https://github.com/davidpanderson/music/wiki>Numula</a>,
-a Python-based system for virtual performance and algorithmic composition.
+This has been done in Numula (section X).
 </ul>
 <p>
-In its original form, the nuance editing cycle in Numula was cumbersome;
+The low-level editing cycle in Numula was cumbersome;
 each adjustment required locating and editing a value in the source code,
-then re-running the program.
-To address this, Numula provides a feature called 'Interactive Parameter Adjustment' (IPA)
-that streamlines the editing cycle,
-reducing it to two keystrokes.
-
-<ul>
-<li> a number to select a variable
-<li> up or own arrow keys to increment or decrement the variable value
-<li> space to play the selected part of the score.
-</ul>
+then re-running the program
+and moving the playback pointer to the relevant time.
+This took a dozen or so input events (keystrokers and mouse clicks).
+<p>
+To accelerate low-level editing, Numula provides a feature called
+'Interactive Parameter Adjustment' (IPA)
+that reduces the cycle to two keystrokes.
+In IPA, you can declare variables to be adjustable,
+and you specify their role (tempo, volume).
+<p>
+You then run the program under an 'IPA interpreter'.
+The interpreter lets you specify a start and end time for playback.
+You can select an adjustable variable,
+change its value with up/arrow keys,
+and press the space bar to play the specified part of the pieces.
+This reduces the editing cycle to two keystrokes.
+<p>
+The values of adjustable variables are stored in a file,
+which is read when the interpreter is started.
 
 <h3> 9.2 Examples</h3>
 <p>
@@ -1117,7 +1165,6 @@ performances by a skilled human.
 <p>
 Appassionata
 
-<a name=applications></a>
 <h2>9. Applications of nuance specification</h2>
 <p>
 Let's assume that we have a formalism describing nuance,
@@ -1136,7 +1183,7 @@ This would facilitate the composition process
 and would convey the composer's musical intentions
 to prospective performers.
 <p>
-$mns could be used in a variety of musical contexts.
+NDF could be used in a variety of musical contexts.
 For example, it could be used in combination
 with a graphical score editor to generate a MIDI-based
 rendition of a composition; see Figure 1.
@@ -1144,7 +1191,7 @@ rendition of a composition; see Figure 1.
 <center>
 <img src=flow.gif width=400>
 <br>
-Figure 1: $mns as part of a system for composition.
+Figure 1: NDF as part of a system for composition.
 </center>
 <p>
 
@@ -1182,13 +1229,11 @@ share scores for musical works.
 Such sites could also include user-supplied nuance descriptions
 for these works.
 This would provide a framework for sharing and discussing interpretations.
-<a name=mns></a>
 <p>
 
-<a name=numula></a>
 <h2>6. Numula</h2>
 <p>
-Numula is a Python library that implements $mns.
+Numula is a Python library that implements NDF.
 It implements the classes listed above:
 Score, Note, PFT, etc.
 Its Score class implements the transformation functions.
@@ -1213,7 +1258,7 @@ These are compiled into PFTs (or Scores)
 picture:
 score shorthand -> Score object
 nuance shorthand -> PFTs
-                -> $mns engine
+                -> NDF engine
                 -> MIDI
 <p>
 common features:
@@ -1339,14 +1384,13 @@ the period of the performance,
 the period and style of the composition,
 the individual performer, and so on.
 
-<a name=related></a>
 <h2>10. Related work</h2>
 <p>
 There has been some research in this general area.
 Some papers study the statistics of deviation from the score,
 but not the actual modeling of it.
 <p>
-$mns is analogous to
+NDF is analogous to
 <a href=https://en.wikipedia.org/wiki/CSS>Cascading Style Sheets</a>
 (CSS),
 a system for specifying the appearance of web pages.
@@ -1367,73 +1411,83 @@ using 'selectors' involving the element tags, classes, and IDs.
 </ul>
 
 <p>
-$mns has similar properties.
-<a name=future></a>
+NDF has similar properties.
 
 <h2>11. Future work</h2>
 
 <h3>11.2 Note selection</h3>
 <p>
-$mns's selection mechanism is low-level:
+NDF's selection mechanism is low-level:
 notes are tagged based on their pitch position and metric position,
 and can be tagged explicitly.
 One can imagine higher-level ways of selecting notes,
 based on musical semantics:
 <ul>
-<li> Harmony: tag notes based on their roles
-in cadences, their chord position, and so on.
+<li> Harmony: tag notes based on their roles in cadences,
+their chord position, and so on.
 <li> Phrase structure:
-add tags that allow the specification of, for example,
-a small ritardando at the end of each phrase,
+add note tags that allow the specification of, for example,
+a ritardando at the end of phrases,
 or accents on the high points of phrases.
 </ul>
 ... and so on.
 <p>
 <h3>11.3 Non-keyboard instruments</h3>
 <p>
-$mns could be extended to handle scores with multiple instruments.
+NDF could be extended to handle scores with multiple instruments.
 Note tags could include the instrument type
 (e.g. 'violin') and instance (e.g. 'violin 1').
 <p>
-$mns could be extended to include other note parameters:
-<ul>
-<li> Attack parameters.
-<li> Variation in pitch, timbre or volume during a note.
-</ul>
+NDF could be extended to describe note parameters beyond pitch and volume.
+These might include
+a) attack parameters such as bow weight;
+b) variation in pitch, timbre or volume during a note;
+these could be modeled in the style of PFTs.
 
 <h3>11.4 PFT primitives</h3>
 <p>
 <h3>11.5 Uses of AI</h3>
 <p>
-use of AI for nuance inference
+In theory one could use AI to produce nuance descriptions:
+e.g. 'Play Phillip Glass in the style of Arthur Schnabel'.
+That is not the goal of this work:
+we want to provide tools to human composers and performers
+that let them create music with their own expression.
 <p>
-other uses of AI
+However, AI might have useful roles.
+For example, it could be used
+as part of a nuance inference system.
+<p>
 
-<a name=conclusion></a>
 <h2>12. Conclusion</h2>
 <p>
-As music evolves, computers are increasingly important tools for
+Computers are increasingly important tools for
 composition, pedagogy, and performance.
+
 High-resolution nuance specification makes nuance a first-class citizen,
 along with scores and sounds.
 This will not replace the human component of nuance,
 or the spontaneity of live performance;
 rather, it will provide tools that can enhance these processes
 <p>
-Rich Kraft contributed ...
+Richard Kraft contributed ...
 
 <h2>References</h2>
 <p>
-Malcolm Bilson.
+<ol>
+<li>Malcolm Bilson.
 Video: 'Knowing the Score: Do We Know How to Read Urtext Editions and How Can This Lead to Expressive and Passionate Performance?'
 Cornell University Press, Ithaca, 2005.
+<br>
 https://www.youtube.com/watch?v=mVGN_YAX03A
-<p>
+<li>
 Cascading Style Sheets: https://en.wikipedia.org/wiki/CSS
-<p>
+<li>
 PianoTeq: https://en.wikipedia.org/wiki/Pianoteq
-<p>
+<li>
 Numula: https://github.com/davidpanderson/numula/
+
+</ol>
 </div>
 ";
 

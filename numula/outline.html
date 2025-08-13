@@ -1,7 +1,11 @@
 <pre>
-Describing and inferring nuance in notated music
+- means subsection
 
-<a href=index.php#intro>Introduction</a>
+Describing performance nuance
+
+Abstract
+
+Introduction
     [summarize the paper]
     [should have subsections? no]
     Performance nuance
@@ -9,49 +13,64 @@ Describing and inferring nuance in notated music
     Nuance Description framework
         continuous/discrete
         layering/factoring
+        abstract model
         note selectors, tagging
-        abstract model; Python implementation
+        Python implementation
     nuance specification and its applications
         nuance generators
         Numula
         other options
     nuance inference and applications
 
-<a href=index.php#model>The NDF model</a>
+- The NDF model
     (intro: using Python notation)
-    Time
-    Score; tags
-    Note selectors
-    Piecewise functions of time
-        Linear PFT primitive
-        Exponential PFT primitive
-        Momentary PFT primitives
-    Transformations
+    - Time
+    - Score; tags
+    - Note selectors
+    - Piecewise functions of time
+        - Linear PFT primitive
+        - Exponential PFT primitive
+        - Momentary PFT primitives
+    - Transformations
         generally have:
             operator
             PFT
             Note selector
-    nuance descriptions
-        a sequence of transformations
+        nuance descriptions: a sequence of transformations
 
-<a href=index.php#timing>Timing</a>
-    intro: types of adjustment
+- Timing
+    types of adjustment
         Tempo control
         Time shifts
         Articulation
-    Layering timing adjustments
+    - Tempo control and pauses
+    - Time shifts
+    - Articulation
+    - Layering timing adjustments
 
-<a href=index.php#pedal>Pedals and virtual pedals</a>
-    Standard pedals
-    Virtual sustain pedals
-    Implementation and layering
+- Pedal control
+    - Standard pedals
+    - Virtual sustain pedals
+    - Implementation and layering
 
-<a href=index.php#dynamics>Dynamics</a>
-    (intro: types of adjustment)
+- Dynamics
+    ('volume' is OK; not loudness)
+    types of adjustment
+    adjust_pft()
     Layering
 
-<a href=index.php#applications>Specifying nuance</a>
-    Nuance structure
+- Specifying nuance
+    having a framework like NDF is necessary but not sufficient.
+    two parts:
+        tag score as needed (melodies, LH/RH)
+        nuance structure
+        editing:
+            listen to a measure or two
+            identify problem
+            change something (like a parameter of a PFT)
+        this needs to be easy; it will get done thousands of time
+        At some point might change the structure, or add tages
+    - Nuance structure
         a list of transformations with operator and selector,
             but PFTs unspecified
         goal:
@@ -74,21 +93,21 @@ Describing and inferring nuance in notated music
     Nuance scripting
         repetition, parameterization
 
-    <a href=index.php#editing>Editing interfaces</a>
+    Editing interfaces
         (GUI, program)
 
-    <a href=index.php#numula>Numula</a>
+    Numula
 
     <a href=index.php#examples>Examples</a>
 
-Applications of nuance specification
-        Composition
-        Virtual performance
-        Performance pedagogy
-        Ensemble rehearsal and practice
-        Sharing and archival
+- Applications of nuance specification
+        - Composition
+        - Virtual performance
+        - Performance pedagogy
+        - Ensemble rehearsal and practice
+        - Sharing and archival
 
-<a href=index.php#applications>Nuance inference</a>
+- Nuance inference
     idea:
         given a score and a performance of the score,
         find a simple nuance desc that approximates the performance
