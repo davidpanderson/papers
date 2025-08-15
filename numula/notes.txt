@@ -1,4 +1,27 @@
-terms
+nuance inference
+
+we want
+    to capture the long gestures: cresc, accel
+        Note: use 'gesture' more
+    to separate these continuous gestures from momentary ones
+
+two cases:
+- create nuance for a particular performance of a work
+    mostly a manual process
+    data-fitting tool: picks PFT primitive types and parameters
+    interface for viewing the deltas
+- create nuance for a collection of performances of a work,
+    with a common nuance structure so you can compare them
+    Pick one of the performances
+    generate nuance desc for that one; create structure S (manual)
+    for each of the others:
+        create nuance desc using S (automatic)
+    look at the errors;
+        if one of them sticks out
+        (e.g. they put in a rit where no one else did)
+        adjust the structure accordingly, and re-run
+
+terms:
 
 'tagged score'
     a score with tags, e.g. rh/lh, melody etc.
@@ -18,6 +41,9 @@ terms
 'constrained nuance structure'
     ... some constraints on each transformation,
         e.g. max number or min length of primitives.
+        Or maybe the durations of PFT primitives are fixed,
+            but not curve type or parameters
+        Does everyone do a ritardando over measures 1-8?
 
 'nuance specification'
     list of transformations with the PFTs given

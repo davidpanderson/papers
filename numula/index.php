@@ -22,8 +22,7 @@ We present a model, Nuance Description Framework (NDF)
 for describing performance nuance
 (timing, dynamics, articulation, and pedaling)
 in notated keyboard music.
-NDF can concisely express nuance
-at a level of detail that closely approximates typical human performance.
+NDF can concisely express nuance that closely approximates typical human performances.
 This capability creates many musical possibilities.
 Some of these involve human-created 'nuance specifications';
 this has application in composition, virtual performance,
@@ -1288,41 +1287,64 @@ Nestable looping:
 <pre>
 </pre>
 
-Parameterization (using the Python f-string feature):
+Parameterization (using the Python f-string feature).
+Instead of hard-wiring PFT parameters,
+we can make them into variables.
 <pre>
 med = 60
-fast = 80
-sh_tempo(f'{med} 8/4 {fast} 4/4 {med}')
+faster = 80
+sh_tempo(f'{med} 8/4 {faster} 4/4 {med}')
 </pre>
+<p>
+The contents of the {} can be any expression,
+including a shorthand notation string.
+<pre>
+dv1 = .7
+vm_24 = f' *2 0 1/4 {dv1] 1/4 0'
+vmeas = sh_vol(f' \
+    {vmeas} 0 1/1 0 {vmeas}
+')
+<pre>
 
 Measure checking:
 <pre>
+sh_vol('
+    |1
 </pre>
 
 <h2>10. Nuance inference</h2>
 <p>
-How can we infer the nuance from a human performance?
+In the above sections, we have discussed the creation of nuance descriptions
+which are applied to a score, producing a rendition.
+We now consider the inverse problem:
+how to 'infer' the nuance from a performance.
 More precisely:
 given a score and a performance of the score
 (as a sound file or MIDI file)
-how can we find an MNS nuance spec S
-which, when applied to the score, generates the performance?
+how to find an NDF nuance description
+which, when applied to the score,
+closely approximates the performance.
 <p>
-This problem is ill-posed: there are infinitely many specs
+In this section we present some ideas
+on how to make this notion rigorous,
+and on its possible applications.
+We have not implemented any of the ideas.
+<p>
+First, we need to restrict the allowable nuance descriptions.
+There are nuance descriptions
 that exactly reproduce the performance
 by specifying the time and volume of each note.
-This type of spec is not what we're looking for.
+For purposes of stylistic comparison (see below)
+such descriptions are not useful.
+If a performance has a crescendo,
+we want to represent it as a single entity.
 <p>
-So we need to refine the problem.
-For some notion of the 'complexity' of a spec,
-what is the least complex that generates
-the performance within some tolerance?
+So we need to refine the problem,
+by introducing the notion of the 'complexity' of a nuance description.
+The problem then becomes: for a given tolerance T,
+what is the least complex nuance description
+that generates the performance within that tolerance?
 <p>
-Even this is a bit ill-posed;
-the solution is not necessarily unique.
-For example, a crescendo and a sequence of accents
-might have the same effect,
-or a ritardando and a sequence of pauses.
 
 <h3>10.1 Terminology</h3>
 <p>
