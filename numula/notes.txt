@@ -139,4 +139,11 @@ have its parameters controlled by a slider,
 and be able to replicate it.
 ----------------
 $mns is not intended to model musical cognition or compositional structure.
+------------------
+We have a mechanism for defining measures,
+and referring to notes' offset within measures.
+
+What about other structural units?
+What if we wanted to tag 4/8/16-bar units,
+and their components (like the trailing ritard)?
 
