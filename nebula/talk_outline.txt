@@ -9,13 +9,44 @@ Intro
 Who I am
     Academic computer scientist interested in distributed computing
     software jack of all trades 
+    I had to learn some signal processing and radio astronomy
 
 History
+    1995 idea
+    1998 initial funding
+    1999 launch
+    2005 switch to BOINC
+    2006 ALFA receiver
+    2016 start work on Nebula
+    2022 shut down front end
+    2023 start reobs at FAST
+    2025 reobs in progress
+
+People
+    Dan Werthimer: had been doing SERENDIP at Arecibo
+    Eric Korpela: experiment design
+    2-3 sysadmins and DB admins
+
+Funding
+    Early
+        Starwave donation
+        CA matching grant
+        Planetary society
+    Volunteer donations
+    money borrowed from other grants
+
+Target signals
 
 Detections
 
 Client
 
+Sky coverage
+
 RFI removal
 
 candidate finding
+
+What we should have done differently
+
+Advice for future radio sky surveys
