@@ -7,9 +7,35 @@ $nuance_desc = '`NuanceDescription`';
 $pft_primitive = '`PFTPrimitive`';
 $pause = '<code>Pause</code>';
 
+// https://www.jstor.org/journal/computermusicj
 // https://mathscribe.com/author/jqmath.html
 
 // https://quillbot.com/grammar-check
+
+// https://direct.mit.edu/comj/pages/submission-guidelines
+// https://direct.mit.edu/DocumentLibrary/SubGuides/cmjstyle-2024-5.pdf
+
+// expand backquotes into <code>...</code>
+function expand($s) {
+    $n = 0;
+    $out = '';
+    $start = true;
+    while (1) {
+        $i = strpos($s, '`', $n);
+        if ($i === false) break;
+        $out .= substr($s, $n, $i-$n);
+        if ($start) {
+            $out .= '<code>';
+            $start = false;
+        } else {
+            $out .= '</code>';
+            $start = true;
+        }
+        $n = $i+1;
+    }
+    $out .= substr($s, $n);
+    return $out;
+}
 
 echo '
 <html lang="en" xmlns:m="https://www.w3.org/1998/Math/MathML">
@@ -35,7 +61,7 @@ echo '
 <body>
 ';
 $text = "
-<div style=\"width: 700; font-size:14px; font-family:Trebuchet MS; line-height:1.4\" align=justify>
+<div style=\"margin-left: 30; width: 700; font-size:14px; font-family:Trebuchet MS; line-height:1.4\" align=justify>
 <center>
 <h1>Modeling performance nuance</h1>
 
@@ -44,23 +70,23 @@ David P. Anderson
 <br>
 University of California, Berkeley
 <p>
-June 1, 2025
+October 1, 2025
 </center>
 
 <h2>Abstract</h2>
 
-General Nuance Model (GNM) is
+Musical Nuance Model (MNM) is
 a framework for describing performance nuance
 (timing, dynamics, articulation, and pedaling)
 in notated keyboard music.
-GNM can concisely express nuance closely approximating
+MNM can concisely express nuance closely approximating
 that of human performances.
 It is designed to allow musicians &mdash; composers and performers &mdash;
 to craft expressive renditions of musical works.
 This capability has applications in composition, virtual performance,
 and performance pedagogy.
 We describe these applications
-and the challenges in creating and editing
+and the challenges in creating and refining
 complex nuance specifications.
 We also discuss the possibility of inferring nuance descriptions
 from recorded human performances.
@@ -86,7 +112,7 @@ including fractional pedaling.
 <p>
 For other instruments and voice,
 notes may have additional properties such as attack and timbre,
-and these properties may change during the note.
+and these properties may vary during the note.
 The ideas presented here do not address these factors
 but could possibly be extended to do so.
 <p>
@@ -104,13 +130,12 @@ e.g., a fermata mark doesn't specify the durations of the sound
 or of the following silence;
 b) they're ambiguous:
 the meaning of marks such as slurs, wedges, and staccato dots
-has changed over time and varies between composers
-[Bilson];
+has changed over time and varies between composers (Bilson 2005);
 c) they're incomplete:
-they describe the broad strokes of the composer's intended nuance,
+they describe the broad strokes of the composer's intention,
 but not the details.
-Indeed, Western common music notation cannot express
-basic aspects of nuance, such as the relative volume of notes in a chord.
+Indeed, Western music notation cannot express basic aspects of nuance,
+such as the different volumes of notes in a chord.
 <p>
 In a typical human performance, nuance is guided by score indications
 but also by other factors:
@@ -120,25 +145,26 @@ and the performer's technique and physical limitations,
 which can convey difficulty and thus have an expressive role.
 
 <p>
-The work described in this paper began with the goal
-of developing a software framework for describing performance nuance.
-This resulted in the General Nuance Model (GNM), described here.
-GNM has precisely-defined semantics
+Musical Nuance Model (MNM) is
+a practical framework for describing performance nuance.
+MNM has precisely-defined semantics
 and can describe typical human nuance in a compact way;
-for example, gestures like crescendos are described in a single primitive
-rather than by per-note deviations.
-GNM has several key features.
+for example, gestures like crescendos are described by single primitives.
+MNM has several key features.
 <ul>
 <li>
-It can express nuance gestures that are continuous (crescendos and accelerandos)
+MNM can express nuance gestures that are continuous (crescendos and accelerandos)
 and/or discrete (accents and pauses).
+A time-varying quantity is represented as a
+<i>piecewise function of time</i> (PFT).
 <li>
-It provides a powerful way of selecting subsets of notes,
+MNM provides a highly general way of selecting subsets of notes,
 based either on explicit <i>tags</i>
-or on note attributes such as chord or metric position.
-A <i>note selector</i> is a boolean-valued function of these tags and attributes.
+or on note attributes such as chordal or metric position.
+A <i>note selector</i> is a boolean-valued function
+of these tags and attributes.
 <li>
-It allows nuance to be factored into multiple layers.
+MNM allows nuance to be factored into multiple layers.
 Each layer, or <i>transformation</i>,
 includes an operation type (e.g., tempo control),
 a PFT, and a note selector.
@@ -146,39 +172,36 @@ A transformation, when applied to a score,
 modifies parameters of some or all of the selected notes.
 </ul>
 <p>
-GNM has two broad areas of use.
+MNM has two broad areas of use.
 In the first, a human musician develops a nuance description
 for a given score,
 using an editing system of some sort.
 We call this <i>nuance specification</i>.
-This could be used, for example, to create a <i>virtual performance</i> of a work.
-We discuss this and other applications in Section X.
-<p>
+This could be used, for example,
+to create a virtual performance of a work.
 The second area, <i>nuance inference</i>,
 involves taking a score for a work
 and a set of human performances of the work,
 and finding, algorithmically and/or manually,
 nuance descriptions that closely approximate the human performances.
-This is discussed in Section X.
+This could be used for various stylistic analyses.
 <p>
-The remainder of the paper explores the above topics.
-Section X discusses related work,
-and Section X discusses future work and conclusions.
+In the remainder of the paper we explore the above topics,
+then discuss related work,
+possible future work, and conclusions.
 
-<h2>2. The GNM model</h2>
+<h2>2. The MNM model</h2>
 <p>
-GNM is based on an abstract model with two classes:
+MNM is based on an abstract model with two classes:
 $score, which represents the basic parts of a musical work,
 and $nuance_desc, which represents a nuance description.
-GNM defines the structure of these classes,
+MNM defines the structure of these classes,
 and defines the semantics of applying a nuance description to a score.
-GNM doesn't specify how the classes are implemented.
-<p>
-We developed a \"reference implementation\" of GNM in Python
-(Section X).
-For this reason, we describe GNM in terms of Python data structures
+MNM doesn't specify how the classes are implemented.
+We developed a \"reference implementation\" of MNM in Python.
+For this reason, we describe MNM in terms of Python data structures
 and functions.
-However, GNM could be implemented using other languages
+However, MNM could be implemented using other languages
 or data representations.
 These implementations could then be integrated into 
 score editors, music programming languages,
@@ -186,7 +209,7 @@ or other computer music systems.
 
 <h3>2.1 Time</h3>
 <p>
-GNM uses two notions of time:
+MNM uses two notions of time:
 <p>
 <i>Score time</i>: time as notated in a score,
 represented as floating-point numbers.
@@ -195,7 +218,7 @@ our convention is that the unit is a 4-beat measure.
 Thus, the duration of a quarter note is 1/4, or 0.25.
 <p>
  <i>Adjusted time</i>: a transformed version of score time.
-In the final result of applying a GNM description to a score,
+In the final result of applying a MNM description to a score,
 adjusted time is real time, measured in seconds.
 
 <p>
@@ -204,36 +227,24 @@ adjusted time is real time, measured in seconds.
 <p>
 The class $score represents the basic parts of a musical work:
 note pitches and notated timings, and measure boundaries if present.
-A $score could correspond to a MusicXML file,
-a Music21 object hierarchy, or a MIDI file.
-These embodiments may contain additional information &mdash;
-slurs, accent marks, dynamic markings, note stem directions, etc. &mdash;
-that are not considered part of the $score.
+A $score could be derived from a MusicXML file,
+a Music21 object hierarchy, or a MIDI file;
+or it could be generated programmatically.
 
 <p>
 The class $note represents a note.
-The attributes of a $note N include:
-<ul>
-<li> Its start time and duration in score time
-(`N.time` and `N.dur`)
-and its adjusted start time and duration
-(`N.adj_time` and `N.adj_dur`).
+Notes have various <i>attributes</i>.
+Some attributes of a note `N` are derived from the score:
+the start time and duration in score time (`N.time` and `N.dur`),
+the adjusted start time and duration (`N.adj_time` and `N.adj_dur`),
+and the pitch `N.pitch` (represented, for example, as a MIDI pitch number).
 
-<li> Its pitch `N.pitch` (represented, for example, as a MIDI pitch number).
-<li> `N.tags`: A set of textual <i>tags</i>.
-Tags are assigned either implicitly or explicitly (see section X).
-</ul>
 <p>
-A $note N has attributes that are implicit,
-based on its context in the score:
-<p>
-<ul>
-<li> Tags `top` or `bottom` are added if N
-has the highest or lowest pitch of notes starting at the same time.
-<li> `N.nchord` is the number of notes
-with the same start time as N, and `N.nchord_pos` is N's pitch order in this set
-(0 = lowest, 1 = 2nd lowest, etc.).
-</ul>
+Other attributes are defined as part of nuance specification.
+Notes typically have an attribute `N.tags`, a set of textual <i>tags</i>.
+Note attributes and tags provide a way to specify
+the set of notes to which a nuance gesture is to be applied.
+This is done using <i>note selector</i> functions, described below.
 
 <p>
 The class $measure represents a measure.
@@ -241,52 +252,71 @@ Each measure is described by its start time and duration,
 in units of score time.
 Measures must be non-overlapping.
 Like Notes, Measures can have textual tags.
-By convention, these tags
-include a string representing the measure's
+By convention, these tags include a string representing the measure's
 duration and metric structure.
 For example, '2+2+3/8' might represent a 7/8 measure
-grouped as 2, 2, and 3 eighths.
+grouped as 2+2+3 eighths.
+<p>
+
+<h3>2.3 Note attributes and tags</h3>
+<p>
+Note attributes, including tags, can have various sources.
+First, some attributes of a $note `N` are automatically assigned,
+based on its context in the score:
+<p>
+<ul>
+<li> Tags `top` or `bottom` are added if N
+has the highest or lowest pitch of notes starting at the same time.
+<li> `N.nchord` is the number of notes
+with the same start time as N, and `N.nchord_pos`
+is N's pitch order in this set (0 = lowest, 1 = 2nd lowest, etc.).
+</ul>
 <p>
 If a note N lies within a measure M, N has two additional attributes:
 <ul>
-<li>
-`N.measure_offset`: N's time offset from the start of M.
-<li>
-`N.measure`: a reference to M.
+<li> `N.measure`: a reference to M.
+<li> `N.measure_offset`: N's time offset from the start of M.
 </ul>
 <p>
 If a note lies on the boundary between two measures,
 it's considered to be in the second one.
-
-<h3>2.3 Tags</h3>
+</ul>
 <p>
-Note tags provide a way to specify
-the set of notes to which a nuance gesture is to be applied.
+Second, if the score has information such as
+slurs, accent marks, dynamic markings, and note stem directions,
+these could be used to automatically assign attributes.
 <p>
-Implicit tags (like N.top) are conceptually part of the score.
-A nuance description can also add 'explicit tags',
-which are conceptually part of the nuance description.
-For example, `lh` and `rh` could be used to tag
-notes in the left and right hands.
+Finally, attributes and tags can be explicitly assigned
+as part of specifying nuance.
+For example:
+<ul>
+<li> Tags could be used to indicate notes in the left and right hands
+of a piano piece.
+<li>
 In a fugue, tags could indicate that a note is part of the fugue theme,
-or a particular instance of the theme.
+or of a particular instance of the theme.
+<li>
 Tags could indicate the harmonic function of notes;
 e.g., that a note is part of a dominant chord in a cadence,
 or is the 7th in a major seventh chord.
-Tags could used to identify hierarchical
+<li>
+Attribute and tags could used to identify hierarchical
 (large, medium, and small-scale) structural components of a work.
-Tags could indicate the presence
-of accent and articulation marks (dots, wedges).
+For example, notes in the development section of a Sonata could be tagged.
+</ul>
 <p>
-GNM does not specify or restrict how tags are assigned.
+MNM does not specify or restrict how attributes and tags are assigned.
 It could be done manually by a human nuance creator,
-or automatically by the software system in which GNM is embedded.
+or automatically by the software system in which MNM is embedded.
+In particular, MNM is agnostic with respect to whether
+nuance is based on a structural analysis of the work;
+it supports this but does not require it.
 
 <h3>2.4 Note selectors</h3>
 <p>
 A <i>note selector</i> is a Boolean-valued function of a note.
-A note selector F identifies a set of notes within a $score,
-namely the notes N for which F(N) is True.
+A note selector $ F $ identifies a set of notes within a $score,
+namely the notes $ N $ for which $ F(N) $ is True.
 <p>
 We use Python syntax for these expressions.
 For example, the function
@@ -300,12 +330,12 @@ selects all half notes in the right hand, and
     lambda n: '3/4' in n.measure.tags and n.measure_offset == 2/4
 </pre>
 selects notes on the 3rd beat of 3/4 measures.
-One could select notes in a range of score time,
-a range of pitches, and so on.
+One could select notes in an interval of score time,
+a range of pitches, or any combination of note attributes.
 <p>
 In Python, the type of note selectors is
 <pre>
-    type Selector = Callable[[$note], bool] | None
+    type NoteSelector = Callable[[$note], bool] | None
 </pre>
 <p>
 
@@ -313,13 +343,14 @@ In Python, the type of note selectors is
 <p>
 Nuance gestures typically involve values
 (such as tempo and volume) that change over time.
-In GNM, these are described as functions of score time,
+In MNM, these are described as functions of score time,
 and are specified as a sequence of <i>primitives</i>,
 each of which describes a function defined
 either on a time interval or at a point.
-A function defined in this way is called a 'piecewise function of time' (PFT).
+A function defined in this way is called a <i>piecewise function of time</i>
+(PFT).
 <p>
-In the reference implementation of GNM,
+In the reference implementation of MNM,
 PFT primitives have types derived from a base class $pft_primitive.
 There are two kinds of PFT primitives:
 <p>
@@ -327,8 +358,8 @@ There are two kinds of PFT primitives:
 describe a function over a time interval $ [0, dt] $ where $ dt ≥ 0 $.
 Examples:
 <pre>
-    class Linear(PFTPrimitive)          # a segment of a linear function
-    class ExpCurve(PFTPrimitive)        # a segment of an exponential function
+    class Linear(PFTPrimitive)          # linear function
+    class ShiftedExp(PFTPrimitive)      # shifted exponential function
 </pre>
 Primitives could be defined for other types of functions
 (polynomial, trigonometric, spline, etc.).
@@ -349,9 +380,9 @@ PFTs are represented by lists of PFT primitives:
 
 <p>
 <p>
-GNM uses PFTs for several purposes: tempo, volume,
+MNM uses PFTs for several purposes: tempo, volume,
 time shifts, and pedaling.
-When a PFT is used to describe tempo (see Section X),
+When a PFT is used to describe tempo,
 the definite integral of the function or its reciprocal is used.
 Thus, primitives used in tempo PFTs must provide member functions
 <pre>
@@ -383,18 +414,19 @@ For example, a volume function might be defined by the PFT:
    ]
 </pre>
 <p>
-defines a function that varies linearly
+This defines a function that varies linearly
 from 25 to 15 over two 4-beat measures,
 from 15 to 20 over one measure,
 then from 10 to 15 over two measures.
 Its value at the start of the 4th measure is 20
 because of the closure arguments.
+See Figure 1.
 <p>
 <center>
 <img src=pft.svg width=500>
 <br>
 <b>
-Figure 2: A piecewise function of time is a concatenation of primitives.
+Figure 1: A piecewise function of time is a concatenation of primitives.
 Closure determines the function value at discontinuities.
 </b>
 </center>
@@ -402,19 +434,7 @@ Closure determines the function value at discontinuities.
 
 <h3>2.5.1 Linear PFT primitive</h3>
 <p>
-The constructor for `Linear` is:
-<p>
-<pre>
-   Linear(
-       y0: float,
-       y1: float,
-       dt: float,
-       closed_start: bool = True,
-       closed_end: bool = False
-   )
-</pre>
-<p>
-This represents a linear function $\F$ with
+The `Linear` primitive represents a linear function $\F$ with
 $\F(0)=y_0$
 and
 $\F(dt)=y_1$ .
@@ -433,9 +453,10 @@ and the definite integral of its reciprocal is
 $$ ∫_0^x 1/{F(t)}dt = {\log(ax + y_0)-\log(y_0)}/a $$
 
 <p>
-<h3>2.5.2 Exponential PFT primitive</h3>
+<h3>2.5.2 Shifted exponential PFT primitive</h3>
 <p>
-`ExpCurve` is a PFT primitive representing a family of exponential functions
+`ShiftedExp` is a PFT primitive representing a family of
+\"shifted exponential\" functions
 $ F(t) $ that vary from $ y_0 $ to $ y_1 $ over $ [0, Δt] $.
 <p>
 $$ F(t) = y_0 + {(y_1-y_0)(1-e^{{Ct}/{Δt}})}/{1-e^C} $$
@@ -447,7 +468,7 @@ and the change is concentrated in the later part of the interval.
 If C is negative, F is concave down,
 and the change is concentrated in the earlier part of the interval.
 If C is zero, F is linear.
-Examples are shown in Figure 3.
+Examples are shown in Figure 2.
 <p>
 <center>
 <table>
@@ -460,14 +481,15 @@ Examples are shown in Figure 3.
 </tr>
 </table>
 <p>
-Figure 3: Exponential primitives with different curvatures.
+<b>
+Figure 2: Exponential primitives with different curvatures.
+</b>
 </center>
 
-`ExpCurve` is quite versatile.
-In developing nuance descriptions for
-a range of piano pieces,
-we found that ExpCurve (and Linear, a special case) was sufficient
-for expressing continuous variations in tempo and volume.
+`ShiftedExp` is quite versatile.
+In developing nuance descriptions for a range of piano pieces,
+we found that `ShiftedExp` (and `Linear`, a special case) were sufficient
+for expressing the desired continuous variations in both tempo and volume.
 <p>
 The definite integral of $ F $ from 0 to $ x $ is
 <p>
@@ -496,17 +518,16 @@ $$ ∫_0^x 1/{F(t)}dt = G(t) - G(0) $$
 
 <h3>2.5.3 Momentary PFT primitives</h3>
 <p>
-GNM defines several momentary primitives, used for different purposes.
+MNM defines several momentary primitives, used for different purposes.
 <pre>
    Accent(value: float)
 </pre>
 
-Represents a volume adjustment for notes starting
-at a particular time (see Section X).
+This represents a volume adjustment for notes starting at a particular time.
 The surrounding interval segments must be open at their respective ends.
 
 <pre>
-   Pause(value: float, after: bool)
+   Pause(duration: float, after: bool)
 </pre>
 This is used in tempo PFTs
 to represent a pause of the given duration,
@@ -516,22 +537,20 @@ after the events at the current time;
 otherwise it occurs before them.
 There can be pauses of both types (before and after)
 at a particular time.
-Pauses shift the start times of all subsequent events;
-see Section 3.1.
+Pauses shift the start times of all later events.
 
 <pre>
    Shift(value: float)
 </pre>
-This represents a shift in the adjusted times of events at the current time.
+This represents a shift in the adjusted times of events at the current time;
+it does not affect later events.
 This can be used for \"agogic accents\",
 in which melody notes are brought out by
-shifting them slightly after accompaniment notes;
-see Section 3.2.
-Unlike `Pause`, subsequent events are not affected.
+shifting them slightly before or after accompaniment notes.
 
 <h3>2.6  Transformations</h3>
 <p>
-A GNM specification consists of a sequence of <i>transformations</i>.
+A MNM specification consists of a sequence of <i>transformations</i>.
 A transformation acts on a $score, modifying it in some way.
 Each transformation includes an \"operator\"
 indicating the type of the transformation.
@@ -545,16 +564,16 @@ Many operators include a PFT
 and a time offset $ t_0 $ indicating the score time
 at which the transformation starts.
 <p>
-Some tranformations include a function argument mapping a $note to number
-(indicating, for a example, a volume adjustment).
-These arguments have the type
+Some tranformations include a function argument mapping a $note to a number
+(for example, a volume adjustment factor).
+These arguments have the Python type
 <pre>
     type NoteToFloat = Callable[[Note], float]
 </pre>
 
 <h2>3. Timing</h2>
 <p>
-GNM supports three kinds of timing adjustment.
+MNM supports three kinds of timing adjustment.
 <p>
 <b>Tempo control</b>: The adjusted times of
 events (note and pedal starts and ends)
@@ -566,7 +585,7 @@ Tempo functions are represented as PFTs.
 Note starts can be shifted earlier or later in adjusted time.
 Other notes are not changed
 (unlike pauses, which postpone all subsequent notes).
-GNM defines several time-shift transformations:
+MNM defines several time-shift transformations:
 for example,
 \"rolling\" a chord with specified shifts for each chord note,
 or using a PFT to specify agogic accents
@@ -587,7 +606,7 @@ followed by time shifting.
 <h3>3.1 Tempo control</h3>
 <p>
 Tempo variation is described with a PFT.
-GNM provides three options for the meaning of this PFT:
+MNM provides three options for the meaning of this PFT:
 <ul>
 <li> <b>Slowness</b> (or inverse tempo):
 The PFT value is the rate of change of adjusted time
@@ -622,7 +641,7 @@ They are like Dirac delta functions.
     Score.tempo_adjust_pft(
         pft: PFT,
         t0: float,
-        selector: Selector,
+        selector: NoteSelector,
         normalize: bool,
         mode: int
     )
@@ -641,7 +660,7 @@ This can be used, for example, to apply rubato to
 a particular voice over a given period,
 then have the voice synch up with other voices at the end of that period.
 <p>
-For example, in the section of Chopin's Nocturne no. 1 shown in Figure 1,
+For example, in the section of Chopin's Nocturne no. 1 shown in Figure 3,
 we applied a tempo adjustment
 consisting of an accelerando, a ritardando, and two small pauses
 to the right-hand flourish.
@@ -650,15 +669,17 @@ synch up at the end of the figure.
 <center>
 <img width=600 src=chopin.jpg>
 <p>
-Figure 1: Example from Chopin Nocturne no. 1.
+<b>
+Figure 3: Example from Chopin's Nocturne no. 1.
+</b>
 </center>
 <p>
 The implementation of `tempo_adjust_pft()`, somewhat simplified,
-is as follows (see Figure X):
+is as follows (see Figure 4):
 <p>
 <ul>
 <li> Make a list of all 'events' (starts and ends of selected notes
-pedal applications)
+and pedal applications)
 ordered by score time.
 Each event has a score time and an adjusted time.
 <li> Scan this list, processing events 
@@ -680,7 +701,7 @@ after: Notes that start at t are elongated.
 <center>
 <img src=tempo.svg width=600>
 <br>
-<b>Figure 1: Example of tempo adjustment.
+<b>Figure 4: Example of tempo adjustment.
 The interval between events E1 and E2 is scaled by the average value of
 the slowness (inverse tempo) function between their score times.</b>
 </center>
@@ -696,7 +717,7 @@ The adjusted durations are modified to preserve the end times.
     Score.time_shift_pft(
         pft: PFT,
         t0: float = 0,
-        selector: Selector
+        selector: NoteSelector
     )
 </pre>
 For notes N that satisfy the selector and lie in the domain of the PFT,
@@ -708,7 +729,7 @@ or to shift notes by continuously-varying amounts.
         t: float,
         offsets: list[float],
         is_up: bool = True,
-        selector: Selector
+        selector: NoteSelector
     )
 </pre>
 <p>
@@ -722,7 +743,7 @@ otherwise they are applied from the top pitch downward.
 <pre>
     Score.t_adjust_list(
         offsets: list[float],
-        selector: Selector
+        selector: NoteSelector
     )
 </pre>
 <p>
@@ -733,7 +754,7 @@ in time order.
 <pre>
     Score.t_adjust_notes(
         offset: float,
-        selector: Selector
+        selector: NoteSelector
     )
 </pre>
 <p>
@@ -743,7 +764,7 @@ all notes satisfying the selector.
 <pre>
     Score.t_adjust_func(
         f: NotetoFloat,
-        selector: Selector
+        selector: NoteSelector
     )
 </pre>
 <p>
@@ -754,7 +775,7 @@ For example, the following adds Gaussian jitter to note start times:
     s.t_adjust_func(lambda n: .005*numpy.random.normal(), None)
 </pre>
 <p>
-Adding small random offsets to note times and volumes
+Adding such offsets to note times and volumes
 can make renditions sound more \"human\".
 
 <h3>3.3. Articulation</h3>
@@ -763,7 +784,7 @@ These transformations modify the adjusted-time duration of notes.
 <pre>
     Score.perf_dur_rel(
         factor: float,
-        selector: Selector
+        selector: NoteSelector
     )
 </pre>
 <p>
@@ -772,7 +793,7 @@ Multiply the duration of the selected notes by the given factor.
 <pre>
     Score.perf_dur_abs(
         dur: float,
-        selector: Selector
+        selector: NoteSelector
     )
 </pre>
 <p>
@@ -781,7 +802,7 @@ Set the duration of the selected notes to the given value.
 <pre>
     Score.perf_dur_func(
         f: NotetoFloat,
-        selector: Selector
+        selector: NoteSelector
     )
 </pre>
 <p>
@@ -792,7 +813,7 @@ Set the duration of selected notes `N` to `f(N)`.
 PFT-based timing transformations without pauses commute,
 so the order in which they're applied doesn't matter.
 Other transformations generally don't commute.
-A typical order of transformations (see Section X):
+A typical order of transformations:
 <ul>
 <li> Non-pause tempo transformations.
 <li> Pause transformations.
@@ -823,7 +844,7 @@ Fractional pedaling can also be used; its effects vary between pianos.
 <p>
 Some MIDI piano synthesizers implement all three pedal types;
 some also implement fractional pedaling.
-For example, Pianoteq [ref] does both.
+For example, Pianoteq (https://en.wikipedia.org/wiki/Pianoteq) does both.
 <p>
 Pedaling, including fractional pedaling,
 is critical to the sound of a performance,
@@ -831,7 +852,7 @@ but few scores notate it at all,
 much less completely and precisely.
 Notation of fractional pedal is very rare.
 <p>
-GNM provides a mechanism for specifying pedal use.
+MNM provides a mechanism for specifying pedal use.
 The level of a particular pedal can be specified as a PFT
 consisting of `Linear` primitives with values in $ [0,1] $,
 where 1 means the pedal is fully depressed
@@ -842,7 +863,7 @@ we need to be able to specify
 whether the change occurs before or after the notes are played.
 For sustain and sostenuto pedals,
 we also need to be able to specify momentary lifting of the pedal.
-GNM handle these requirements using the closure attributes
+MNM handle these requirements using the closure attributes
 of PFT primitives.
 Suppose that P0 and P1 are consecutive primitives;
 P0 ends and P1 begins at time t,
@@ -868,7 +889,7 @@ For example,
 </pre>
 produces a pedal change from fully depressed to half depressed
 over 4 beats.
-If GNM is being used to generate MIDI output, this produces
+If MNM is being used to generate MIDI output, this produces
 a sequence of continuous-controller commands
 with values ranging from 127 to 64.
 
@@ -888,7 +909,7 @@ Sometimes it's useful to sustain only certain keys (pitches).
 The sustain pedal can't do this: it affects all keys.
 The sostenuto pedal affects a subset of keys,
 but its semantics limit its use.
-GNM has a mechanism, <i>virtual sustain pedal</i>,
+MNM has a mechanism, <i>virtual sustain pedal</i>,
 that is like a sustain pedal that affects only a specified set of notes.
 
 <p>
@@ -900,7 +921,7 @@ Such a PFT is applied to a score with
     Score.vsustain_pft(
         pft: PFT,
         t0: float,
-        selector: Selector
+        selector: NoteSelector
     )
 </pre>
 If a note N is selected,
@@ -923,9 +944,9 @@ in terms of what notes are sustained.
 They lack two features of standard pedals: there is no fractional pedal,
 and there is no sympathetic resonance of open strings.
 
-<h3>4.3 Implementation and layering</h3>
+<h3>4.3 Pedal layering</h3>
 <p>
-In a GNM nuance description,
+In a MNM nuance description,
 pedal specifications must precede timing adjustments
 so that pedal timing is correct.
 Timing adjustments (including time shifts)
@@ -941,13 +962,13 @@ However, virtual sustain PFTs can overlap standard pedal PFTs.
 
 <h2>5. Dynamics</h2>
 <p>
-In GNM, the volume of a note is represented by floating-point number
+In MNM, the volume of a note is represented by floating-point number
 in [0..1] (soft to loud).
 This may be mapped linearly to a MIDI velocity (0..127);
 the perceived loudness depends on the synthesis engine and other factors.
 Notes initially have volume 0.5.
 <p>
-GNM provides three modes of volume adjustment.
+MNM provides three modes of volume adjustment.
 In each case there is an adjustment factor A,
 which may vary over time.
 
@@ -979,7 +1000,7 @@ The transformation
         mode: int,
         pft: PFT,
         t0: float,
-        selector: Selector
+        selector: NoteSelector
     )
 </pre>
 <p>
@@ -999,12 +1020,12 @@ without a PFT:
     Score.vol_adjust(
         mode: int,
         factor: float,
-        selector: Selector
+        selector: NoteSelector
     )
     Score.vol_adjust_func(
         mode: int,
         func: NoteToFloat,
-        selector: Selector
+        selector: NoteSelector
     )
 </pre>
 These adjust the volumes of the selected notes.
@@ -1029,7 +1050,7 @@ the following de-emphasizes notes on weak beats:
 
 <h3>5.1 Layering volume transformations</h3>
 <p>
-Volume transformations are typically layered (see Section X).
+Volume transformations are typically layered.
 Multiplicative transformations commute,
 so their order doesn't matter.
 Other transformations generally do not commute.
@@ -1042,7 +1063,7 @@ Typically the order is
 
 <h2>6. Specifying nuance</h2>
 <p>
-In many applications of GNM, a human musician (composer or performer)
+In many applications of MNM, a human musician (composer or performer)
 manually creates a nuance description for a work.
 We call this process <i>nuance specification</i>.
 It's analogous to practicing the work on a physical instrument.
@@ -1061,19 +1082,19 @@ In this section we describe some principles and techniques that we found useful.
 <p>
 The first step in creating a nuance specification
 is to identify sets of notes that are to be treated specially,
-and to assign corresponding tags to those notes (see Section X).
+and to assign corresponding tags to those notes.
 For example, one could tag notes as being melody or accompaniment,
 or as being in the left- or right-hand part.
 Notes can have multiple tags, so these sets can overlap.
 <p>
 The way in which notes are tagged depends on the
-score-editing system in which GNM is embedded.
+score-editing system in which MNM is embedded.
 For example, Numula has a flexible scheme for tagging notes; see section X.
 
 <h3>6.2 Nuance structure</h3>
 <p>
 The next step is to decide on a <i>nuance structure</i>:
-a set of layered transformations, each with a particular purpose.
+a sequence of transformation types, each with a particular purpose.
 The goal is that when one wants to change something,
 it's clear which layer is involved.
 <p>
@@ -1115,8 +1136,7 @@ for example, a parameter of a PFT primitive.
 </ul>
 <p>
 This cycle may be repeated thousands of times,
-so it should be as streamlined as possible;
-see Section X.
+so it should be as streamlined as possible.
 We have found that one continues to edit nuance
 only as long as the reward exceeds the effort.
 
@@ -1173,9 +1193,9 @@ We call this <i>nuance scripting</i>.
 In our experience, it's necessary for complex applications.
 The features are found in all programming languages,
 so the capabilities can be achieved by
-wrapping GNM in a programming language:
+wrapping MNM in a programming language:
 i.e., developing an API for describing and layering transformations.
-We have done this in Numula, using Python (see Section X).
+We have done this in Numula, using Python.
 Other languages could be used as well.
 <p>
 Graphical interfaces for editing nuance
@@ -1184,10 +1204,10 @@ could potentially provide scripting-like capabilities; see below.
 <h2>8. User interfaces for editing nuance</h2>
 <p>
 We now discuss possible UIs (user interfaces) for creating
-and editing GNM nuance specifications.
+and editing MNM nuance specifications.
 Such an interface should ideally
 <ul>
-<li> provide access to all GNM features:
+<li> provide access to all MNM features:
 PFTs, transformations, note selectors, and so on;
 <li> support nuance scripting;
 <li> provide an efficient editing cycle:
@@ -1218,17 +1238,17 @@ But it would need to allow these copies to be linked,
 so that a change in one is automatically propagated to the others.
 Features like iteration and functions
 would require either a scripting language
-(as is found in mostly-graphical systems like Max [ref])
-or a graphical programming language like Scratch [ref].
+(as is found in mostly-graphical systems like Max (Puckette 2002))
+or a graphical programming language like Scratch (Resnick 2009).
 
 <p>
 In the textual approach, the easiest way to achieve scriptability
-is to wrap GNM in a programming language.
+is to wrap MNM in a programming language.
 For example, Numula (section X) uses Python for this purpose.
 The system could potentially also allow programmatic
 description of scores.
-Or an existing system for textual score specification
-(such as Lilypond [ref]) could be extended to include nuance,
+Or an existing system for textual score specification,
+such as Lilypond (Nienhuys 2003), could be extended to include nuance,
 although it would have to be made scriptable.
 <p>
 Ease of use is a challenge for textual systems.
@@ -1239,7 +1259,7 @@ If we use the native syntax of the programming language
 this can be excessive.
 Numula addresses this by defining a number of
 textual shorthand notations for various purposes,
-such as volume and tempo PFTs; see Section 10.1.
+such as volume and tempo PFTs.
 
 <p>
 The second issue is the efficiency of the editing cycle.
@@ -1251,9 +1271,7 @@ into a mental state in which musical focus
 is displaced by syntactic issues.
 Numula addresses this issue, in part,
 using a feature in which parameter adjustment
-and playback are done with single keystrokes;
-see Section 10.2.
-
+and playback are done with single keystrokes.
 
 <h2>9. Applications of nuance specification</h2>
 <p>
@@ -1309,29 +1327,29 @@ the performer is likely to use.
 
 <p>
 <b>Sharing and archival of nuance descriptions</b>:
-Web sites like IMSLP [ref]
-and MuseScore [ref] let people share scores.
+Web sites like IMSLP (https://imslp.org)
+and MuseScore (https://musescore.com) let people share scores.
 Such sites could also host user-supplied nuance descriptions for these works.
 This would provide a framework for sharing and discussing interpretations.
 <p>
 
 <h2>10. Numula</h2>
 <p>
-Numula is a Python library for creating nuanced music.
-It consists of several modules, explained below; see Figure 3.
-These modules can be used in combination or separately,
-or integrated into other systems.
+Numula (https://github.com/davidpanderson/numula/) is a Python library for creating nuanced music.
+It consists of several modules; see Figure 5.
+These modules can be used separately or in combination,
+and they could be integrated into other systems.
 
 <center>
 <img src=numula.svg>
-<b>Figure 3: The components of Numula.</b>
+<b>Figure 5: The components of Numula.</b>
 </center>
 <p><br><p>
 Numula defines the classes listed earlier in this paper:
 $score, $note, PFT, etc.
-The transformation functions described in Sections 3, 4 and 5
+The transformation functions described in earlier sections
 are members of the $score class;
-they form the \"GNM engine\".
+they form the \"MNM engine\".
 A $score, after nuance transformations, can be output as a MIDI file.
 For convenience, Numula can be configured to play MIDI output
 using a Pianoteq server controlled by RPCs.
@@ -1348,12 +1366,11 @@ and output the result as a MIDI file.
 Numula provides textual <i>shorthand notations</i>
 for describing scores and various types of PFTs
 (tempo, volume, pedal, and so on).
-These require much less time (and typing) than
+These notations require much less typing (and time) than
 describing the scores and PFTs directly in Python.
-<p>
-Furthermore, shorthand notations eliminate the need to write things in Python,
+Furthermore, shorthand notations eliminate the need to write Python code,
 making Numula usable by non-programmers.
-In the example pieces described below (Section 10.3)
+In the example pieces described below,
 the Numula code is almost entirely shorthand strings.
 <p>
 Each type of shorthand notation has its own syntax.
@@ -1363,10 +1380,9 @@ Each type of shorthand notation has its own syntax.
     sh_vol('pp 2/4 mf 4/4 pp')
 </pre>
 returns a PFT representing a crescendo
-from pianissimo to mezzoforte over 2 beats,
-then a diminuendo to pianissimo over 4 beats.
-`pp` and `mf` are constants representing
-.45 and 1.11 respectively.
+from <i><b>pp</b></i> to <i><b>mf</b></i> over 2 beats,
+then a diminuendo to pianissimo over 4 beats
+(`pp` and `mf` are constants representing .45 and 1.11 respectively).
 <p>
 <b>Tempo PFTs</b>:
 <pre>
@@ -1375,7 +1391,7 @@ then a diminuendo to pianissimo over 4 beats.
 returns a PFT for a tempo that varies linearly from 60 to 80 BPM
 over 8 beats,
 a pause of 30 milliseconds after that point,
-then back to 60 BPM over 4 beats. 
+then linearly back to 60 BPM over 4 beats. 
 <p>
 <b>Pedal PFTs</b>:
 <pre>
@@ -1451,14 +1467,12 @@ To streamline low-level editing, Numula provides a feature called
 that reduces the cycle to two keystrokes.
 In IPA, you declare certain variables to be adjustable,
 and specify their role (tempo, volume, and so on).
-<p>
 You then run the program under an <i>IPA interpreter</i>.
 The interpreter lets you specify start and end times for playback.
 You can select an adjustable variable,
 change its value with up and down arrow keys,
 and press the space bar to play the selected part of the piece.
 This reduces the editing cycle to two keystrokes.
-<p>
 The values of adjustable variables are stored in a file,
 which is read when the IPA interpreter is started.
 
@@ -1469,15 +1483,15 @@ of piano pieces in a variety of styles:
 <ul>
 <li> Sonata opus 57 by Beethoven, 3rd movement (1804-1805).
 <li> Prelude no. 5 by Chopin (1838-1839).
-<li> wasserklavier from Six Encores by Luciana Berio (1965).
+<li> wasserklavier from Six Encores by Luciano Berio (1965).
 <li> Three Homages by Robert Helps (1972).
 </ul>
 <p>
 We tried to create renditions that approximated
 performances by a skilled human,
 and we were at least partly successful.
-GNM and Numula evolved in the process;
-each piece required new features, in both GNM and the editing interfaces.
+MNM and Numula evolved in the process;
+each piece required new features, in both MNM and the editing interfaces.
 
 <h2>11. Nuance inference</h2>
 <p>
@@ -1488,44 +1502,43 @@ We now consider the inverse problem:
 'inferring' nuance from a performance.
 That is, given a score and a performance of the score
 (represented as a list of note and pedal events)
-how to find a nuance description
-which, when applied to the score,
+finding a nuance description which, when applied to the score,
 closely approximates the performance.
 Here we present some ideas on how to do this,
 and on its possible applications.
 <p>
-Given a performance P, there are nuance descriptions
-that exactly reproduce P
+Given a performance $ P $, there are nuance descriptions
+that exactly reproduce $ P $
 by specifying the timing and volume of each note and pedal application.
 These descriptions are not useful for our purposes.
-If P has a crescendo, we want to represent it as a single entity.
-Ideally, we seek the simplest nuance description that yields P.
+If $ P $ has a crescendo, we want to represent it as a single entity.
+In essence, we seek the simplest nuance description that yields $ P $.
 <p>
 To formalize this,
-we need a notion of the <i>complexity</i> C(D) of a nuance description D.
-C(D) could perhaps be defined in terms of
-the numbers of PFT primitives, transformations, and tags in D.
-Given nuance scripting, it could be the Kolmogorov complexity of D,
-i.e. the length of the shortest program that generates D.
+we need a notion of the <i>complexity</i> $ C(D) $ of a nuance description $ D $.
+$ C(D) $ could perhaps be defined in terms of
+the numbers of PFT primitives, transformations, and tags in $ D $.
+Given nuance scripting,
+it could be defined as the Kolmogorov complexity of $ D $,
+i.e. the length of the shortest program that generates $ D $.
 
 <p>
-Next, we need a notion of how closely a nuance description D
-matches a performance P.
-Suppose a score S and a performance P are given.
-Let N(S, D) denote the result of applying D to S;
-like P, it is a list of note and pedal events.
-Let E(P, N(S, D)) be a measure of the difference
+We also need a measure of how closely a nuance description $ D $
+matches a performance $ P $.
+Suppose a score S and a performance $ P $ are given.
+Let $ N(S, D) $ denote the result of applying $ D $ to $ S $;
+like $ P $, it is a list of note and pedal events.
+Let $ E(P, N(S, D)) $ be a measure of the difference
 between the two event lists.
 This could perhaps be based on the root-mean-square (RMS)
 of the differences in the inter-event times and in the volumes
 of corresponding notes.
 
 <p>
-Given the functions C and E,
-we can express our (theoretical) goal either as:
+Given the functions $ C $ and $ E $, we can express our goal either as:
 <ul>
 <li>
-given an error limit $ \ov E\ $,
+Given an error limit $ \ov E\ $,
 find $ D $ for which
 
 $ E(P, N(S, D)) < \ov E\ $
@@ -1533,7 +1546,7 @@ $ E(P, N(S, D)) < \ov E\ $
 and for which $ C(D) $ is minimal, or
 
 <li>
-given a complexity limit $ \ov C\ $,
+Given a complexity limit $ \ov C\ $,
 find $ D $ for which $ C(D) < \ov C\ $
 and for which $ E(P, N(S, D)) $ is minimal.
 
@@ -1543,22 +1556,22 @@ and for which $ E(P, N(S, D)) $ is minimal.
 <h3>11.1 Inferring nuance from one performance</h3>
 <p>
 The above discussion clarifies what we seek &mdash;
-a simple nuance description D that matches a performance P &mdash;
+a simple nuance description $ D $ that matches a performance $ P $ &mdash;
 but sheds no light on how to find it.
 We now sketch a crude manual approach as a starting point.
 <p>
 Intuitively, it seems desirable to work from long to short:
 to identify phrase-level features, then measure-level, then single notes.
-So, to describe P's volume, we might:
+So, to describe volume, we might:
 <p>
 <ul>
-<li> Identify a segment of P where the overall volume trends up or down.
+<li> Identify a segment of $ P $ where the overall volume trends up or down.
 <li> Find the primitive type (e.g. linear or exponential)
 that best fits the volume contour,
 and find the best-fit (e.g. least-squares) parameters
 <li> Continue, finding more such disjoint segments,
 and assembling the resulting primitives into a PFT.
-<li> Subtract this volume transformation from P, leaving a residue.
+<li> Subtract this volume transformation from $ P $, leaving a residue.
 <li> Fit shorter (beat- or measure-level) primitives in a similar way.
 <li> From the resulting residue, fit accents or patterns of accents.
 </ul>
@@ -1584,32 +1597,32 @@ and missing or extra notes in the performance.
 <h3>11.2 Inferring nuance from a set of performances</h3>
 <p>
 Some applications involve comparing the nuance
-of different performances P1,... Pn of a given work.
+of several performances $ P_1,... P_n $ of a given work.
 If we infer their nuances separately
 (for example, using the above method)
 the results will in general be incomparable;
 they'll have different nuance structure,
 different tagging, and so on.
 <p>
-In this case we want a set of nuance descriptions D1,... Dn
+In this case we want a set of nuance descriptions $ D_1,... D_n $
 all with the same nuance structure
 (i.e. the same tagging
 and the same sequence of transformation types and note selectors,
 but with different PFTs),
-and for which Di approximates Pi.
+and for which $ D_i $ approximates $ P_i $.
 <p>
 A possible approach to this problem:
 <ol>
-<li> Generate a nuance description D for P1.
-<li> For each P2...Pn, generate a nuance description
-Di that has the same structure as D
-and that approximates Pi.
-<li> For each Pi compute the error Ei = E(Di, Pi)
-<li> If all Ei are below a target level $ \ov E\ $, stop.
-<li> Let i be such that Ei is greatest.
+<li> Generate a nuance description $ D $ for $ P_1 $.
+<li> For each $ P_2,...P_n $, generate a nuance description
+$ D_i $ that has the same structure as $ D $
+and that approximates $ P_i $.
+<li> For each $ P_i $ compute the error $ E_i = E(D_i, P_i) $
+<li> If all $ E_i $ are below a target level $ \ov E\ $, stop.
+<li> Let $ i $ be such that $ E_i $ is greatest.
 Examine the residual timing and volume errors.
-Add transformations to Di that reduce Ei to less than $ \ov E\ $,
-and let D = Di.
+Add transformations to $ D_i $ that reduce $ E_i $ to less than $ \ov E\ $,
+and let $ D = D_i $.
 <li> Go to step 2.
 </ol>
 
@@ -1618,10 +1631,10 @@ and let D = Di.
 One application of nuance inference is performance style analysis.
 In the most general form
 this would involve assembling performances of
-a number of works Wi (perhaps from various styles, eras, and countries)
-played by a number of performers Ai (perhaps from different times,
+a number of works $ W_i $ (perhaps from various styles, eras, and countries)
+played by a number of performers $ A_i $ (perhaps from different times,
 countries, etc.).
-For each work Wi, generate a set of comparable nuance descriptions,
+For each work $ W_i $, generate a set of comparable nuance descriptions,
 one per performer.
 By comparing these we can study differences in performance style
 between the performer's time period,
@@ -1638,11 +1651,11 @@ A second application is the study of PFT primitives.
 We have discussed linear and exponential primitives,
 but there are many other possibilities:
 polynomial, trigonometric, and logarithmic functions, spline curves, etc.
-Ideally, GNM should offer a small \"basis set\" of functions,
+Ideally, MNM should offer a small \"basis set\" of functions,
 each with a small number of parameters, that together can
 approximate the nuance of a wide range of human performers.
 <p>
-The process of nuance inference (as described in Section 11.1 above)
+The process of nuance inference
 may reveal situations where existing primitives
 don't closely fit a nuance gesture.
 We can then look for a function
@@ -1658,121 +1671,146 @@ the period and style of the composition,
 the individual performer, and so on.
 
 <h2>12. Related work</h2>
-<h3>12.1 Time</h3>
-<h3>12.2 Languages</h3>
 <p>
-FORMULA
-Supercollider: Env
-HMSL?
+Prior work related to GMN can be divided into several areas.
 <p>
-Score editors: can put in crescendos and it plays them.
-But only linear, no scripting, no layering, no pauses
+<b>Timing:</b>
+Rogers and Rockstroh (1980) formalized the meaning of continuous tempo change.
+They defined \"clock factor\" (what we call inverse tempo)
+and observed that the real time between two events depends
+on the integral of this between the two score times.
+They worked out the mathematics of three tempo functions:
+linear, hyperbolic (functions of the form $ F(t) = A/{B-t} $),
+and exponential (which they call \"equal ratios\"):
+functions of the form $ F(t) = A^t $.
+<p>
+Several researchers (Dannenberg, Honing 2005)
+have identified and proposed solutions to the \"vibrato problem\":
+the timing of some musical features
+(vibrato, or in our context things like trills and octave tremolos)
+should not be affected by tempo changes.
+The distinction between tempo and time-shifting is
+articulated in (Honing 2001).
 
-<h3>12.2 Musical nuance</h3>
 <p>
-There have been considerable research into performance nuance,
-some of which bears on GNM.
+<b>Software systems</b>.
+Various music programming languages have included nuance features:
+examples include
+FORMULA (Anderson 1991), SuperCollider (McCartney 2002),
+HMSL (Polansky 1990), and Max (Puckette 2002).
+Score editors such as MuseScore and Sibelius have basic nuance features:
+you can put a crescendo mark into a score,
+and the program's playback feature will play a crescendo.
+They also have features for adding algorithmic nuance,
+such as a 'swing' rhythm.
+These systems offer basic nuance capabilities,
+but they lack MNM's ability to represent complex nuance,
+and Numula's ability to express it concisely and edit it efficiently.
 <p>
-Statistical
-<p>
-physical models of rit
-Trailing ritard as physical braking.
-Quadratic increase in slowness.
-Not clear that this fits data better than e.g. exponential.
-<p>
-auto generation of nuance based on structure
-KTH
-Todd
-The resulting renditions will be generic and boring.
-<p>
-Clynes Superconductor
-FORMULA
+Music21 (Cuthbert) and Abjad (https://abjad.github.io/)
+are Python-based systems for score representation.
+Like Numula, they offer shorthand notations.
+However, their goals (musical analysis and typesetting respectively)
+are different.
 
-There has been some research in this general area.
-Some papers study the statistics of deviation from the score,
-but not the actual modeling of it.
 <p>
-canned nuance in score editors; swing like Sibelius.
+<b>Studies of nuance in human performances</b>.
+Bruno Repp did statistical studies of nuance:
+for example, looking at several performances of
+a particular section of a piece,
+viewing the inter-event times or note volumes
+as sets of data points,
+and analyzing them using principal component analysis and other tools.
+(Repp 1998a, 1998b)
+His goals were
+to quantify the stylistic differences between different performers,
+or between different groups of performers (periods, nationalities, etc.).
+Other research has tried to characterize common nuance gestures &mdash;
+in particular phrase-ending ritardandos.
+Several projects characterized these as a linear tempo change,
+and linked this to the uniform slowing of a human pace (Friberg 1999).
 <p>
-Papers that model nuance.
-<p>
-Papers that define rules for generating nuance.
-Clynes, Todd etc.
+<b>Generating nuance algorithmically</b>.
+Other projects have developed algorithms
+intended to generate plausible timing and volume nuance for a score,
+based on a structural analysis of the score
+(a division into sections and subsections) and on its pitch contours
+(Friberg 1991).
+Todd (1992) studied the relationship between tempo and dynamics.
+The results have been fairly simplistic:
+volume increases with pitch, tempo increases with volume,
+and phrases slow down at the end.
+None of these projects has modeled or generated
+nuance with the variety, complexity and detail of a performance
+by an advanced human pianist.
 
-<h3>12.3 Cascading Style Sheets</h3>
 <p>
-There is an analogy between GNM and Cascading Style Sheets (CSS),
-a system for specifying the appearance of web pages [ref].
-Like GNM,
+<b>Cascading Style Sheets</b>.
+There is an analogy between MNM and Cascading Style Sheets (CSS),
+a system for specifying the appearance of web pages (Lie and Bos, 1997)
+Like MNM,
 a) a CSS specification is typically separate from the web page;
 b) CSS files can be \"layered\":
 they are applied in a particular order,
 and later files can extend or override the effects of earlier ones;
 c) CSS specifications can refer to subsets of the HTML elements
 using 'selectors' involving element names, classes, and IDs;
-d) CSS preprocessors like SASS [ref]
+d) CSS preprocessors like SASS (Mazinanian 2016)
 have variables and expressions, similar to nuance scripting.
 
 <h2>13. Future work</h2>
 <p>
-In addition to nuance inference (Section 11),
-and there are several possible directions for future work involving GNM.
+Beyond the areas already discussed,
+there are several possible directions for future work involving MNM.
 <p>
-The GNM model &mdash; its set of transformations,
-PFT primitives, and so on &mdash; was designed to
-handle the pieces listed in Section 10.3.
-As GNM is used for more works, in a range of styles,
-extensions to the model will no doubt be needed.
-<p>
-In particular, GNM could handle
-trills and other ornaments where the number and timing of notes
+<b>Extending the model</b>.
+The MNM model was designed to handle the pieces listed earlier.
+As MNM is used for more works, in a range of styles,
+extensions to the model will undoubtedly be needed.
+In particular, MNM could be extended to handle the 'vibrato problem'
+described above,
+involving trills and other ornaments where the number and timing of notes
 is not fixed in the score.
-Consider the situation where a long trill (or octave tremolo),
-combined with other musical material,
-is subject to timing nuance such as a ritardando.
-Suppose the rate of the trill is fixed.
-Then the number of notes in the trill is not fixed;
-it varies with the timing nuance.
-We call this a <i>dynamic score</i>.
-The current GNM model does not handle dynamic scores.
-Doing so would require
+For example, if the real-time rate of trill notes is fixed,
+then the number of notes in the trill varies with tempo.
+The current MNM model does not handle this; doing so would require
 evaluating the timing nuance to determine the duration of the trill,
-then generating the notes in the trill
-(which could be subject to further tempo adjustment).
-
+then generating the notes in the trill,
+which could be subject to further tempo adjustment.
 <p>
-GNM can be integrated with other music software systems,
-including score editors such as MuseScore
-and music analysis systems like Music21 [ref].
-It may be useful to develop a file format
-for GNM nuance descriptions (perhaps using JSON)
-for interoperability between these systems.
-
-<p>
-GNM could be extended to handle scores with multiple instruments.
-Note tags could include the instrument type
-(e.g. 'violin') and instance (e.g. 'violin 1').
-<p>
-GNM could be extended to describe note parameters
+MNM could also be extended to describe note parameters
 other than duration and initial pitch and volume.
 These might include attack parameters (such as bow weight)
 and variation in pitch, timbre or volume during a note;
 the latter could be modeled as PFTs.
+MNM could be extended to handle works with multiple instruments.
+Note tags could include the instrument type
+(e.g. 'violin') and instance (e.g. 'violin 1').
+
+<p>
+<b>Integration with other music software systems</b>.
+MNM could be integrated with 
+score editors such as MuseScore (https://musescore.com),
+music analysis systems like Music21 (Cuthbert 2010)
+and music languages such as SuperCollider.
+To allow interoperability between these systems,
+it may be useful to develop a JSON-based file format
+for MNM nuance descriptions.
+
 
 <h2>14. Conclusion</h2>
 <p>
-We have presented General Nuance Model (GNM),
+We have presented Musical Nuance Model (MNM),
 a framework for describing nuance in renditions of keyboard works.
-GNM is implemented in Numula,
+MNM is implemented in Numula,
 a Python-based system for describing both scores and nuance.
-Using Numula or another system incorporating GNM,
-a musician can create a rendition of a work
-(perhaps their own composition)
+Using Numula or other system supporting MNM,
+a musician can create a rendition of a work (perhaps their own composition)
 that matches their conception of it.
 They can play the result using
 a digital synthesizer or computer-controlled physical instrument.
 <p>
-We used GNM and Numula to create renditions of several advanced piano pieces,
+We used MNM and Numula to create renditions of several advanced piano pieces,
 which we had previously learned to play on a physical piano.
 We found that it was fairly easy to get a plausible rendition,
 but progressing beyond that quickly became difficult.
@@ -1789,88 +1827,113 @@ the more time users will invest in the rendition,
 and the musically better the result will be.
 <p>
 Numula has features (IPA and shorthand notations) that streamline
-the editing process and that eliminate the need to program.
+the editing process and that largely eliminate the need to program.
 We think that these features
 take the textual approach about as far as it can go.
-Making detailed nuance editing feasible
-for the majority of musicians, we think,
+Making detailed nuance editing feasible for the majority of musicians, we think,
 will require a graphical interface extending a score editor,
 possibly augmented with textual scripting tools.
 
 <p>
-Thanks to Richard Kraft, who encouraged this work and contributed ideas
-about the applications of GNM to performance pedagogy.
+Richard Kraft encouraged this work and contributed ideas
+about the applications of MNM to performance pedagogy.
 
 <h2>References</h2>
 <p>
 <ol>
-<li>Malcolm Bilson.
-Video: 'Knowing the Score: Do We Know How to Read Urtext Editions and How Can This Lead to Expressive and Passionate Performance?'
-Cornell University Press, Ithaca, 2005.
-<br>
-https://www.youtube.com/watch?v=mVGN_YAX03A
-<li> D.P. Anderson and R.J. Kuivila, FORMULA: a Programming Language for Expressive Computer Music, IEEE Computer. June 1991.
-<li>
-Cascading Style Sheets: https://en.wikipedia.org/wiki/CSS
-<li>
-Pianoteq: https://en.wikipedia.org/wiki/Pianoteq
-<li>
-Numula: https://github.com/davidpanderson/numula/
-<li>
-IMSLP: https://imslp.org
-<li>
-MuseScore: https://musescore.com
-<li>
-D. Mazinanian and N. Tsantalis, An Empirical Study on the Use of CSS Preprocessors, 2016 IEEE 23rd International Conference on Software Analysis, Evolution, and Reengineering (SANER), Osaka, Japan, 2016, pp. 168-178, doi: 10.1109/SANER.2016.18.
-<li>
-Lie, Håkon & Bos, Bert. (1997). Cascading style sheets. World Wide Web Journal. 2. 75-123. 
+<li> Anderson, D.P., and R.J. Kuivila. 1991.
+\"FORMULA: a Programming Language for Expressive Computer Music\",
+IEEE Computer 24(7), pp 12-21. June 1991
 
-<li> Supercollider: https://supercollider.github.io/
+<li>Bilson, Malcolm. 2005.
+\"Knowing the Score: Do We Know How to Read Urtext Editions and How Can This Lead to Expressive and Passionate Performance?\" (video).
+Cornell University Press.
+https://youtu.be/mVGN_YAX03A
 
-<li> HMSL: https://www.softsynth.com/hmsl/index.php
+<li>
+Cuthbert, M.S. and A. Christopher.  2010.
+\"music21: A Toolkit for Computer-Aided Musicology and Symbolic Music Data.\"
+11th International Society for Music Information Retrieval Conference (ISMIR 2010), August 9-13 2010, Utrecht, Netherlands. pp. 637-642.
 
-<li> Abjad: https://abjad.github.io/.
-Python; string notation for scores; algorithmic composition and typesetting.
-Scripting for score representation.
+<li> Dannenberg, R. 1997.
+Time Warping of Compound Events and Signals.
+Computer Music Journal 21(3) Autumn 97 pp 61-70.
 
-<li> Scratch: programming for all.
-Mitchel Resnick, John Maloney, Andrés Monroy-Hernández, Natalie Rusk, Evelyn Eastmond, Karen Brennan, Amon Millner, Eric Rosenbaum, Jay Silver, Brian Silverman, Yasmin Kafai.
+<li>
+Friberg, A.
+Generative Rules for Music Performance: A Formal Description of a Rule System.
+CMJ 15(2) summer 1991.
+
+<li>
+Friberg, A. and J. Sundberg. 1999.
+Does music performance allude to locomotion? A model of final ritardandi derived from measurements of stopping runners.
+The Journal of the Acoustical Society of America 105(3):1469-1484.  March 1999.
+
+<li>
+Honing, Henkjan. 2001.
+From Time to Time: The Representation of Timing and Tempo
+Source: Computer Music Journal , Vol. 25, No. 3 (Autumn, 2001), pp. 50-61.
+
+<li>
+Honing, Henkjan. 2005.
+The Vibrato Problem: Comparing Two Solutions.
+Computer Music Journal 19(3) Autumn 2005.
+
+<li>
+Mazinanian, D. and N. Tsantalis. 2016. \"An Empirical Study on the Use of CSS Preprocessors\", 2016 IEEE 23rd International Conference on Software Analysis, Evolution, and Reengineering (SANER), Osaka, Japan, pp. 168-178.
+<li>
+Lie, Håkon & Bos, Bert. 1997. Cascading style sheets. World Wide Web Journal. 2. 75-123. 
+
+<li> McCartney, J. 2002.
+\"Rethinking the Computer Music Language: SuperCollider\".
+Computer Music Journal.
+Vol. 26, No. 4, (Winter, 2002), pp. 61-68
+
+<li>Nienhuys, H-W, and J. Nieuwenhuizen.
+\"LilyPond, a system for automated music engraving.\"
+Proceedings of the xiv colloquium on musical informatics (xiv cim 2003). Vol. 1. Firenza: Tempo Reale, 2003.
+
+<li>
+Polansky, L., P. Burk and D. Rosenboom. 1990.
+\"HMSL (Hierarchical Music Specification Language): A Theoretical Overview\".
+Perspectives of New Music
+Vol. 28, No. 2 (Summer, 1990), pp. 136-178 
+
+<li>
+Puckette, Miller. 2002.
+\"Max at Seventeen\".
+Computer Music Journal 26(4): pp. 31-43.
+
+<li> Repp, B. 1998.
+A microcosm of musical expression. I. Quantitative analysis of pianists’ timing in the initial measures of Chopin’s Etude in E major.
+The Journal of the Acoustical Society of America, 1998
+
+<li> Repp, B. 1998.
+A microcosm of musical expression. I. Quantitative analysis of pianists’ timing in the initial measures of Chopin’s Etude in E major.
+The Journal of the Acoustical Society of America, 1998.
+
+<li>
+Resnick, M. et al. 2009.
+\"Scratch: Programming for All\". 2009.
 Communications of the ACM.
-Volume 52, Number 11 (2009), Pages 60-67.
+52(11), pp. 60-67.
 
 <li>
-Max at Seventeen.
-Miller Puckette.
-Computer Music Journal
-Vol. 26, No. 4, (Winter, 2002), pp. 31-43.
+Rogers, J. and J. Rockstroh. 1980.
+\"Music-Time and Clock-Time Similarities under Tempo Change\".
+Proceedings of The 1980 International Computer Music Conference.
+
+<li>
+Todd, Neil.  1992.
+The dynamics of dynamics: A model of musical expression.
+The Journal of the Acoustical Society of America 91, 3540 (1992)
+
 
 </ol>
 </div>
 </body>
 </html>
 ";
-
-// expand backquotes into <code>...</code>
-function expand($s) {
-    $n = 0;
-    $out = '';
-    $start = true;
-    while (1) {
-        $i = strpos($s, '`', $n);
-        if ($i === false) break;
-        $out .= substr($s, $n, $i-$n);
-        if ($start) {
-            $out .= '<code>';
-            $start = false;
-        } else {
-            $out .= '</code>';
-            $start = true;
-        }
-        $n = $i+1;
-    }
-    $out .= substr($s, $n);
-    return $out;
-}
 
 echo expand($text);
 ?>
