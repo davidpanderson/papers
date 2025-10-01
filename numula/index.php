@@ -75,7 +75,7 @@ October 1, 2025
 
 <h2>Abstract</h2>
 
-Musical Nuance Model (MNM) is
+Music Nuance Model (MNM) is
 a framework for describing performance nuance
 (timing, dynamics, articulation, and pedaling)
 in notated keyboard music.
@@ -145,9 +145,9 @@ and the performer's technique and physical limitations,
 which can convey difficulty and thus have an expressive role.
 
 <p>
-Musical Nuance Model (MNM) is
+Music Nuance Model (MNM) is
 a practical framework for describing performance nuance.
-MNM has precisely-defined semantics
+MNM has precisely defined semantics
 and can describe typical human nuance in a compact way;
 for example, gestures like crescendos are described by single primitives.
 MNM has several key features.
@@ -161,7 +161,7 @@ A time-varying quantity is represented as a
 MNM provides a highly general way of selecting subsets of notes,
 based either on explicit <i>tags</i>
 or on note attributes such as chordal or metric position.
-A <i>note selector</i> is a boolean-valued function
+A <i>note selector</i> is a Boolean-valued function
 of these tags and attributes.
 <li>
 MNM allows nuance to be factored into multiple layers.
@@ -184,7 +184,7 @@ involves taking a score for a work
 and a set of human performances of the work,
 and finding, algorithmically and/or manually,
 nuance descriptions that closely approximate the human performances.
-This could be used for various stylistic analyses.
+This could be used for stylistic analyses and other purposes.
 <p>
 In the remainder of the paper we explore the above topics,
 then discuss related work,
@@ -1487,11 +1487,14 @@ of piano pieces in a variety of styles:
 <li> Three Homages by Robert Helps (1972).
 </ul>
 <p>
-We tried to create renditions that approximated
+The sound files and source code are at
+https://github.com/davidpanderson/numula/wiki#examples
+<p>
+We tried to create renditions that approximate
 performances by a skilled human,
 and we were at least partly successful.
 MNM and Numula evolved in the process;
-each piece required new features, in both MNM and the editing interfaces.
+each piece required new features in MNM and in the editing tools.
 
 <h2>11. Nuance inference</h2>
 <p>
@@ -1505,7 +1508,7 @@ That is, given a score and a performance of the score
 finding a nuance description which, when applied to the score,
 closely approximates the performance.
 Here we present some ideas on how to do this,
-and on its possible applications.
+and on the possible applications.
 <p>
 Given a performance $ P $, there are nuance descriptions
 that exactly reproduce $ P $
@@ -1525,7 +1528,7 @@ i.e. the length of the shortest program that generates $ D $.
 <p>
 We also need a measure of how closely a nuance description $ D $
 matches a performance $ P $.
-Suppose a score S and a performance $ P $ are given.
+Suppose a score $ S $ and a performance $ P $ are given.
 Let $ N(S, D) $ denote the result of applying $ D $ to $ S $;
 like $ P $, it is a list of note and pedal events.
 Let $ E(P, N(S, D)) $ be a measure of the difference
@@ -1535,7 +1538,7 @@ of the differences in the inter-event times and in the volumes
 of corresponding notes.
 
 <p>
-Given the functions $ C $ and $ E $, we can express our goal either as:
+Given the functions $ C $ and $ E $, possible goals are:
 <ul>
 <li>
 Given an error limit $ \ov E\ $,
@@ -1555,24 +1558,25 @@ and for which $ E(P, N(S, D)) $ is minimal.
 
 <h3>11.1 Inferring nuance from one performance</h3>
 <p>
-The above discussion clarifies what we seek &mdash;
-a simple nuance description $ D $ that matches a performance $ P $ &mdash;
-but sheds no light on how to find it.
+The above discussion clarifies what we seek:
+a simple nuance description $ D $ that matches a performance $ P $.
+How can we find one?
 We now sketch a crude manual approach as a starting point.
 <p>
-Intuitively, it seems desirable to work from long to short:
+Intuitively, it seems best to work from long to short:
 to identify phrase-level features, then measure-level, then single notes.
 So, to describe volume, we might:
 <p>
 <ul>
-<li> Identify a segment of $ P $ where the overall volume trends up or down.
+<li> Identify a section of $ P $ where the overall volume trends up or down.
 <li> Find the primitive type (e.g. linear or exponential)
 that best fits the volume contour,
 and find the best-fit (e.g. least-squares) parameters
-<li> Continue, finding more such disjoint segments,
+<li> Continue, finding more such disjoint sections,
 and assembling the resulting primitives into a PFT.
 <li> Subtract this volume transformation from $ P $, leaving a residue.
-<li> Fit shorter (beat- or measure-level) primitives in a similar way.
+<li> Fit shorter (beat- or measure-level) primitives, in a similar way,
+to the residue.
 <li> From the resulting residue, fit accents or patterns of accents.
 </ul>
 <p>
@@ -1800,7 +1804,7 @@ for MNM nuance descriptions.
 
 <h2>14. Conclusion</h2>
 <p>
-We have presented Musical Nuance Model (MNM),
+We have presented Music Nuance Model (MNM),
 a framework for describing nuance in renditions of keyboard works.
 MNM is implemented in Numula,
 a Python-based system for describing both scores and nuance.

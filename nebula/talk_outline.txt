@@ -1,0 +1,21 @@
+Intro
+    radio sky survey
+    commensal
+    3 stages
+        front end
+        back end
+        reobs
+
+Who I am
+    Academic computer scientist interested in distributed computing
+    software jack of all trades 
+
+History
+
+Detections
+
+Client
+
+RFI removal
+
+candidate finding
