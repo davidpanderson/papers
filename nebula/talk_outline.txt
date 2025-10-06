@@ -47,6 +47,14 @@ RFI removal
 
 candidate finding
 
+computing for the back end
+    AWS: disaster
+    Berkeley private cloud
+    ATLAS
+        Condor for candidate finding
+        92-core machine for RFI removal
+            parallelize over freq bands
+
 What we should have done differently
 
 Advice for future radio sky surveys

@@ -146,4 +146,42 @@ and referring to notes' offset within measures.
 What about other structural units?
 What if we wanted to tag 4/8/16-bar units,
 and their components (like the trailing ritard)?
+----------------
+size of gestures
+    large: accelerando over 32 measures
+    small: short (10s of milliseconds) pauses at the beat or measure level
+----------------
+interfaces
 
+textual
+
+graphical
+
+demonstrative
+    play part of the piece
+    best for large nuance gestures
+
+motile
+    conduct the piece
+    custom input device (baton?)
+    mouse, touch screen
+    best for large nuance gestures
+----------------
+about examples:
+
+nuance at different time scales (beat/measure/phrase)
+volume and pedaling: separate hands/voices
+importance of pauses in the 20 to 50 millisecond range
+repeated patterns
+
+examples
+
+line and note counts for score/nuance?
+
+piece               score   nuance  #notes
+helps/faure         126     163     1147
+helps/rach          94      99      1470
+helps/ravel         116     87      1389
+chopin              148     161     1558
+berio               83      101     394
+beethoven           319     481     7012
