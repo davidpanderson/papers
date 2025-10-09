@@ -16,7 +16,7 @@ $pause = '<code>Pause</code>';
 // https://direct.mit.edu/comj/pages/submission-guidelines
 // https://direct.mit.edu/DocumentLibrary/SubGuides/cmjstyle-2024-5.pdf
 
-define('LATEX', true);
+define('LATEX', false);
 
 // expand backquotes into <code>...</code>
 function expand_html($s) {
@@ -47,15 +47,17 @@ function expand_latex($s) {
     while (1) {
         $i = strpos($s, '`', $n);
         if ($i === false) break;
-        $out .= substr($s, $n, $i-$n);
-        if ($start) {
-            $out .= '<code>';
-            $start = false;
-        } else {
-            $out .= '</code>';
-            $start = true;
+        $j = strpos($s, '`', $i+1);
+        if ($j === false) {
+            echo "no closing `\n";
+            exit;
         }
-        $n = $i+1;
+        $out .= substr($s, $n, $i-$n);
+        $out .= "\\texttt{";
+        $x = substr($s, $i+1, $j-$i-1);
+        $out .= str_replace('_', '\\_', $x);
+        $out .= '}';
+        $n = $j+1;
     }
     $out .= substr($s, $n);
     $s = $out;
@@ -68,10 +70,8 @@ function expand_latex($s) {
     $s = str_replace('<br>', "\n", $s);
     $s = str_replace('<b>', "\\textbf{", $s);
     $s = str_replace('</b>', '}', $s);
-    $s = str_replace('<code>', "\\texttt{", $s);
-    $s = str_replace('</code>', '}', $s);
-    $s = str_replace('<pre>', "\\begin{singlespace}\\begin{verbatim}", $s);
-    $s = str_replace('</pre>', '\\end{verbatim}\\end{singlespace}', $s);
+    $s = str_replace('<pre>', "\\begin{singlespace}\\vspace{-0.5em}\\begin{verbatim}", $s);
+    $s = str_replace('</pre>', '\\end{verbatim}\\end{singlespace}\\noindent', $s);
     $s = str_replace('<i>', "\\textit{", $s);
     $s = str_replace('</i>', '}', $s);
     $s = str_replace('<ol>', '\\begin{enumerate}', $s);
@@ -82,15 +82,25 @@ function expand_latex($s) {
 }
 
 function figure($file, $caption) {
+    static $i=0;
     if (LATEX) {
-        return "";
+        return '
+\\begin{figure}
+    \\begin{center}
+    \\includegraphics[width=150mm]{'.$file.'}
+    \\caption{'.$caption.'}
+    \\label{fig:fig1}
+    \\end{center}
+\\end{figure}
+';
     }
+    $i++;
     return "
 <center>
 <img src=$file width=600>
 <br>
 <i>
-$caption
+Figure $i: $caption
 </i>
 </center>
 ";
@@ -103,8 +113,8 @@ function html_only($x) {
     return $x;
 }
 
-$text = html_only('
-<html lang="en" xmlns:m="https://www.w3.org/1998/Math/MathML">
+$text = html_only(
+'<html lang="en" xmlns:m="https://www.w3.org/1998/Math/MathML">
 
 <head>
     <meta charset="utf-8">
@@ -125,7 +135,7 @@ $text = html_only('
 	</style>
 </head>
 <body>
-<div style=\"margin-left: 30; width: 680; font-size:14px; font-family:Trebuchet MS; line-height:1.4\" align=justify>
+<div style="margin-left: 30; width: 680; font-size:14px; font-family:Trebuchet MS; line-height:1.4" align=justify>
 <center>
 <h1>Modeling performance nuance</h1>
 <p>
@@ -371,7 +381,6 @@ For example, the function
 <pre>
     lambda n: 'rh' in n.tags and n.dur == 1/2
 </pre>
-<p>
 selects all half notes in the right hand, and
 <pre>
     lambda n: '3/4' in n.measure.tags and n.measure_offset == 2/4
@@ -470,8 +479,8 @@ because of the closure arguments;
 see Figure 1.
 <p>
 ";
-$text .= figure('pft.svg',
-    'Figure 1: A piecewise function of time is a concatenation of primitives.
+$text .= figure('pft.png',
+    'A piecewise function of time is a concatenation of primitives.
 Closure determines the function value at discontinuities.'
 );
 $text .= "
@@ -479,23 +488,28 @@ $text .= "
 
 <h3>2.4.1 Linear PFT primitive</h3>
 <p>
-The `Linear` primitive represents a linear function $\F$ with
-$\F(0)=y_0$
+The `Linear` primitive represents a linear function $ F $ with
+$ F(0)=y_0 $
 and
-$\F(Δt)=y_1$ .
+$ F(Δt)=y_1 $
+$ F(\Delta t)=y_1 $
+.
 Its definite integral is
 <p>
 $$ ∫_0^x F(t)dt = {ax^2}/2 + xy_0 $$
+$$ \int _0^x F(t)dt = \\frac{ax^2}{2} + xy_0 $$
 
 <p>
 where $ a $ is the slope
 
 $$ a = {y_1 - y_0}/t $$
+$$ a = \\frac{y_1 - y_0}{t} $$
 
 <p>
 and the definite integral of its reciprocal is
 <p>
 $$ ∫_0^x 1/{F(t)}dt = {\log(ax + y_0)-\log(y_0)}/a $$
+$$ \int _0^x \\frac{1}{F(t)}dt = \\frac{\log(ax + y_0)-\log(y_0)}{a} $$
 
 <br>
 <p>
@@ -503,10 +517,13 @@ $$ ∫_0^x 1/{F(t)}dt = {\log(ax + y_0)-\log(y_0)}/a $$
 <p>
 `ShiftedExp` is a PFT primitive representing a family of
 \"shifted exponential\" functions
-$ F(t) $ that vary from $ y_0 $ to $ y_1 $ over $ [0, Δt] $.
+$ F(t) $ that vary from $ y_0 $ to $ y_1 $ over
+$ [0, Δt] $
+$ [0, \Delta t] $
+.
 <p>
 $$ F(t) = y_0 + {(y_1-y_0)(1-e^{{Ct}/{Δt}})}/{1-e^C} $$
-<p>
+$$ F(t) = y_0 + \\frac{(y_1-y_0)(1-e^{\\frac{Ct}{\Delta t}})}{1-e^C} $$
 <p>
 C is a curvature parameter.
 If C is positive, F is concave up,
@@ -530,7 +547,7 @@ $text .= html_only(
 </table>
 <p>
 <i>
-Figure 2: Shifted-exponential primitives with different curvatures.
+Shifted-exponential primitives with different curvatures.
 </i>
 </center>
 '
@@ -545,25 +562,28 @@ for expressing the desired continuous variations in both tempo and volume.
 The definite integral of $ F $ from 0 to $ x $ is
 <p>
 $$ ∫_0^x F(t)dt = x(y_0 + {Δy(t_{norm} C - e^{(Ct_{norm})} + 1)}/{C(1-e^C)}) $$
+$$ \int_0^x F(t)dt = x(y_0 + \\frac{\Delta y(t_{norm} C - e^{(Ct_{norm})} + 1)}{C(1-e^C)}) $$
 
 where
 
-$$
-t_{norm} = x/{Δt}
-$$
+$$ t_{norm} = x/{Δt} $$
+$$ t_{norm} = \\frac{x}{\Delta t} $$
 <p>
-$$
-Δy = y_1 - y_0
-$$
+$$ Δy = y_1 - y_0 $$
+$$ \Delta y = y_1 - y_0 $$
 <p>
-The indefinite integral of $ 1/F $ is
+The indefinite integral of
+$ 1/F $
+$ \\frac{1}{F} $
+is
 <p>
-$$
-G(t) = ∫ 1/{F(t)}dt = {(e^C - 1)(tC - log(|\; y_0(e^C-1) + Δy(e^{Ct} - 1)|))} / {Cy_0(e^C-1) - Δy} + constant $$
+$$ G(t) = ∫ 1/{F(t)}dt = {(e^C - 1)(tC - log(|\; y_0(e^C-1) + Δy(e^{Ct} - 1)|))} / {Cy_0(e^C-1) - Δy} + constant $$
+$$ G(t) = \int 1/{F(t)}dt = \\frac{(e^C - 1)(tC - log(\lvert y_0(e^C-1) + \Delta y(e^{Ct} - 1)\rvert ))}{Cy_0(e^C-1) - \Delta y} + constant $$
 <p>
 so the definite integral of $ 1/F $ from 0 to $ x $ is
 <p>
 $$ ∫_0^x 1/{F(t)}dt = G(x) - G(0) $$
+$$ \int_0^x \\frac{1}{F(t)}dt = G(x) - G(0) $$
 
 <br>
 <p>
@@ -719,7 +739,7 @@ synch up at the end of the figure.
 ";
 $text .= figure(
 'chopin.jpg',
-"Figure 3: Example from Chopin's Nocturne no. 1."
+"Example from Chopin's Nocturne no. 1."
 );
 $text .= "
 <p>
@@ -744,8 +764,8 @@ the (updated) adjusted time of E1 plus $ A Δt $.
 </ol>
 ";
 $text .= figure(
-'tempo.svg',
-'Figure 4: Example of tempo adjustment.
+'tempo.png',
+'Example of tempo adjustment.
 The interval between events E1 and E2 is scaled by the average value of
 the slowness (inverse tempo) function between their score times.'
 );
@@ -1395,8 +1415,8 @@ These modules can be used separately or in combination,
 and they could be integrated into other systems.
 ";
 $text .= figure(
-'numula.svg',
-'Figure 5: The components of Numula.'
+'numula.png',
+'The components of Numula.'
 );
 $text .= "
 <p><br><p>
@@ -1563,7 +1583,7 @@ Helps #3    116                 87                  1389
 </pre>
 </td></tr></table>
 <p>
-<i>Figure 6: Source code sizes for Numula examples.</i>
+<i>Source code sizes for Numula examples.</i>
 </center>
 ');
 $text .= "
@@ -1933,13 +1953,13 @@ about UI design and the applications of MNM.
 \"FORMULA: a Programming Language for Expressive Computer Music\",
 <i>IEEE Computer</i> 24(7), pp 12-21. June 1991.
 
-<li>Bilson, Malcolm. 2005.
+<li> Bilson, Malcolm. 2005.
 \"Knowing the score: do we know how to read Urtext editions and how can this lead to expressive and passionate performance?\" (documentary film).
 <i>Cornell University Press</i>.
-YouTube: https://youtu.be/mVGN_YAX03A
+YouTube: https://youtu.be/mVGN\\_YAX03A
 
 <li>
-Cancino-Chacón, C., M. Grachten, W. Goebl, G. Widmer.
+Cancino-Chacon, C., M. Grachten, W. Goebl, G. Widmer.
 \"Computational Models of Expressive Music Performance: A Comprehensive and Critical Review\".
 <i>Frontiers in Digital Humanities</i>, October 2018.
 
@@ -2049,9 +2069,9 @@ $text .= html_only('
 ');
 
 if (LATEX) {
-echo expand_latex($text);
-echo "\\end{document}\n";
+    echo expand_latex($text);
+    echo "\\end{document}\n";
 } else {
-echo expand_html($text);
+    echo expand_html($text);
 }
 ?>
