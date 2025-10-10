@@ -1,5 +1,7 @@
 <?php
 
+define('LATEX', true);
+
 $score = '`Score`';
 $note = '`Note`';
 $measure = '`Measure`';
@@ -15,8 +17,6 @@ $pause = '<code>Pause</code>';
 
 // https://direct.mit.edu/comj/pages/submission-guidelines
 // https://direct.mit.edu/DocumentLibrary/SubGuides/cmjstyle-2024-5.pdf
-
-define('LATEX', false);
 
 // expand backquotes into <code>...</code>
 function expand_html($s) {
@@ -66,12 +66,14 @@ function expand_latex($s) {
     $s = str_replace('</h2>', '}', $s);
     $s = str_replace('<h3>', '\\subsection{', $s);
     $s = str_replace('</h3>', '}', $s);
+    $s = str_replace('<h4>', '\\subsubsection{', $s);
+    $s = str_replace('</h4>', '}', $s);
     $s = str_replace('<p>', "\n", $s);
     $s = str_replace('<br>', "\n", $s);
     $s = str_replace('<b>', "\\textbf{", $s);
     $s = str_replace('</b>', '}', $s);
-    $s = str_replace('<pre>', "\\begin{singlespace}\\vspace{-0.5em}\\begin{verbatim}", $s);
-    $s = str_replace('</pre>', '\\end{verbatim}\\end{singlespace}\\noindent', $s);
+    $s = str_replace('<pre>', "\\begin{small}\\begin{singlespace}\\vspace{-0.5em}\\begin{verbatim}", $s);
+    $s = str_replace('</pre>', '\\end{verbatim}\\end{singlespace}\\end{small}\\noindent', $s);
     $s = str_replace('<i>', "\\textit{", $s);
     $s = str_replace('</i>', '}', $s);
     $s = str_replace('<ol>', '\\begin{enumerate}', $s);
@@ -82,9 +84,10 @@ function expand_latex($s) {
 }
 
 function figure($file, $caption) {
+    global $text;
     static $i=0;
     if (LATEX) {
-        return '
+        $text .= '
 \\begin{figure}
     \\begin{center}
     \\includegraphics[width=150mm]{'.$file.'}
@@ -93,9 +96,9 @@ function figure($file, $caption) {
     \\end{center}
 \\end{figure}
 ';
-    }
+    } else {
     $i++;
-    return "
+    $text .= "
 <center>
 <img src=$file width=600>
 <br>
@@ -104,16 +107,33 @@ Figure $i: $caption
 </i>
 </center>
 ";
-}
-
-function html_only($x) {
-    if (LATEX) {
-        return "";
     }
-    return $x;
 }
 
-$text = html_only(
+$text = '';
+function choose($x, $y) {
+    global $text;
+    if (LATEX) {
+        $text .= $y;
+    } else {
+        $text .= $x;
+    }
+}
+function html_only($x) {
+    choose($x, '');
+}
+function latex_only($x) {
+    choose('', $x);
+}
+
+function section($level, $num, $title) {
+    choose(
+        "<h$level>$num $title</h$level>\n",
+        "<h$level>$title</h$level>\n"
+    );
+}
+
+html_only(
 '<html lang="en" xmlns:m="https://www.w3.org/1998/Math/MathML">
 
 <head>
@@ -169,7 +189,7 @@ from recorded human performances.
 
 <p>
 
-<h2>1. Introduction</h2>
+"; section(2, '1.', 'Introduction'); $text.= "
 <p>
 This paper involves \"performance nuance\" in notated music.
 By this we mean the differences between a rendition of a piece
@@ -277,7 +297,7 @@ We present examples in which MNM was used to create virtual performances of
 piano works in a range of styles.
 We then discuss related and future work, and offer conclusions.
 
-<h2>2. The MNM model</h2>
+"; section(2, '2.', 'The MNM model'); $text.= "
 
 <p>
 MNM uses two notions of time:
@@ -294,7 +314,7 @@ adjusted time is real time, measured in seconds.
 
 <p>
 
-<h3>2.1 Score classes</h3>
+"; section(3, '2.1', 'Score classes'); $text.= "
 <p>
 MNM involves several abstract classes;
 in Numula, these are Python classes.
@@ -319,7 +339,7 @@ in units of score time.
 Measures may not overlap.
 <p>
 
-<h3>2.2 Attributes and tags</h3>
+"; section(3, '2.2', 'Attributes and tags'); $text.= "
 <p>
 Note attributes can be added as part of a nuance specification.
 A note `N` has an attribute `N.tags`, a set of textual <i>tags</i>.
@@ -370,7 +390,7 @@ MNM does not specify or restrict how attributes and tags are assigned.
 It could be done manually by a human nuance creator
 and/or automatically by the software system in which MNM is embedded.
 
-<h3>2.3 Note selectors</h3>
+"; section(3, '2.3', 'Note selectors'); $text.= "
 <p>
 A <i>note selector</i> is a Boolean-valued function of a $note.
 A note selector $ F $ identifies a set of notes within a $score,
@@ -395,7 +415,7 @@ In Python, the type of note selectors is
 </pre>
 <p>
 
-<h3>2.4 Piecewise functions of time</h3>
+"; section(3, '2.4', 'Piecewise functions of time'); $text.= "
 <p>
 Nuance gestures typically involve values
 (such as tempo and volume) that vary with time.
@@ -443,8 +463,8 @@ the definite integral of the function or of its reciprocal is needed
 (see the section \"Timing\" below).
 Thus, primitives used in tempo PFTs must provide member functions
 <pre>
-    integral(t: float): float               # the integral of F from 0 to t
-    integral_reciprocal(t: float): float    # the integral of 1/F from 0 to t
+    integral(t: float): float               # integral of F from 0 to t
+    integral_reciprocal(t: float): float    # integral of 1/F from 0 to t
 </pre>
 <p>
 When a PFT is used for purposes other than tempo,
@@ -479,51 +499,61 @@ because of the closure arguments;
 see Figure 1.
 <p>
 ";
-$text .= figure('pft.png',
+figure('pft.png',
     'A piecewise function of time is a concatenation of primitives.
 Closure determines the function value at discontinuities.'
 );
 $text .= "
 <p>
 
-<h3>2.4.1 Linear PFT primitive</h3>
+"; section(4, '2.4.1', 'Linear PFT primitive'); $text.= "
 <p>
 The `Linear` primitive represents a linear function $ F $ with
 $ F(0)=y_0 $
 and
-$ F(Δt)=y_1 $
-$ F(\Delta t)=y_1 $
+"; choose(
+'$ F(Δt)=y_1 $',
+'$ F(\Delta t)=y_1 $'
+); $text .= "
 .
 Its definite integral is
 <p>
-$$ ∫_0^x F(t)dt = {ax^2}/2 + xy_0 $$
-$$ \int _0^x F(t)dt = \\frac{ax^2}{2} + xy_0 $$
-
+"; choose(
+'$$ ∫_0^x F(t)dt = {ax^2}/2 + xy_0 $$',
+'$$ \int _0^x F(t)dt = \\frac{ax^2}{2} + xy_0 $$'
+); $text .= "
 <p>
 where $ a $ is the slope
 
-$$ a = {y_1 - y_0}/t $$
-$$ a = \\frac{y_1 - y_0}{t} $$
-
+"; choose(
+'$$ a = {y_1 - y_0}/Δt $$',
+'$$ a = \\frac{y_1 - y_0}{\Delta t} $$'
+); $text .= "
 <p>
 and the definite integral of its reciprocal is
 <p>
-$$ ∫_0^x 1/{F(t)}dt = {\log(ax + y_0)-\log(y_0)}/a $$
-$$ \int _0^x \\frac{1}{F(t)}dt = \\frac{\log(ax + y_0)-\log(y_0)}{a} $$
+"; choose(
+'$$ ∫_0^x 1/{F(t)}dt = {\log(ax + y_0)-\log(y_0)}/a $$',
+'$$ \int _0^x \\frac{1}{F(t)}dt = \\frac{\log(ax + y_0)-\log(y_0)}{a} $$'
+); $text .= "
 
 <br>
 <p>
-<h3>2.4.2 Shifted exponential PFT primitive</h3>
+"; section(4, '2.4.2', 'Shifted exponential PFT primitive'); $text.= "
 <p>
 `ShiftedExp` is a PFT primitive representing a family of
 \"shifted exponential\" functions
 $ F(t) $ that vary from $ y_0 $ to $ y_1 $ over
-$ [0, Δt] $
-$ [0, \Delta t] $
-.
+"; choose(
+'$ [0, Δt] $',
+'$ [0, \Delta t] $'
+); $text .= "
+:
 <p>
-$$ F(t) = y_0 + {(y_1-y_0)(1-e^{{Ct}/{Δt}})}/{1-e^C} $$
-$$ F(t) = y_0 + \\frac{(y_1-y_0)(1-e^{\\frac{Ct}{\Delta t}})}{1-e^C} $$
+"; choose(
+'$$ F(t) = y_0 + {(y_1-y_0)(1-e^{{Ct}/{Δt}})}/{1-e^C} $$',
+'$$ F(t) = y_0 + \\frac{(y_1-y_0)(1-e^{\\frac{Ct}{\Delta t}})}{1-e^C} $$'
+); $text .= "
 <p>
 C is a curvature parameter.
 If C is positive, F is concave up,
@@ -534,7 +564,7 @@ If C is zero, F is linear.
 Figure 2 shows examples.
 <p>
 ";
-$text .= html_only(
+choose(
 '<center>
 <table>
 <tr>
@@ -550,8 +580,31 @@ $text .= html_only(
 Shifted-exponential primitives with different curvatures.
 </i>
 </center>
-'
-);
+',
+'\begin{figure}[]
+    \begin{subfigure}{0.5\textwidth}
+        \includegraphics[clip,width=\columnwidth]{exp2.png}
+        \caption{}
+    \end{subfigure}
+        \hfill
+    \begin{subfigure}{0.5\textwidth}
+        \includegraphics[clip,width=\columnwidth]{exp5.png}
+        \caption{}
+    \end{subfigure}
+        \hfill
+    \begin{subfigure}{0.5\textwidth}
+        \includegraphics[clip,width=\columnwidth]{exp-2.png}
+        \caption{}
+    \end{subfigure}
+        \hfill
+    \begin{subfigure}{0.5\textwidth}
+        \includegraphics[clip,width=\columnwidth]{exp-5.png}
+        \caption{}
+    \end{subfigure}
+    \caption{Shifted-exponential primitives with different curvatures.}
+    \label{fig:figMultipart}
+\end{figure}
+');
 
 $text .= "
 `ShiftedExp` is quite versatile.
@@ -561,39 +614,50 @@ for expressing the desired continuous variations in both tempo and volume.
 <p>
 The definite integral of $ F $ from 0 to $ x $ is
 <p>
-$$ ∫_0^x F(t)dt = x(y_0 + {Δy(t_{norm} C - e^{(Ct_{norm})} + 1)}/{C(1-e^C)}) $$
-$$ \int_0^x F(t)dt = x(y_0 + \\frac{\Delta y(t_{norm} C - e^{(Ct_{norm})} + 1)}{C(1-e^C)}) $$
+"; choose(
+'$$ ∫_0^x F(t)dt = x(y_0 + {Δy(t_{norm} C - e^{(Ct_{norm})} + 1)}/{C(1-e^C)}) $$',
+'$$ \int_0^x F(t)dt = x(y_0 + \\frac{\Delta y(t_{norm} C - e^{(Ct_{norm})} + 1)}{C(1-e^C)}) $$'
+); $text .= "
 
 where
 
-$$ t_{norm} = x/{Δt} $$
-$$ t_{norm} = \\frac{x}{\Delta t} $$
+"; choose(
+'$$ t_{norm} = x/{Δt} $$',
+'$$ t_{norm} = \\frac{x}{\Delta t} $$'
+); $text .= "
 <p>
-$$ Δy = y_1 - y_0 $$
-$$ \Delta y = y_1 - y_0 $$
+"; choose(
+'$$ Δy = y_1 - y_0 $$',
+'$$ \Delta y = y_1 - y_0 $$'
+); $text .= "
 <p>
 The indefinite integral of
-$ 1/F $
-$ \\frac{1}{F} $
+"; choose(
+'$ 1/F $',
+'$ \\frac{1}{F} $'
+); $text .= "
 is
 <p>
-$$ G(t) = ∫ 1/{F(t)}dt = {(e^C - 1)(tC - log(|\; y_0(e^C-1) + Δy(e^{Ct} - 1)|))} / {Cy_0(e^C-1) - Δy} + constant $$
-$$ G(t) = \int 1/{F(t)}dt = \\frac{(e^C - 1)(tC - log(\lvert y_0(e^C-1) + \Delta y(e^{Ct} - 1)\rvert ))}{Cy_0(e^C-1) - \Delta y} + constant $$
+"; choose(
+'$$ G(t) = ∫ 1/{F(t)}dt = {(e^C - 1)(tC - log(|\; y_0(e^C-1) + Δy(e^{Ct} - 1)|))} / {Cy_0(e^C-1) - Δy} + constant $$',
+'$$ G(t) = \int \\frac{1}{F(t)}dt = \\frac{(e^C - 1)(tC - log(\lvert y_0(e^C-1) + \Delta y(e^{Ct} - 1)\rvert ))}{Cy_0(e^C-1) - \Delta y} + constant $$'
+); $text .= "
 <p>
 so the definite integral of $ 1/F $ from 0 to $ x $ is
 <p>
-$$ ∫_0^x 1/{F(t)}dt = G(x) - G(0) $$
-$$ \int_0^x \\frac{1}{F(t)}dt = G(x) - G(0) $$
+"; choose(
+'$$ ∫_0^x 1/{F(t)}dt = G(x) - G(0) $$',
+'$$ \int_0^x \\frac{1}{F(t)}dt = G(x) - G(0) $$'
+); $text .= "
 
 <br>
 <p>
-<h3>2.4.3 Momentary PFT primitives</h3>
+"; section(4, '2.4.3', 'Momentary PFT primitives'); $text.= "
 <p>
 MNM provides momentary primitives for several purposes.
 <pre>
     Accent(value: float)
 </pre>
-
 This represents a volume adjustment for notes that start at a particular time;
 see the section \"Dynamics\" below.
 The surrounding interval segments must be open at their respective ends.
@@ -616,7 +680,7 @@ This can be used for \"agogic accents\"
 in which melody notes are brought out by
 shifting them slightly before or after accompaniment notes.
 
-<h3>2.5  Transformations</h3>
+"; section(3, '2.5', 'Transformations'); $text.= "
 <p>
 An MNM specification comprises a sequence of <i>transformations</i>.
 Each transformation acts on a $score, changing it in some way.
@@ -626,27 +690,27 @@ We notate transformations as member functions of the $score class;
 each function corresponds to an operator.
 These functions are listed in the following sections.
 <p>
-These functions have various parameters.
+The functions have various parameters.
 Most include a PFT describing a time-varying quantity,
 a time offset $ t_0 $ indicating the score time
 at which the transformation starts,
-and a note selector, indicating what notes are affected.
+and a note selector indicating what notes are affected.
 <p>
-Some transformations, rather than using a PFT,
-use a function that maps a $note to a number
+Some transformations get values not from a PFT
+but from a function that maps a $note to a number
 (for example, a volume adjustment factor).
 These arguments have the Python type
 <pre>
     type NoteToFloat = Callable[[Note], float]
 </pre>
 
-<h2>3. Timing</h2>
+"; section(2, '3.', 'Timing'); $text.= "
 <p>
 A note `N` has adjusted-time start and duration,
 `N.adj_time` and `N.adj_dur`.
 These are initially its start and duration in score time;
 they can be adjusted by transformations.
-MNM supports three kinds of timing adjustment.
+MNM supports three kinds of timing transformations.
 <p>
 <b>Tempo control</b>: The adjusted times of note starts and ends
 are changed according to a <i>tempo function</i>,
@@ -654,23 +718,18 @@ represented as a PFT.
 The tempo function can include pauses.
 <p>
 <b>Time shifting</b>.
-Note starts can be shifted earlier or later in adjusted time.
+Note starts are shifted earlier or later in adjusted time.
 Other notes are not changed
 (unlike pauses, which delay all subsequent notes).
 <p>
 <b>Articulation control:</b> Note durations
 (in either score time or adjusted time)
-can be scaled or set to particular values,
+are scaled or set to particular values,
 expressing legato, portamento, or staccato.
 This can be done in various ways,
 including continuous variation of articulation using a PFT.
 
-<p>
-These adjustments can be layered.
-For example, one could specify several layers of tempo control,
-followed by time shifting.
-
-<h3>3.1 Tempo control</h3>
+"; section(3, '3.1', 'Tempo control'); $text.= "
 <p>
 Tempo variation is described by a PFT.
 MNM provides three \"modes\" for the meaning of this PFT:
@@ -737,7 +796,7 @@ to the right-hand flourish.
 This adjustment was normalized so that the left and right hands
 synch up at the end of the figure.
 ";
-$text .= figure(
+figure(
 'chopin.jpg',
 "Example from Chopin's Nocturne no. 1."
 );
@@ -763,7 +822,7 @@ Change the adjusted time of E2 to
 the (updated) adjusted time of E1 plus $ A Δt $.
 </ol>
 ";
-$text .= figure(
+figure(
 'tempo.png',
 'Example of tempo adjustment.
 The interval between events E1 and E2 is scaled by the average value of
@@ -772,7 +831,7 @@ the slowness (inverse tempo) function between their score times.'
 $text .= "
 <p>
 
-<h3>3.2 Time shifts</h3>
+"; section(3, '3.2', 'Time shifts'); $text.= "
 <p>
 These transformations modify the adjusted start times of notes,
 and change their durations to preserve the end times.
@@ -836,7 +895,7 @@ For example, the following adds Gaussian jitter to note start times:
 <p>
 Adding jitter can make renditions sound more \"human\".
 
-<h3>3.3. Articulation</h3>
+"; section(3, '3.3', 'Articulation'); $text.= "
 <p>
 Initially, the duration `N.dur` of a note `N` is typically the time until
 the next note in the same voice or part.
@@ -886,7 +945,7 @@ of selected notes `N` using the adjustment factor `f(N)`.
     )
 </pre>
 
-<h3>3.4 Layering timing transformations</h3>
+"; section(3, '3.4', 'Layering timing transformations'); $text.= "
 <p>
 PFT-based tempo transformations without pauses commute,
 so the order in which they're applied doesn't matter.
@@ -900,7 +959,7 @@ A typical order of transformations:
 Articulation transformations that modify score time should precede these;
 those that modify adjusted time should follow them.
 
-<h2>4. Pedal control</h2>
+"; section(2, '4.', 'Pedal control'); $text.= "
 <p>
 Grand pianos typically have three pedals:
 <p>
@@ -930,7 +989,7 @@ Most MIDI piano synthesizers implement all three pedal types.
 Some, such as Pianoteq (https://en.wikipedia.org/wiki/Pianoteq),
 also implement fractional pedaling.
 
-<h3>4.1 Control of standard pedals</h3>
+"; section(3, '4.1', 'Control of standard pedals'); $text.= "
 <p>
 MNM provides a mechanism for specifying the use
 of standard grand-piano pedals.
@@ -988,7 +1047,7 @@ with values described by a PFT, starting at score time $ t_0 $:
     )
 </pre>
 
-<h3>4.2 Virtual sustain pedals</h3>
+"; section(3, '4.2', 'Virtual sustai pedals'); $text.= "
 <p>
 Sometimes it's musically useful to sustain only certain keys (pitches).
 The sustain pedal can't do this: it affects all keys.
@@ -1027,7 +1086,7 @@ in terms of what notes are sustained.
 They lack two features of standard pedals: there is no fractional pedal,
 and there is no sympathetic resonance of open strings.
 
-<h3>4.3 Pedal layering</h3>
+"; section(3, '4.3', 'Pedal layering'); $text.= "
 <p>
 In an MNM nuance description,
 pedal specifications must precede timing adjustments
@@ -1043,7 +1102,7 @@ Uses of the standard pedals can't be layered;
 that is, PFTs controlling a particular pedal can't overlap in time.
 However, virtual sustain PFTs can overlap standard pedal PFTs.
 
-<h2>5. Dynamics</h2>
+"; section(2, '5.', 'Dynamics'); $text.= "
 <p>
 In MNM, the volume of a note is represented by floating-point number
 in [0..1] (soft to loud).
@@ -1121,11 +1180,13 @@ the following transformations de-emphasize notes on weak beats:
 <pre>
     score.vol_adjust(VOL_MULT, 0.9, lambda n: n.measure_offset == 2/4)
     score.vol_adjust(VOL_MULT, 0.8, lambda n: n.measure_offset in [1/4, 3/4])
-    score.vol_adjust(VOL_MULT, 0.7, lambda n: n.measure_offset not in [0, 1/4, 2/4, 3/4])
+    score.vol_adjust(VOL_MULT, 0.7,
+        lambda n: n.measure_offset not in [0, 1/4, 2/4, 3/4]
+    )
 </pre>
 <p>
 
-<h3>5.1 Layering volume transformations</h3>
+"; section(3, '5.1', 'Layering volume transformations'); $text.= "
 <p>
 Volume transformations can be layered.
 Multiplicative transformations commute, so their order doesn't matter.
@@ -1137,7 +1198,7 @@ A typical order:
 <li> transformations with mode `VOL_SET`.
 </ol>
 
-<h2>6. The process of specifying nuance</h2>
+"; section(2, '6.', 'The process of specifying nuance'); $text.= "
 <p>
 We designed MNM to enable a human musician (composer or performer)
 to manually create a nuance description for a work.
@@ -1156,7 +1217,7 @@ with the goal of creating expressive and human-like virtual performances
 This section
 describes some principles and techniques that we found useful.
 
-<h3>6.1 Note tagging</h3>
+"; section(3, '6.1', 'Note tagging'); $text.= "
 <p>
 The first step in creating a draft specification
 is to identify sets of notes that are to be treated specially,
@@ -1165,7 +1226,7 @@ For example, you could tag notes as melody or accompaniment,
 or as being in the left- or right-hand part.
 Notes can have multiple tags, so these sets can overlap.
 
-<h3>6.2 Nuance structure</h3>
+"; section(3, '6.2', 'Nuance structure'); $text.= "
 <p>
 The next step is to decide on a <i>nuance structure</i>:
 a sequence of transformation types, each with a particular purpose.
@@ -1194,7 +1255,7 @@ a PFT for the standard sustain pedal,
 and PFTs for virtual sustain pedals affecting only some voices
 (e.g. accompaniment).
 
-<h3>6.3 Refining nuance specifications</h3>
+"; section(3, '6.3', 'Refining nuance specifications'); $text.= "
 <p>
 You create an initial \"rough draft\" based on score markings and
 musical intuition.
@@ -1230,7 +1291,7 @@ you may decide to make high-level changes,
 such as adding note tags or changing the nuance structure.
 <p>
 
-<h2>7. Nuance scripting</h2>
+"; section(2, '7.', 'Nuance scripting'); $text.= "
 <p>
 In developing nuance specifications for long and complex pieces,
 it's useful to be able to express:
@@ -1258,7 +1319,7 @@ We did this in Numula using Python;
 other languages could be used as well.
 <p>
 
-<h2>8. User interfaces for editing nuance</h2>
+"; section(2, '8.', 'User interfaces for editing nuance'); $text.= "
 <p>
 We now discuss possible user interfaces for creating
 and editing MNM nuance specifications.
@@ -1342,7 +1403,7 @@ For example, we could use a performative and conductive interface
 to input large-scale nuance gestures with coarse resolution,
 then use a graphical or textual interface to refine the gesture.
 
-<h2>9. Applications of nuance specification</h2>
+"; section(2, '9.', 'Applications of nuance specification'); $text.= "
 <p>
 Nuance specification has several potential applications.
 <p>
@@ -1407,14 +1468,14 @@ Such sites could also host user-supplied nuance descriptions,
 providing a framework for sharing and discussing interpretations.
 <p>
 
-<h2>10. Numula</h2>
+"; section(2, '10.', 'Numula'); $text.= "
 <p>
 Numula is a Python library for creating nuanced music.
 It consists of several modules; see Figure 5.
 These modules can be used separately or in combination,
 and they could be integrated into other systems.
 ";
-$text .= figure(
+figure(
 'numula.png',
 'The components of Numula.'
 );
@@ -1437,7 +1498,7 @@ apply a nuance description to it,
 and output the result as a MIDI file.
 <p>
 
-<h3>10.1 Shorthand notations</h3>
+"; section(3, '10.1', 'Shorthand notations'); $text.= "
 <p>
 Numula provides textual <i>shorthand notations</i>
 for describing scores and various types of PFTs
@@ -1528,7 +1589,7 @@ checks that one measure of time has passed in the PFT definition.
 This facilitates finding timing errors in long PFT definitions.
 The length of measures, 4/4 in this case, is configurable.
 
-<h3>10.2 Interactive parameter adjustment</h3>
+"; section(3, '10.2', 'Interactive parameter adjustment'); $text.= "
 <p>
 Numula's original low-level editing cycle was cumbersome;
 each adjustment required locating and editing a value in the source code,
@@ -1550,7 +1611,7 @@ and press the space bar to play the selected part of the piece.
 The values of adjustable variables are written to a file,
 which is read when the IPA interpreter is started.
 
-<h2>11. Examples</h2>
+"; section(2, '11.', 'Examples'); $text.= "
 <p>
 We used Numula to create nuanced renditions
 of piano pieces from several styles and periods:
@@ -1562,11 +1623,11 @@ of piano pieces from several styles and periods:
 </ol>
 <p>
 The sound files and source code are on the Web at
-github.com/davidpanderson/numula/wiki#examples
+github.com/davidpanderson/numula/wiki\\#examples
 <p>
 We used Numula shorthand strings for both score and nuance.
 The source code lines counts, and the number of notes in each piece,
-are shown in Figure 6.
+are as follows:
 ";
 $text .= html_only('
 <center>
@@ -1583,7 +1644,6 @@ Helps #3    116                 87                  1389
 </pre>
 </td></tr></table>
 <p>
-<i>Source code sizes for Numula examples.</i>
 </center>
 ');
 $text .= "
@@ -1605,7 +1665,7 @@ We kept these pause transformations separate from tempo variation.
 We found that, for these pieces, everything needed to be shaped in some way.
 Adjacent notes with identical duration or volume sounded mechanical.
 
-<h2>12. Nuance inference</h2>
+"; section(2, '12.', 'Nuance inference'); $text.= "
 <p>
 So far, we have focused on <i>nuance specification</i>:
 how to create nuance descriptions that, when applied to a score,
@@ -1652,25 +1712,16 @@ in practice there may be
 wrong, missing, or extra notes in the performance.)
 
 <p>
-Given the complexity and error functions $ C $ and $ E $, possible goals are:
-<ol>
-<li>
-Given an error limit $ \ov E\ $,
-find $ D $ for which
-
-$ E(P, N(S, D)) < \ov E\ $
-
-and $ C(D) $ is minimal, or
-
-<li>
-Given a complexity limit $ \ov C\ $,
-find $ D $ for which $ C(D) < \ov C\ $
+Given the complexity and error functions $ C $ and $ E $, possible goals are
+a) given an error limit $ \bar{E} $,
+find $ D $ for which $ E(P, N(S, D)) < \bar{E} $ and $ C(D) $ is minimal,
+and b) given a complexity limit $ \bar{C} $,
+find $ D $ for which $ C(D) < \bar{C} $
 and $ E(P, N(S, D)) $ is minimal.
 
-</ol>
 <p>
 
-<h3>12.1 Inferring nuance from one performance</h3>
+"; section(3, '12.1', 'Inferring nuance from one performance'); $text.= "
 <p>
 The above discussion clarifies what we seek:
 a simple nuance description $ D $ that approximates a performance $ P $.
@@ -1708,7 +1759,7 @@ fitting long tempo primitives,
 then shorter primitives, then pauses and time shifts.
 <p>
 
-<h3>12.2 Inferring nuance from a set of performances</h3>
+"; section(3, '12.2', 'Inferring nuance from a set of performances'); $text.= "
 <p>
 Some applications involve comparing the nuance
 of several performances $ P_1,... P_n $ of a work.
@@ -1730,15 +1781,15 @@ A possible approach to this problem:
 $ D_i $ that has the same structure as $ D $
 and that approximates $ P_i $.
 <li> For each $ P_i $ compute the error $ E_i = E(D_i, P_i) $
-<li> If all $ E_i $ are below a target level $ \ov E\ $, stop.
+<li> If all $ E_i $ are below a target level $ \bar{E} $, stop.
 <li> Let $ i $ be such that $ E_i $ is greatest.
 Examine the residual timing and volume errors.
-Add transformations to $ D_i $ that reduce $ E_i $ to less than $ \ov E\ $,
+Add transformations to $ D_i $ that reduce $ E_i $ to less than $ \bar{E} $,
 and let $ D = D_i $.
 <li> Go to step 2.
 </ol>
 
-<h3>12.3 Applications of nuance inference</h3>
+"; section(3, '12.3', 'Applications of nuance inference'); $text.= "
 <p>
 One application of nuance inference is performance style analysis.
 In its most general form,
@@ -1777,7 +1828,7 @@ The choice of primitives may depend on the period of the performance,
 the period and style of the composition,
 the individual performer, and so on.
 
-<h2>13. Related work</h2>
+"; section(2, '13.', 'Related work'); $text.= "
 <p>
 Previous work related to MNM falls into several areas.
 <p>
@@ -1846,7 +1897,7 @@ based on a structural analysis of the score
 Todd (1992) studied the relationship between tempo and dynamics.
 Friberg (2023) modeled swing rhythm in jazz trios.
 This area was surveyed by Kirke and Miranda (2009)
-and by Cancino-Chacón et al. (2018).
+and by Cancino-Chacon et al. (2018).
 These projects generally produce simple rules:
 volume increases with pitch, tempo increases with volume,
 phrases slow down at the end, and so on.
@@ -1867,7 +1918,7 @@ using \"selectors\" involving element names, classes, and IDs.
 CSS preprocessors like SASS (Mazinanian 2016)
 have features similar to nuance scripting.
 
-<h2>14. Future work</h2>
+"; section(2, '14.', 'Future work'); $text.= "
 <p>
 Beyond the areas already discussed,
 there are several possible directions for future work involving MNM.
@@ -1905,7 +1956,7 @@ it may be useful to develop a JSON-based file format
 for MNM nuance descriptions.
 
 
-<h2>15. Conclusion</h2>
+"; section(2, '15.', 'Conclusion'); $text.= "
 <p>
 We have presented Music Nuance Model (MNM),
 a framework for describing nuance in renditions of keyboard works.
@@ -1987,7 +2038,7 @@ Friberg, A. and J. Sundberg. 1999.
 <li>
 Friberg, A., T. Gulz, C. Wettebrandt. 2023.
 Computer Tools for Modeling Swing in a Jazz Ensemble.
-<i>Computer Music Journal</i> 47(1), pp. 85–109.
+<i>Computer Music Journal</i> 47(1), pp. 85-109.
 
 <li>
 Honing, Henkjan. 2001.
@@ -2005,7 +2056,7 @@ Kirke, A. and E. Miranda. 2009.
 <i>ACM Computing Surveys</i> 42(1). December 2009.
 
 <li>
-Lie, Håkon & Bos, Bert. 1997.
+Lie, Hakon and B. Bos. 1997.
 Cascading style sheets.
 <i>World Wide Web Journal</i> 2. pp. 75-123. 
 
@@ -2019,7 +2070,7 @@ Mazinanian, D. and N. Tsantalis. 2016.
 <i>Computer Music Journal</i>
 26(4), pp. 61-68.
 
-<li>Nienhuys, H-W, and J. Nieuwenhuizen. 2003.
+<li> Nienhuys, H-W, and J. Nieuwenhuizen. 2003.
 \"LilyPond, a system for automated music engraving.\"
 <i>Proceedings of the xiv colloquium on musical informatics</i>. Vol. 1. Firenza: Tempo Reale.
 
@@ -2035,11 +2086,11 @@ Puckette, Miller. 2002.
 <i>Computer Music Journal</i> 26(4): pp. 31-43.
 
 <li> Repp, B. 1998.
-\"A microcosm of musical expression. I. Quantitative analysis of pianists’ timing in the initial measures of Chopin’s Etude in E major\".
+\"A microcosm of musical expression. I. Quantitative analysis of pianists' timing in the initial measures of Chopin's Etude in E major\".
 <i>The Journal of the Acoustical Society of America</i>, 1998.
 
 <li> Repp, B. 1998.
-\"A microcosm of musical expression. I. Quantitative analysis of pianists’ timing in the initial measures of Chopin’s Etude in E major\".
+\"A microcosm of musical expression. I. Quantitative analysis of pianists' timing in the initial measures of Chopin's Etude in E major\".
 <i>The Journal of the Acoustical Society of America</i>, 1998.
 
 <li>
