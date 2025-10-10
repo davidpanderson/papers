@@ -90,7 +90,7 @@ function figure($file, $caption) {
         $text .= '
 \\begin{figure}
     \\begin{center}
-    \\includegraphics[width=150mm]{'.$file.'}
+    \\includegraphics[width=120mm]{'.$file.'}
     \\caption{'.$caption.'}
     \\label{fig:fig1}
     \\end{center}
@@ -432,22 +432,18 @@ There are two kinds of PFT primitives:
 <p>
 <i>Interval primitives</i>
 describe a function over a time interval $ [0, dt] $ where $ dt > 0 $.
-Examples:
-<pre>
-    class Linear          # linear function
-    class ShiftedExp      # shifted exponential function
-</pre>
+Examples discussed below are
+`Linear` (a linear function) and
+`ShiftedExp` (a shifted exponential function).
 Primitives could be defined for other types of functions
 (polynomial, trigonometric, spline, etc.).
 
 <p>
 <i>Momentary primitives</i> represent a value at a single moment.
-Examples:
-<pre>
-    class Accent          # an accent (volume)
-    class Pause           # a pause (timing)
-    class Shift           # a time shift (timing)
-</pre>
+Examples include
+`Accent` (a volume accent),
+`Pause` (a pause in timing), and
+`Shift` (a shift in timing).
 <p>
 A PFT is represented by a list of PFT primitives:
 <pre>
@@ -522,14 +518,11 @@ Its definite integral is
 '$$ ∫_0^x F(t)dt = {ax^2}/2 + xy_0 $$',
 '$$ \int _0^x F(t)dt = \\frac{ax^2}{2} + xy_0 $$'
 ); $text .= "
-<p>
 where $ a $ is the slope
-
 "; choose(
-'$$ a = {y_1 - y_0}/Δt $$',
-'$$ a = \\frac{y_1 - y_0}{\Delta t} $$'
-); $text .= "
-<p>
+'$ {y_1 - y_0}/Δt $',
+'$ \\frac{y_1 - y_0}{\Delta t} $'
+); $text .= ",
 and the definite integral of its reciprocal is
 <p>
 "; choose(
@@ -618,18 +611,16 @@ The definite integral of $ F $ from 0 to $ x $ is
 '$$ ∫_0^x F(t)dt = x(y_0 + {Δy(t_{norm} C - e^{(Ct_{norm})} + 1)}/{C(1-e^C)}) $$',
 '$$ \int_0^x F(t)dt = x(y_0 + \\frac{\Delta y(t_{norm} C - e^{(Ct_{norm})} + 1)}{C(1-e^C)}) $$'
 ); $text .= "
-
 where
-
 "; choose(
-'$$ t_{norm} = x/{Δt} $$',
-'$$ t_{norm} = \\frac{x}{\Delta t} $$'
+'$ t_{norm} = x/{Δt} $',
+'$ t_{norm} = \\frac{x}{\Delta t} $'
 ); $text .= "
-<p>
+and
 "; choose(
-'$$ Δy = y_1 - y_0 $$',
-'$$ \Delta y = y_1 - y_0 $$'
-); $text .= "
+'$ Δy = y_1 - y_0 $',
+'$ \Delta y = y_1 - y_0 $'
+); $text .= ".
 <p>
 The indefinite integral of
 "; choose(
@@ -642,7 +633,6 @@ is
 '$$ G(t) = ∫ 1/{F(t)}dt = {(e^C - 1)(tC - log(|\; y_0(e^C-1) + Δy(e^{Ct} - 1)|))} / {Cy_0(e^C-1) - Δy} + constant $$',
 '$$ G(t) = \int \\frac{1}{F(t)}dt = \\frac{(e^C - 1)(tC - log(\lvert y_0(e^C-1) + \Delta y(e^{Ct} - 1)\rvert ))}{Cy_0(e^C-1) - \Delta y} + constant $$'
 ); $text .= "
-<p>
 so the definite integral of $ 1/F $ from 0 to $ x $ is
 <p>
 "; choose(
@@ -767,10 +757,6 @@ starting at score time $ t_0 $,
 according to the tempo function specified by the PFT,
 acting in the given mode:
 <pre>
-    TIME_TEMPO = 1
-    TIME_PSEUDO_TEMPO = 2
-    TIME_SLOWNESS = 3
-
     Score.tempo_adjust_pft(
         pft: PFT,
         t0: float,
@@ -779,7 +765,6 @@ acting in the given mode:
         mode: int           # one of the above modes
     )
 </pre>
-<p>
 If `normalize` is set, the tempo adjustment is scaled
 so that its average value is one;
 in other words, the adjusted times of the start and end points remain fixed,
@@ -858,7 +843,6 @@ The following transformation \"rolls\" the chord at the given time.
         selector: NoteSelector
     )
 </pre>
-<p>
 The `offsets` argument is a list of time offsets.
 These offsets are added to the adjusted start times of notes
 that start at score time `t`.
@@ -874,7 +858,6 @@ in time order.
         selector: NoteSelector
     )
 </pre>
-<p>
 The `offsets` argument is a list of adjusted-time offsets.
 <p>
 The following transformation adds
@@ -885,15 +868,13 @@ adjusted-time offsets given by a function of the note:
         selector: NoteSelector
     )
 </pre>
-<p>
 For each note N satisfying the selector,
 this adds `f(N)` to `N.adj_time`.
 For example, the following adds Gaussian jitter to note start times:
 <pre>
     s.time_adjust_func(lambda n: 0.01*numpy.random.normal(), None)
 </pre>
-<p>
-Adding jitter can make renditions sound more \"human\".
+Adding such jitter can make renditions sound more \"human\".
 
 "; section(3, '3.3', 'Articulation'); $text.= "
 <p>
@@ -911,16 +892,11 @@ with three available modes:
 <b>Relative</b>: `N.dur` is set so that the gap between `N`
 and the next note is `A`.
 
-
 <p>
 The following transformation adjusts the durations of selected notes
 based on a PFT;
 it can be used to make continuous changes in articulation.
 <pre>
-    DUR_ABSOLUTE = 1        # modes
-    DUR_MULT = 2
-    DUR_RELATIVE = 3
-
     Score.dur_adjust_pft(
         pft: PFT,
         mode: int,          # one of the above modes
@@ -929,7 +905,6 @@ it can be used to make continuous changes in articulation.
         selector: NoteSelector
     )
 </pre>
-<p>
 Adjustments can be made either in score time or adjusted time.
 If `score_time` is True, the adjustment is made to score-time durations;
 otherwise, to adjusted time.
@@ -950,12 +925,10 @@ of selected notes `N` using the adjustment factor `f(N)`.
 PFT-based tempo transformations without pauses commute,
 so the order in which they're applied doesn't matter.
 Other transformations generally don't commute.
-A typical order of transformations:
-<ol>
-<li> Non-pause tempo transformations.
-<li> Pause transformations.
-<li> Shift transformations.
-</ol>
+A typical order of transformations is
+non-pause tempo transformations,
+followed by pause transformations,
+then shift transformations.
 Articulation transformations that modify score time should precede these;
 those that modify adjusted time should follow them.
 
@@ -1036,18 +1009,14 @@ with values ranging from 127 to 64.
 The following transformation applies a pedal of the given type,
 with values described by a PFT, starting at score time $ t_0 $:
 <pre>
-    PEDAL_SUSTAIN = 1
-    PEDAL_SOSTENUTO = 2
-    PEDAL_SOFT = 3
-    
     Score.pedal_pft(
         pft: PFT,
-        type: int,  # one of the above pedal types
+        type: int,  # sustain, sostenuto, or soft
         t0: float
     )
 </pre>
 
-"; section(3, '4.2', 'Virtual sustai pedals'); $text.= "
+"; section(3, '4.2', 'Virtual sustain pedals'); $text.= "
 <p>
 Sometimes it's musically useful to sustain only certain keys (pitches).
 The sustain pedal can't do this: it affects all keys.
@@ -1172,7 +1141,6 @@ For example,
 <pre>
     score.vol_adjust_func(VOL_ADD, lambda n: 0.01*numpy.random.normal(), None)
 </pre>
-<p>
 makes a small normally distributed adjustment to the volume of all notes.
 <p>
 In a piece with 4/4 measures,
@@ -1192,10 +1160,9 @@ Volume transformations can be layered.
 Multiplicative transformations commute, so their order doesn't matter.
 Other transformations generally do not commute.
 A typical order:
-<ol>
-<li> one or more transformations with mode `VOL_MULT`;
-<li> transformations with mode `VOL_ADD`;
-<li> transformations with mode `VOL_SET`.
+transformations with mode `VOL_MULT`,
+followed by transformations with mode `VOL_ADD`,
+then transformations with mode `VOL_SET`.
 </ol>
 
 "; section(2, '6.', 'The process of specifying nuance'); $text.= "
@@ -1508,18 +1475,14 @@ describing the scores and PFTs directly in Python.
 Furthermore, they eliminate the need to write Python code,
 making Numula usable by non-programmers.
 <p>
-Each type of shorthand notation has its own syntax.
-<p>
-<b>Volume PFTs</b>:
+Each type of shorthand notation has its own syntax:
 <pre>
     sh_vol('pp 2/4 mf 4/4 pp')
 </pre>
-returns a PFT representing a crescendo
+returns a volume-control PFT representing a crescendo
 from <i><b>pp</b></i> to <i><b>mf</b></i> over 2 beats,
 then a diminuendo to <i><b>pp</b></i> over 4 beats
 (`pp` and `mf` are constants representing 0.45 and 1.11 respectively).
-<p>
-<b>Tempo PFTs</b>:
 <pre>
     sh_tempo('60 8/4 80 p.03 4/4 60')
 </pre>
@@ -1527,17 +1490,12 @@ returns a PFT for a tempo that varies linearly from 60 to 80 BPM
 over 8 beats,
 a pause of 30 milliseconds after that point,
 then linearly back to 60 BPM over 4 beats. 
-<p>
-<b>Pedal PFTs</b>:
 <pre>
     sh_pedal('1/4 (1/4 0 1.) (1/4) 4/4')
 </pre>
-defines a pedal that's off for 1 beat,
+returns a PFT for a pedal that's off for 1 beat,
 changes linearly from off to on over 1 beat,
 is on for 1 beat, then off for 4 beats.
-<p>
-<b>Scores</b>:
-
 <pre>
     sh_score('1/4 c5 d e')
 </pre>
@@ -1565,8 +1523,7 @@ For example:
     faster = 80
     pft = sh_tempo(f'{med} 8/4 {faster} 4/4 {med}')
 </pre>
-<p>
-The contents of the `{}` can be any expression,
+The contents of the `\{\}` can be any expression,
 including a shorthand notation string:
 <pre>
     dv1 = 0.7
@@ -1601,7 +1558,7 @@ To streamline low-level editing, Numula provides a feature called
 <i>Interactive Parameter Adjustment</i> (IPA)
 that reduces the cycle to two keystrokes.
 You \"IPA-enable\" a Numula program
-by declaring certain variables to be adjustable,
+by declaring variables to be adjustable,
 and specifying their role (tempo, volume, and so on).
 You then run the program under an <i>IPA interpreter</i>.
 The interpreter lets you specify start and end times for playback.
@@ -1628,10 +1585,6 @@ github.com/davidpanderson/numula/wiki\\#examples
 We used Numula shorthand strings for both score and nuance.
 The source code lines counts, and the number of notes in each piece,
 are as follows:
-";
-$text .= html_only('
-<center>
-<table><tr><td>
 <pre>
 Work        Lines (score)       Lines (nuance)      # of notes
 --------------------------------------------------------------
@@ -1642,11 +1595,6 @@ Helps #1    126                 163                 1147
 Helps #2    94                  99                  1470
 Helps #3    116                 87                  1389
 </pre>
-</td></tr></table>
-<p>
-</center>
-');
-$text .= "
 <p>
 We tried to approximate performances by a skilled human,
 and were at least partly successful.
@@ -1727,7 +1675,6 @@ The above discussion clarifies what we seek:
 a simple nuance description $ D $ that approximates a performance $ P $.
 How can we find one?
 We now sketch a crude manual approach.
-<p>
 Intuitively, it seems best to work from long to short:
 to identify phrase-level features, then measure-level, then single notes.
 So, to describe volume, we might:
@@ -1838,7 +1785,7 @@ They defined \"clock factor\" (what we call \"inverse tempo\")
 and observed that the real time between two events depends
 on the integral of this between the two score times.
 They worked out the mathematics of three tempo functions:
-linear, hyperbolic functions of the form $ F(t) = A/{B-t} $,
+linear, hyperbolic functions of the form $ F(t) = \frac{A}{B-t} $,
 and exponential (which they call \"equal ratios\"):
 functions of the form $ F(t) = A^t $.
 <p>
@@ -1978,8 +1925,8 @@ we tend to stop working on it.
 <p>
 Therefore we gave considerable thought to user interfaces
 for editing nuance.
-The easier an interface is to use
-&mdash; especially for small-scale details &mdash;
+The easier an interface is to use --
+especially for small-scale details --
 and the more direct its connection to the music,
 the more time users will invest in the rendition,
 and the musically better the result will be.
