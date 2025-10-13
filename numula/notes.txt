@@ -185,3 +185,28 @@ helps/ravel         116     87      1389
 chopin              148     161     1558
 berio               83      101     394
 beethoven           319     481     7012
+---------------------
+
+The MNM model
+
+Configuration: a collection of notes (and possibly measures, pedals usage)
+
+Two forms of time info
+Notes had start/dur in both score and adj time
+measures have start/dur in score time
+
+Initial configuration C0: typically the info in a score.
+Could come from a score editor, MusicXML file, MIDI file, Music21.
+no nuance: adj note times are as notated in the score, volumes are default
+(or C0 could also incorporate info from a performance,
+in situations where we want to add nuance to a performance)
+
+MNM Nuance descriptions have two stages
+1) adding tags and attributes; allow specification of note subsets
+2) applying a sequence of "transformation",
+    which modifies time or volume.
+    They may also add pedal usages.
+    produces a sequence of configurations.
+See figure 1
+
+2.1 Attributes and tags

@@ -1,13 +1,11 @@
 <?php
 
-define('LATEX', true);
+define('LATEX', false);
 
-$score = '`Score`';
+$config = '`Configuration`';
 $note = '`Note`';
 $measure = '`Measure`';
-$nuance_desc = '`NuanceDescription`';
 $pft_primitive = '`PFTPrimitive`';
-$pause = '<code>Pause</code>';
 
 // https://www.jstor.org/journal/computermusicj
 // https://mathscribe.com/author/jqmath.html
@@ -181,18 +179,16 @@ allowing musicians &mdash; composers and performers &mdash;
 to craft expressive renditions of musical works.
 This capability has applications in composition, virtual performance,
 and performance pedagogy.
-We describe these applications,
-and discuss the challenges in creating and refining
-complex nuance specifications.
-We also discuss the possibility of inferring nuance
-from recorded human performances.
+We discuss the challenges in creating and refining
+complex nuance specifications,
+and the possibility of inferring nuance from recorded human performances.
 
 <p>
 
 "; section(2, '1.', 'Introduction'); $text.= "
 <p>
-This paper involves \"performance nuance\" in notated music.
-By this we mean the differences between a rendition of a piece
+This paper involves \"performance nuance\" in notated music;
+by this we mean the differences between a rendition of a piece
 and the score on which it's based.
 Nuance has a central role in Western classical music:
 works in the standard repertoire
@@ -247,25 +243,25 @@ gestures like crescendos are described by single primitives.
 MNM has several important properties:
 <ol>
 <li>
-It can express nuance gestures that are continuous
+MNM can express nuance gestures that are continuous
 (crescendos and accelerandos)
 and/or discrete (accents and pauses).
 It has a powerful mechanism,
 <i>piecewise functions of time</i> (PFTs),
 for describing time-varying quantities.
 <li>
-It can express nuance gestures ranging from long
+MNM can express nuance gestures ranging from long
 (say, an accelerando over 32 measures)
 to short (pauses in the 10 millisecond range
 at the beat or measure level).
 <li>
-It provides a general way of selecting subsets of notes,
-based on textual tags
-and/or note attributes such as chordal or metric position.
+Notes can have textual tags
+and attributes such as chordal or metric position.
 A <i>note selector</i> is a Boolean-valued function
 of these tags and attributes.
+This provides a general way of selecting subsets of notes.
 <li>
-It allows nuance to be factored into multiple layers.
+MNM allows nuance to be factored into multiple layers.
 Each layer, or <i>transformation</i>,
 includes an operation type (e.g., tempo control), a PFT, and a note selector.
 A transformation, when applied to a score,
@@ -273,8 +269,8 @@ changes parameters of some or all of the selected notes.
 </ol>
 <p>
 The \"reference implementation\" of MNM is a Python
-library called Numula (https://github.com/davidpanderson/numula/);
-hence we describe MNM in terms of Python data structures and functions.
+library called Numula (https://github.com/davidpanderson/numula/),
+so we describe MNM in terms of Python data structures and functions.
 MNM could be implemented using other languages or data representations.
 It could be integrated into score editors, music programming languages,
 or other music software systems.
@@ -300,6 +296,9 @@ We then discuss related and future work, and offer conclusions.
 "; section(2, '2.', 'The MNM model'); $text.= "
 
 <p>
+In the MNM model, a <i>configuration</i>
+is a collection of items such as notes, measures, and pedal usages.
+Items have times.
 MNM uses two notions of time:
 <p>
 <i>Score time</i>: time as notated in a score,
@@ -311,45 +310,65 @@ so the duration of a quarter note is 1/4, or 0.25.
  <i>Adjusted time</i>: a transformed version of score time.
 In the final result of applying an MNM description to a score,
 adjusted time is real time, measured in seconds.
+<p>
+Notes have a start and duration in both score time and adjusted time.
+Measures have a start and duration in score time;
+they may not overlap.
 
 <p>
-
-"; section(3, '2.1', 'Score classes'); $text.= "
-<p>
-MNM involves several abstract classes;
-in Numula, these are Python classes.
-<p>
-$score represents the basic parts of a musical work:
-note pitches and notated timings, and measure boundaries if present.
-A $score could be derived from a MusicXML file,
-a Music21 object hierarchy, or a MIDI file;
+MNM starts with an initial configuration $ C_0 $.
+This could come from a score editor,
+a MusicXML or MIDI file, or a Music21 object hierarchy;
 or it could be generated programmatically.
+Typically $ C_0 $ has no nuance:
+adjusted times equal score times,
+and notes have a default volume.
+In situations were MNM is used to add nuance to a performance,
+$ C_0 $ could incorporate information from the performance.
+<p>
+The application of a MNM nuance description has two stages; see Figure 1.
+";
+figure('config.png',
+    'An MNM nuance description starts with an initial configuration $ C_0 $,
+    adds tags, then applies a sequence of transformations.'
+);
+$text .= "
+<p>
+First, tags and attributes are added to items in $ C_0 $,
+producing a configuration $ C_1 $; see the following section.
+<p>
+Next, a sequence of <i>transformations</i> are applied.
+Each transformation modifies its input configuration
+in some way: for example, changing the volumes
+or adjusted times of notes, or adding pedal usages.
+This produces configurations $ C_2, ..., C_n $.
+The fully-nuanced result is $ C_n $;
+its data (the volumes and adjusted times of its notes,
+and its pedal usages) can be used to create
+an audio rendition using a synthesizer or computer-controlled
+phyical instrument.
 
-<p>
-$note represents a note.
-A note `N` has various <i>attributes</i>.
-Some are derived from the score:
-the start time and duration in score time (`N.time` and `N.dur`),
-and the pitch `N.pitch` (represented, for example, as a MIDI pitch number).
 
+"; section(3, '2.1', 'Attributes and tags'); $text.= "
 <p>
-$measure represents a measure.
-Each measure has a start time and duration,
-in units of score time.
-Measures may not overlap.
+MNM defines the above entities as abstract classes
+$config, $note, and $measure; in Numula, these are Python classes.
 <p>
-
-"; section(3, '2.2', 'Attributes and tags'); $text.= "
-<p>
-Note attributes can be added as part of a nuance specification.
-A note `N` has an attribute `N.tags`, a set of textual <i>tags</i>.
+A $note `N` has various <i>attributes</i>.
+For example, `N.tags` is a set of textual <i>tags</i>.
 Note attributes and tags are used to specify
-the set of notes to which a nuance gesture is to be applied.
+the set of notes to which a transformation is to be applied.
 This is done using <i>note selector</i> functions, described below.
 <p>
 Note attributes and tags can have various sources.
+Some are derived from the score:
+the start time and duration in score time (`N.time` and `N.dur`),
+and the pitch `N.pitch` (represented, for example, as a MIDI pitch number).
+If the score has information such as
+slurs, accent marks, dynamic markings, and note stem directions,
+these could be used to automatically assign attributes.
 <p>
-First, some attributes of a $note `N` are automatically assigned,
+Second, MNM assigns some attributes of a $note `N` automatically,
 based on its context in the score.
 `N.nchord` is the number of notes
 with the same start time as N, and `N.nchord_pos`
@@ -361,10 +380,6 @@ If a note N lies within a measure M, N has two additional attributes:
 and `N.measure_offset` is N's time offset from the start of M.
 A note lying on the boundary between two measures
 is considered to be in the second one.
-<p>
-Second, if the score has information such as
-slurs, accent marks, dynamic markings, and note stem directions,
-these could be used to automatically assign attributes.
 <p>
 Finally, the user can explicitly assign attributes and tags
 as part of specifying nuance.
@@ -380,7 +395,7 @@ Attribute and tags could used to identify hierarchical
 structural components of a work.
 For example, one could tag notes in the development section of a Sonata.
 <p>
-Like Notes, Measures can have tags.
+Like notes, measures can have tags.
 By convention, these include a string describing the measure's
 duration and metric structure.
 For example, the tag \"`2+2+3/8`\" might indicate a 7/8 measure
@@ -390,10 +405,10 @@ MNM does not specify or restrict how attributes and tags are assigned.
 It could be done manually by a human nuance creator
 and/or automatically by the software system in which MNM is embedded.
 
-"; section(3, '2.3', 'Note selectors'); $text.= "
+"; section(3, '2.2', 'Note selectors'); $text.= "
 <p>
 A <i>note selector</i> is a Boolean-valued function of a $note.
-A note selector $ F $ identifies a set of notes within a $score,
+A note selector $ F $ identifies a set of notes within a $config,
 namely the notes $ N $ for which $ F(N) $ is true.
 We use Python syntax for note selectors.
 For example, the function
@@ -415,7 +430,7 @@ In Python, the type of note selectors is
 </pre>
 <p>
 
-"; section(3, '2.4', 'Piecewise functions of time'); $text.= "
+"; section(3, '2.3', 'Piecewise functions of time'); $text.= "
 <p>
 Nuance gestures typically involve values
 (such as tempo and volume) that vary with time.
@@ -502,7 +517,7 @@ Closure determines the function value at discontinuities.'
 $text .= "
 <p>
 
-"; section(4, '2.4.1', 'Linear PFT primitive'); $text.= "
+"; section(4, '2.3.1', 'Linear PFT primitive'); $text.= "
 <p>
 The `Linear` primitive represents a linear function $ F $ with
 $ F(0)=y_0 $
@@ -532,7 +547,7 @@ and the definite integral of its reciprocal is
 
 <br>
 <p>
-"; section(4, '2.4.2', 'Shifted exponential PFT primitive'); $text.= "
+"; section(4, '2.3.2', 'Shifted exponential PFT primitive'); $text.= "
 <p>
 `ShiftedExp` is a PFT primitive representing a family of
 \"shifted exponential\" functions
@@ -642,7 +657,7 @@ so the definite integral of $ 1/F $ from 0 to $ x $ is
 
 <br>
 <p>
-"; section(4, '2.4.3', 'Momentary PFT primitives'); $text.= "
+"; section(4, '2.3.3', 'Momentary PFT primitives'); $text.= "
 <p>
 MNM provides momentary primitives for several purposes.
 <pre>
@@ -670,13 +685,12 @@ This can be used for \"agogic accents\"
 in which melody notes are brought out by
 shifting them slightly before or after accompaniment notes.
 
-"; section(3, '2.5', 'Transformations'); $text.= "
+"; section(3, '2.4', 'Transformations'); $text.= "
 <p>
 An MNM specification comprises a sequence of <i>transformations</i>.
-Each transformation acts on a $score, changing it in some way.
-A transformation includes an \"operator\"
-indicating what it does.
-We notate transformations as member functions of the $score class;
+Each transformation acts on a $config, changing it in some way.
+A transformation includes an \"operator\" indicating what it does.
+We notate transformations as member functions of the $config class;
 each function corresponds to an operator.
 These functions are listed in the following sections.
 <p>
@@ -757,7 +771,7 @@ starting at score time $ t_0 $,
 according to the tempo function specified by the PFT,
 acting in the given mode:
 <pre>
-    Score.tempo_adjust_pft(
+    Configuration.tempo_adjust_pft(
         pft: PFT,
         t0: float,
         selector: NoteSelector,
@@ -825,7 +839,7 @@ The following transformation,
 for notes N that satisfy the selector and lie in the domain of the PFT,
 adds `pft.value(N.time - t0)` to `N.adj_time`:
 <pre>
-    Score.time_shift_pft(
+    Configuration.time_shift_pft(
         pft: PFT,
         t0: float = 0,
         selector: NoteSelector
@@ -836,7 +850,7 @@ or to shift notes by continuously-varying amounts.
 <p>
 The following transformation \"rolls\" the chord at the given time.
 <pre>
-    Score.roll(
+    Configuration.roll(
         t: float,
         offsets: list[float],
         is_up: bool = True,
@@ -853,7 +867,7 @@ The following transformation adds offsets
 to the adjusted start times of notes satisfying the selector,
 in time order.
 <pre>
-    Score.time_adjust_list(
+    Configuration.time_adjust_list(
         offsets: list[float],
         selector: NoteSelector
     )
@@ -863,7 +877,7 @@ The `offsets` argument is a list of adjusted-time offsets.
 The following transformation adds
 adjusted-time offsets given by a function of the note:
 <pre>
-    Score.time_adjust_func(
+    Configuration.time_adjust_func(
         f: NotetoFloat,
         selector: NoteSelector
     )
@@ -897,7 +911,7 @@ The following transformation adjusts the durations of selected notes
 based on a PFT;
 it can be used to make continuous changes in articulation.
 <pre>
-    Score.dur_adjust_pft(
+    Configuration.dur_adjust_pft(
         pft: PFT,
         mode: int,          # one of the above modes
         score_time: bool,
@@ -912,7 +926,7 @@ otherwise, to adjusted time.
 The following transformation adjusts durations
 of selected notes `N` using the adjustment factor `f(N)`.
 <pre>
-    Score.dur_adjust_func(
+    Configuration.dur_adjust_func(
         f: NotetoFloat,
         mode: int,
         score_time: bool,
@@ -1009,7 +1023,7 @@ with values ranging from 127 to 64.
 The following transformation applies a pedal of the given type,
 with values described by a PFT, starting at score time $ t_0 $:
 <pre>
-    Score.pedal_pft(
+    Configuration.pedal_pft(
         pft: PFT,
         type: int,  # sustain, sostenuto, or soft
         t0: float
@@ -1030,7 +1044,7 @@ is specified by the same type of PFT as for standard pedals,
 but the only allowed values are 0 (pedal off) or 1 (pedal on).
 The following transformation applies such a PFT:
 <pre>
-    Score.virtual_sustain_pft(
+    Configuration.virtual_sustain_pft(
         pft: PFT,
         t0: float,
         selector: NoteSelector
@@ -1107,7 +1121,7 @@ The following transformation adjusts the volume of selected notes
 according to values specified by a PFT:
 <p>
 <pre>
-    Score.vol_adjust_pft(
+    Configuration.vol_adjust_pft(
         mode: int,          # one of the above modes
         pft: PFT,
         t0: float,
@@ -1122,12 +1136,12 @@ This can be used to shape the dynamics of a voice or of the piece as a whole.
 <p>
 Other transformations adjust note volumes without a PFT:
 <pre>
-    Score.vol_adjust(
+    Configuration.vol_adjust(
         mode: int,
         factor: float,
         selector: NoteSelector
     )
-    Score.vol_adjust_func(
+    Configuration.vol_adjust_func(
         mode: int,
         func: NoteToFloat,
         selector: NoteSelector
@@ -1139,16 +1153,16 @@ its argument is a $note and it returns an adjustment factor.
 For example,
 <p>
 <pre>
-    score.vol_adjust_func(VOL_ADD, lambda n: 0.01*numpy.random.normal(), None)
+    config.vol_adjust_func(VOL_ADD, lambda n: 0.01*numpy.random.normal(), None)
 </pre>
 makes a small normally distributed adjustment to the volume of all notes.
 <p>
 In a piece with 4/4 measures,
 the following transformations de-emphasize notes on weak beats:
 <pre>
-    score.vol_adjust(VOL_MULT, 0.9, lambda n: n.measure_offset == 2/4)
-    score.vol_adjust(VOL_MULT, 0.8, lambda n: n.measure_offset in [1/4, 3/4])
-    score.vol_adjust(VOL_MULT, 0.7,
+    config.vol_adjust(VOL_MULT, 0.9, lambda n: n.measure_offset == 2/4)
+    config.vol_adjust(VOL_MULT, 0.8, lambda n: n.measure_offset in [1/4, 3/4])
+    config.vol_adjust(VOL_MULT, 0.7,
         lambda n: n.measure_offset not in [0, 1/4, 2/4, 3/4]
     )
 </pre>
@@ -1449,18 +1463,18 @@ figure(
 $text .= "
 <p><br><p>
 Numula defines the classes listed earlier in this paper:
-$score, $note, PFT, etc.
+$config, $note, PFT, etc.
 The transformation functions described in earlier sections
-are members of the $score class;
+are members of the $config class;
 they form the \"MNM engine\".
-A $score, after nuance transformations are applied,
+A $config, after nuance transformations are applied,
 can be output as a MIDI file.
 For convenience, Numula can be configured to play MIDI output
 using a Pianoteq server controlled by RPCs.
 <p>
 Numula can be used as a stand-alone system for creating nuanced music.
 Alternatively, it can add nuance capabilities to other systems:
-it can import a MIDI file as a $score object,
+it can import a MIDI file as a $config object,
 apply a nuance description to it,
 and output the result as a MIDI file.
 <p>
@@ -1499,7 +1513,7 @@ is on for 1 beat, then off for 4 beats.
 <pre>
     sh_score('1/4 c5 d e')
 </pre>
-returns a `Score` with 3 quarter notes starting at middle C.
+returns a $config with 3 quarter notes starting at middle C.
 Numula's shorthand notation for scores has numerous features
 that enable compact representation of complex scores.
 <p>
