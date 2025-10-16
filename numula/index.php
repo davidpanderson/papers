@@ -1,6 +1,10 @@
 <?php
 
-define('LATEX', false);
+if (array_key_exists('latex', $_GET)) {
+    define('LATEX', true);
+} else {
+    define('LATEX', false);
+}
 
 $config = '`Configuration`';
 $note = '`Note`';
@@ -209,8 +213,8 @@ and time-shifting of notes.
 including fractional pedaling.
 <p>
 For other instruments (including voice),
-notes have additional properties such as attack and timbre,
-and these may vary during the note.
+notes have additional properties such as attack,
+and their timbre, pitch, and volume may vary during the note.
 The work presented here does not address these factors
 but might be extended to do so.
 <p>
@@ -220,7 +224,7 @@ These indications do not completely describe the nuance in a human rendition
 because
 a) they're imprecise:
 e.g., a fermata mark doesn't specify the durations of the sound
-or of the following silence;
+and the following silence;
 b) they're ambiguous:
 the meaning of marks such as slurs, wedges, and staccato dots
 has changed over time and varies between composers (Bilson 2005);
@@ -237,7 +241,7 @@ and the performer's technique and physical limitations.
 
 <p>
 Music Nuance Model (MNM) is a framework for describing performance nuance.
-It defines a set of transformations that
+It defines a set of <i>transformations</i> that
 can be combined to describe complex nuance precisely and concisely;
 gestures like crescendos are described by single primitives.
 MNM has several important properties:
@@ -246,9 +250,9 @@ MNM has several important properties:
 MNM can express nuance gestures that are continuous
 (crescendos and accelerandos)
 and/or discrete (accents and pauses).
-It has a powerful mechanism,
+It uses a powerful mechanism,
 <i>piecewise functions of time</i> (PFTs),
-for describing time-varying quantities.
+to describe time-varying quantities.
 <li>
 MNM can express nuance gestures ranging from long
 (say, an accelerando over 32 measures)
@@ -262,10 +266,8 @@ of these tags and attributes.
 This provides a general way of selecting subsets of notes.
 <li>
 MNM allows nuance to be factored into multiple layers.
-Each layer, or <i>transformation</i>,
+Each layer, or transformation,
 includes an operation type (e.g., tempo control), a PFT, and a note selector.
-A transformation, when applied to a score,
-changes parameters of some or all of the selected notes.
 </ol>
 <p>
 The \"reference implementation\" of MNM is a Python
@@ -281,14 +283,16 @@ for a work,
 using an editing system of some sort.
 We call this <i>nuance specification</i>.
 It could be used, for example,
-to create a virtual performance of a work.
+to create a virtual performance of a work,
+or to communicate from teacher to student some concrete
+examples of nuance.
 The second area, <i>nuance inference</i>,
 involves taking a score for a work
 and a set of human performances of the work,
 and finding nuance descriptions that closely approximate the performances.
 This could be used for stylistic analyses and other purposes.
 <p>
-The remainder of the paper explores these topics.
+The rest of the paper explores these topics.
 We present examples in which MNM was used to create virtual performances of
 piano works in a range of styles.
 We then discuss related and future work, and offer conclusions.
@@ -298,7 +302,7 @@ We then discuss related and future work, and offer conclusions.
 <p>
 In the MNM model, a <i>configuration</i>
 is a collection of items such as notes, measures, and pedal usages.
-Items have times.
+These items have times.
 MNM uses two notions of time:
 <p>
 <i>Score time</i>: time as notated in a score,
@@ -308,8 +312,10 @@ our convention is that the unit is a 4-beat measure,
 so the duration of a quarter note is 1/4, or 0.25.
 <p>
  <i>Adjusted time</i>: a transformed version of score time.
-In the final result of applying an MNM description to a score,
+After an MNM description has been applied to a score,
 adjusted time is real time, measured in seconds.
+<p>
+For clarity, we notate score time as $ s $ and adjusted time as $ t $.
 <p>
 Notes have a start and duration in both score time and adjusted time.
 Measures have a start and duration in score time;
@@ -323,30 +329,28 @@ or it could be generated programmatically.
 Typically $ C_0 $ has no nuance:
 adjusted times equal score times,
 and notes have a default volume.
-In situations were MNM is used to add nuance to a performance,
+In situations where MNM is used to add nuance to a performance,
 $ C_0 $ could incorporate information from the performance.
 <p>
 The application of a MNM nuance description has two stages; see Figure 1.
+First, tags and attributes are added to items in $ C_0 $,
+producing a configuration $ C_1 $ (see the following section).
+Next, a sequence of <i>transformations</i> are applied.
+Each transformation modifies a configuration:
+for example, changing the volumes
+or adjusted times of notes, or adding pedal usages.
+This produces configurations $ C_2, ..., C_n $.
+The fully nuanced result is $ C_n $;
+its data (the volumes and adjusted times of its notes,
+and its pedal usages) can be used to create
+an audio rendition using a synthesizer or computer-controlled
+physical instrument.
 ";
 figure('config.png',
     'An MNM nuance description starts with an initial configuration $ C_0 $,
     adds tags, then applies a sequence of transformations.'
 );
 $text .= "
-<p>
-First, tags and attributes are added to items in $ C_0 $,
-producing a configuration $ C_1 $; see the following section.
-<p>
-Next, a sequence of <i>transformations</i> are applied.
-Each transformation modifies its input configuration
-in some way: for example, changing the volumes
-or adjusted times of notes, or adding pedal usages.
-This produces configurations $ C_2, ..., C_n $.
-The fully-nuanced result is $ C_n $;
-its data (the volumes and adjusted times of its notes,
-and its pedal usages) can be used to create
-an audio rendition using a synthesizer or computer-controlled
-phyical instrument.
 
 
 "; section(3, '2.1', 'Attributes and tags'); $text.= "
@@ -362,7 +366,7 @@ This is done using <i>note selector</i> functions, described below.
 <p>
 Note attributes and tags can have various sources.
 Some are derived from the score:
-the start time and duration in score time (`N.time` and `N.dur`),
+the start time and duration in score time (`N.s_start` and `N.s_dur`),
 and the pitch `N.pitch` (represented, for example, as a MIDI pitch number).
 If the score has information such as
 slurs, accent marks, dynamic markings, and note stem directions,
@@ -377,7 +381,7 @@ Tags \"`top`\" or \"`bottom`\" are added if N
 has the highest or lowest pitch of notes starting at the same time.
 If a note N lies within a measure M, N has two additional attributes:
 `N.measure` is a reference to M,
-and `N.measure_offset` is N's time offset from the start of M.
+and `N.measure_offset` is N's score-time offset from the start of M.
 A note lying on the boundary between two measures
 is considered to be in the second one.
 <p>
@@ -409,12 +413,12 @@ and/or automatically by the software system in which MNM is embedded.
 <p>
 A <i>note selector</i> is a Boolean-valued function of a $note.
 A note selector $ F $ identifies a set of notes within a $config,
-namely the notes $ N $ for which $ F(N) $ is true.
+namely the notes $ N $ for which $ F(N) $ is True.
 We use Python syntax for note selectors.
 For example, the function
 <p>
 <pre>
-    lambda n: 'rh' in n.tags and n.dur == 1/2
+    lambda n: 'rh' in n.tags and n.s_dur == 1/2
 </pre>
 selects all half notes in the right hand, and
 <pre>
@@ -424,7 +428,7 @@ selects notes on the 3rd beat of 3/4 measures.
 One could select notes based on any combination of note attributes:
 score time, pitch, and so on.
 <p>
-In Python, the type of note selectors is
+In Python, the type of note selectors is:
 <pre>
     type NoteSelector = Callable[[$note], bool] | None
 </pre>
@@ -446,7 +450,7 @@ PFT primitives are objects with types derived from a base class $pft_primitive.
 There are two kinds of PFT primitives:
 <p>
 <i>Interval primitives</i>
-describe a function over a time interval $ [0, dt] $ where $ dt > 0 $.
+describe a function over a time interval $ [0, ds] $ where $ ds > 0 $.
 Examples discussed below are
 `Linear` (a linear function) and
 `ShiftedExp` (a shifted exponential function).
@@ -460,7 +464,7 @@ Examples include
 `Pause` (a pause in timing), and
 `Shift` (a shift in timing).
 <p>
-A PFT is represented by a list of PFT primitives:
+A PFT is a list of primitives:
 <pre>
     type PFT = list[PFTPrimitive]
 </pre>
@@ -469,17 +473,17 @@ A PFT is represented by a list of PFT primitives:
 <p>
 MNM uses PFT for various purposes, including tempo, articulation,
 volume, time shifts, and pedaling.
-When a PFT describes tempo,
-the definite integral of the function or of its reciprocal is needed
+When a PFT describes tempo, we need
+the definite integral of the function or of its reciprocal
 (see the section \"Timing\" below).
 Thus, primitives used in tempo PFTs must provide member functions
 <pre>
-    integral(t: float): float               # integral of F from 0 to t
-    integral_reciprocal(t: float): float    # integral of 1/F from 0 to t
+    integral(s: float): float               # integral of F from 0 to s
+    integral_reciprocal(s: float): float    # integral of 1/F from 0 to s
 </pre>
 <p>
 When a PFT is used for purposes other than tempo,
-the function value is needed.
+we need the function value.
 If there is a discontinuity in the PFT
 (i.e. the ending value of a primitive differs
 from the starting value of the next primitive),
@@ -487,12 +491,12 @@ one must specify which of these values is used.
 Primitives used for these purposes must provide member functions
 <p>
 <pre>
-    value(t: float): float              # value at time t
+    value(s: float): float              # value at time s
     closed_start(): bool                # closure at time 0
-    closed_end(): bool                  # closure at time dt
+    closed_end(): bool                  # closure at time ds
 </pre>
 <p>
-For example, a volume function might be defined by the PFT:
+For example, a volume control function might be defined by the PFT:
 <pre>
    [
        Linear(25, 15, 2/1, closed_start = True),
@@ -507,7 +511,7 @@ from 15 to 20 over one measure,
 then from 10 to 15 over two measures.
 Its value at the start of the 4th measure is 20
 because of the closure arguments;
-see Figure 1.
+see Figure 2.
 <p>
 ";
 figure('pft.png',
@@ -517,59 +521,39 @@ Closure determines the function value at discontinuities.'
 $text .= "
 <p>
 
-"; section(4, '2.3.1', 'Linear PFT primitive'); $text.= "
+"; section(4, '2.3.1', 'Continuous PFT primitives'); $text.= "
+<p>
+The reference implementation of MNM has two continuous PFT primitives,
+`Linear` and `ShiftedExp`.
+Mathematical details are given in an Appendix.
+In developing nuance descriptions for a range of piano pieces,
+we found that these primitives sufficed
+for expressing the desired continuous variations in both tempo and volume.
+It would be straightforward to add other primitives.
 <p>
 The `Linear` primitive represents a linear function $ F $ with
 $ F(0)=y_0 $
 and
 "; choose(
-'$ F(Δt)=y_1 $',
-'$ F(\Delta t)=y_1 $'
+'$ F(Δs)=y_1 $',
+'$ F(\Delta s)=y_1 $'
 ); $text .= "
 .
-Its definite integral is
 <p>
-"; choose(
-'$$ ∫_0^x F(t)dt = {ax^2}/2 + xy_0 $$',
-'$$ \int _0^x F(t)dt = \\frac{ax^2}{2} + xy_0 $$'
-); $text .= "
-where $ a $ is the slope
-"; choose(
-'$ {y_1 - y_0}/Δt $',
-'$ \\frac{y_1 - y_0}{\Delta t} $'
-); $text .= ",
-and the definite integral of its reciprocal is
-<p>
-"; choose(
-'$$ ∫_0^x 1/{F(t)}dt = {\log(ax + y_0)-\log(y_0)}/a $$',
-'$$ \int _0^x \\frac{1}{F(t)}dt = \\frac{\log(ax + y_0)-\log(y_0)}{a} $$'
-); $text .= "
-
-<br>
-<p>
-"; section(4, '2.3.2', 'Shifted exponential PFT primitive'); $text.= "
-<p>
-`ShiftedExp` is a PFT primitive representing a family of
+The `ShiftedExp` primitive represents a family of
 \"shifted exponential\" functions
 $ F(t) $ that vary from $ y_0 $ to $ y_1 $ over
 "; choose(
-'$ [0, Δt] $',
-'$ [0, \Delta t] $'
+'$ [0, Δs] $',
+'$ [0, \Delta s] $'
 ); $text .= "
-:
-<p>
-"; choose(
-'$$ F(t) = y_0 + {(y_1-y_0)(1-e^{{Ct}/{Δt}})}/{1-e^C} $$',
-'$$ F(t) = y_0 + \\frac{(y_1-y_0)(1-e^{\\frac{Ct}{\Delta t}})}{1-e^C} $$'
-); $text .= "
-<p>
-C is a curvature parameter.
+The primitive has a curvature parameter C.
 If C is positive, F is concave up,
 and its change is concentrated in the later part of the interval.
 If C is negative, F is concave down,
 and the change is concentrated in the earlier part of the interval.
 If C is zero, F is linear.
-Figure 2 shows examples.
+Figure 3 shows examples.
 <p>
 ";
 choose(
@@ -615,49 +599,8 @@ Shifted-exponential primitives with different curvatures.
 ');
 
 $text .= "
-`ShiftedExp` is quite versatile.
-In developing nuance descriptions for a range of piano pieces,
-we found that `ShiftedExp` (and `Linear`, a special case) sufficed
-for expressing the desired continuous variations in both tempo and volume.
 <p>
-The definite integral of $ F $ from 0 to $ x $ is
-<p>
-"; choose(
-'$$ ∫_0^x F(t)dt = x(y_0 + {Δy(t_{norm} C - e^{(Ct_{norm})} + 1)}/{C(1-e^C)}) $$',
-'$$ \int_0^x F(t)dt = x(y_0 + \\frac{\Delta y(t_{norm} C - e^{(Ct_{norm})} + 1)}{C(1-e^C)}) $$'
-); $text .= "
-where
-"; choose(
-'$ t_{norm} = x/{Δt} $',
-'$ t_{norm} = \\frac{x}{\Delta t} $'
-); $text .= "
-and
-"; choose(
-'$ Δy = y_1 - y_0 $',
-'$ \Delta y = y_1 - y_0 $'
-); $text .= ".
-<p>
-The indefinite integral of
-"; choose(
-'$ 1/F $',
-'$ \\frac{1}{F} $'
-); $text .= "
-is
-<p>
-"; choose(
-'$$ G(t) = ∫ 1/{F(t)}dt = {(e^C - 1)(tC - log(|\; y_0(e^C-1) + Δy(e^{Ct} - 1)|))} / {Cy_0(e^C-1) - Δy} + constant $$',
-'$$ G(t) = \int \\frac{1}{F(t)}dt = \\frac{(e^C - 1)(tC - log(\lvert y_0(e^C-1) + \Delta y(e^{Ct} - 1)\rvert ))}{Cy_0(e^C-1) - \Delta y} + constant $$'
-); $text .= "
-so the definite integral of $ 1/F $ from 0 to $ x $ is
-<p>
-"; choose(
-'$$ ∫_0^x 1/{F(t)}dt = G(x) - G(0) $$',
-'$$ \int_0^x \\frac{1}{F(t)}dt = G(x) - G(0) $$'
-); $text .= "
-
-<br>
-<p>
-"; section(4, '2.3.3', 'Momentary PFT primitives'); $text.= "
+"; section(4, '2.3.2', 'Momentary PFT primitives'); $text.= "
 <p>
 MNM provides momentary primitives for several purposes.
 <pre>
@@ -687,7 +630,7 @@ shifting them slightly before or after accompaniment notes.
 
 "; section(3, '2.4', 'Transformations'); $text.= "
 <p>
-An MNM specification comprises a sequence of <i>transformations</i>.
+An MNM specification includes a sequence of <i>transformations</i>.
 Each transformation acts on a $config, changing it in some way.
 A transformation includes an \"operator\" indicating what it does.
 We notate transformations as member functions of the $config class;
@@ -696,8 +639,7 @@ These functions are listed in the following sections.
 <p>
 The functions have various parameters.
 Most include a PFT describing a time-varying quantity,
-a time offset $ t_0 $ indicating the score time
-at which the transformation starts,
+a score time $ s_0 $ indicating when the transformation starts,
 and a note selector indicating what notes are affected.
 <p>
 Some transformations get values not from a PFT
@@ -711,9 +653,9 @@ These arguments have the Python type
 "; section(2, '3.', 'Timing'); $text.= "
 <p>
 A note `N` has adjusted-time start and duration,
-`N.adj_time` and `N.adj_dur`.
-These are initially its start and duration in score time;
-they can be adjusted by transformations.
+`N.t_start` and `N.t_dur`.
+These are initially its score-time start and duration;
+they can be changed by transformations.
 MNM supports three kinds of timing transformations.
 <p>
 <b>Tempo control</b>: The adjusted times of note starts and ends
@@ -741,8 +683,8 @@ MNM provides three \"modes\" for the meaning of this PFT:
 <b>Slowness</b> (or inverse tempo):
 The PFT value is the rate of change of adjusted time
 with respect to score time.
-If $ t_0 $ and $ t_1 $ are score times,
-the PFT scales the interval from $ t_0 $ to $ t_1 $
+If $ s_0 $ and $ s_1 $ are score times,
+the PFT scales the interval from $ s_0 $ to $ s_1 $
 by the average value of the PFT between those times.
 Thus, larger means slower.
 <p>
@@ -762,18 +704,18 @@ and the result is used as a slowness function.
 In all cases, the PFT can include `Pause` primitives.
 These are like Dirac delta functions, with zero width but positive integral.
 The start times of later events are shifted by the pause duration.
-In the case of a \"before\" pause at a time $ t $,
-notes that start before $ t $ and end at $ t $ or later are elongated
+In the case of a \"before\" pause at a time $ s $,
+notes that start before $ s $ and end at $ s $ or later are elongated
 to avoid introducing gaps in the sound.
 <p>
 The following transformation modifies the adjusted time of the selected notes,
-starting at score time $ t_0 $,
+starting at score time $ s_0 $,
 according to the tempo function specified by the PFT,
 acting in the given mode:
 <pre>
     Configuration.tempo_adjust_pft(
         pft: PFT,
-        t0: float,
+        s0: float,
         selector: NoteSelector,
         normalize: bool,
         mode: int           # one of the above modes
@@ -788,7 +730,7 @@ a particular voice over a given period,
 and have the voice synch up with other voices at the end of that period.
 <p>
 For example, in a rendition Chopin's Nocturne no. 1
-(see Figure 3),
+(see Figure 4),
 we applied a tempo adjustment
 consisting of an accelerando, a ritardando, and two small pauses
 to the right-hand flourish.
@@ -802,7 +744,7 @@ figure(
 $text .= "
 <p>
 The implementation of `tempo_adjust_pft()`, somewhat simplified,
-is as follows (see Figure 4):
+is as follows (see Figure 5):
 <p>
 <ol>
 <li> Make a list of all \"events\" (starts and ends of selected notes
@@ -816,8 +758,8 @@ compute the average $ A $ of the PFT between the score times of E1 and E2
 (that is,
 the integral of the PFT over this interval divided by the interval size).
 <li>
-Let $ Δt $ be the difference in original adjusted time between E1 and E2.
-Change the adjusted time of E2 to
+Let $ Δt $ be the difference in initial adjusted time between E1 and E2.
+Set the adjusted time of E2 to
 the (updated) adjusted time of E1 plus $ A Δt $.
 </ol>
 ";
@@ -837,21 +779,21 @@ and change their durations to preserve the end times.
 <p>
 The following transformation,
 for notes N that satisfy the selector and lie in the domain of the PFT,
-adds `pft.value(N.time - t0)` to `N.adj_time`:
+adds `pft.value(N.s_start - s0)` to `N.t_start`:
 <pre>
     Configuration.time_shift_pft(
         pft: PFT,
-        t0: float = 0,
+        s0: float = 0,
         selector: NoteSelector
     )
 </pre>
 This can be used to give agogic accents to notes at particular times
 or to shift notes by continuously-varying amounts.
 <p>
-The following transformation \"rolls\" the chord at the given time.
+The following transformation \"rolls\" the chord at the given score time.
 <pre>
     Configuration.roll(
-        t: float,
+        s: float,
         offsets: list[float],
         is_up: bool = True,
         selector: NoteSelector
@@ -859,8 +801,8 @@ The following transformation \"rolls\" the chord at the given time.
 </pre>
 The `offsets` argument is a list of time offsets.
 These offsets are added to the adjusted start times of notes
-that start at score time `t`.
-If `is_up` is true, the offsets are applied from the bottom pitch upwards;
+`N` for which `N.s_start=s`.
+If `is_up` is True, the offsets are applied from the bottom pitch upwards;
 otherwise they are applied from the top pitch downward.
 <p>
 The following transformation adds offsets
@@ -883,10 +825,10 @@ adjusted-time offsets given by a function of the note:
     )
 </pre>
 For each note N satisfying the selector,
-this adds `f(N)` to `N.adj_time`.
+this adds `f(N)` to `N.t_start`.
 For example, the following adds Gaussian jitter to note start times:
 <pre>
-    s.time_adjust_func(lambda n: 0.01*numpy.random.normal(), None)
+    time_adjust_func(lambda n: 0.01*random.normal(), None)
 </pre>
 Adding such jitter can make renditions sound more \"human\".
 
@@ -899,22 +841,22 @@ They involve an adjustment factor `A`,
 with three available modes:
 
 <p>
-<b>Absolute</b>: `N.dur` is set to `A`.
+<b>Absolute</b>: `N.t_dur` is set to `A`.
 <br>
-<b>Multiplicative</b>: `N.dur` is multiplied by `A`.
+<b>Multiplicative</b>: `N.t_dur` is multiplied by `A`.
 <br>
-<b>Relative</b>: `N.dur` is set so that the gap between `N`
+<b>Relative</b>: `N.t_dur` is set so that the gap between `N`
 and the next note is `A`.
 
 <p>
 The following transformation adjusts the durations of selected notes
 based on a PFT;
-it can be used to make continuous changes in articulation.
+it can be used to change articulation continuously.
 <pre>
     Configuration.dur_adjust_pft(
         pft: PFT,
         mode: int,          # one of the above modes
-        score_time: bool,
+        is_score_time: bool,
         t0: float,
         selector: NoteSelector
     )
@@ -929,7 +871,7 @@ of selected notes `N` using the adjustment factor `f(N)`.
     Configuration.dur_adjust_func(
         f: NotetoFloat,
         mode: int,
-        score_time: bool,
+        is_score_time: bool,
         selector: NoteSelector
     )
 </pre>
@@ -943,8 +885,8 @@ A typical order of transformations is
 non-pause tempo transformations,
 followed by pause transformations,
 then shift transformations.
-Articulation transformations that modify score time should precede these;
-those that modify adjusted time should follow them.
+Articulation transformations that change score time should precede these;
+those that change adjusted time should follow them.
 
 "; section(2, '4.', 'Pedal control'); $text.= "
 <p>
@@ -954,8 +896,8 @@ Grand pianos typically have three pedals:
 the dampers are lifted so that
 notes continue to sound after their key is released,
 and all strings vibrate sympathetically.
-If the pedal is gradually raised, the dampers are gradually lowered;
-pianists use this \"half pedaling\" (or more generally, fractional pedaling)
+If the pedal is gradually raised, the dampers are gradually lowered.
+Pianists use this \"half pedaling\" (or more generally, fractional pedaling)
 to create various effects.
 <p>
 <b>Sostenuto pedal</b>: like the sustain pedal,
@@ -988,7 +930,7 @@ When a pedal change is simultaneous with note starts,
 we need to specify
 whether the change occurs before or after the notes are played.
 For sustain and sostenuto pedals,
-we also need to be able to specify momentary lifting of the pedal.
+we may also need to specify momentary lifting of the pedal.
 MNM handles both requirements using the closure attributes
 of PFT primitives.
 Suppose that P0 and P1 are consecutive primitives;
@@ -1008,7 +950,7 @@ closed      closed          play notes, pedal=P1.y0
 
 <p>
 The `Linear` primitive allows expression of
-continuously-changing fractional pedal.
+a continuously-changing fractional pedal.
 For example,
 <pre>
     Linear(4/4, 1.0, 0.5)
@@ -1021,12 +963,12 @@ with values ranging from 127 to 64.
 
 <p>
 The following transformation applies a pedal of the given type,
-with values described by a PFT, starting at score time $ t_0 $:
+with values described by a PFT, starting at score time $ s_0 $:
 <pre>
     Configuration.pedal_pft(
         pft: PFT,
-        type: int,  # sustain, sostenuto, or soft
-        t0: float
+        type: int,      # sustain, sostenuto, or soft
+        s0: float
     )
 </pre>
 
@@ -1039,25 +981,24 @@ MNM provides a mechanism, <i>virtual sustain pedal</i>,
 that's like a sustain pedal that affects only a specified set of notes.
 
 <p>
-The use of a virtual sustain pedal
+A virtual sustain pedal usage
 is specified by the same type of PFT as for standard pedals,
 but the only allowed values are 0 (pedal off) or 1 (pedal on).
-The following transformation applies such a PFT:
+The following transformation applies a virtual sustain pedal:
 <pre>
     Configuration.virtual_sustain_pft(
         pft: PFT,
-        t0: float,
+        s0: float,
         selector: NoteSelector
     )
 </pre>
-If a note N is selected,
-and the virtual pedal is on at its start time,
-`N.dur` is adjusted so that N is sustained at least until the
+If a note N is selected, and the virtual pedal is on at its start time,
+`N.s_dur` is adjusted so that N is sustained at least until the
 pedal is released.
 <p>
 One can use virtual sustain pedals, for example,
 to sustain an accompaniment figure without affecting the melody.
-In the Chopin example in Figure 1,
+In the Chopin example in Figure 4,
 we used a virtual sustain pedal to sustain the chords in the left hand
 without blurring the right-hand melody.
 This would be impossible in a physical performance.
@@ -1075,7 +1016,7 @@ In an MNM nuance description,
 pedal specifications must precede timing adjustments
 so that pedal timing is correct.
 Timing adjustments (including time shifts)
-affect pedal use as well as notes.
+affect pedal usages as well as notes.
 For virtual pedals this happens automatically.
 For standard pedals, if a note at time T is shifted backward in time,
 pedals active at T are shifted backward by the same amount.
@@ -1124,14 +1065,14 @@ according to values specified by a PFT:
     Configuration.vol_adjust_pft(
         mode: int,          # one of the above modes
         pft: PFT,
-        t0: float,
+        s0: float,
         selector: NoteSelector
     )
 </pre>
 <p>
 If a note `N` is selected and is in the domain of the PFT,
 its volume is adjusted by the factor given
-by the value of the PFT at time `N.time - t0`.
+by the value of the PFT at time `N.s_start - s0`.
 This can be used to shape the dynamics of a voice or of the piece as a whole.
 <p>
 Other transformations adjust note volumes without a PFT:
@@ -1153,7 +1094,7 @@ its argument is a $note and it returns an adjustment factor.
 For example,
 <p>
 <pre>
-    config.vol_adjust_func(VOL_ADD, lambda n: 0.01*numpy.random.normal(), None)
+    vol_adjust_func(VOL_ADD, lambda n: 0.01*random.normal(), None)
 </pre>
 makes a small normally distributed adjustment to the volume of all notes.
 <p>
@@ -1272,38 +1213,59 @@ you may decide to make high-level changes,
 such as adding note tags or changing the nuance structure.
 <p>
 
-"; section(2, '7.', 'Nuance scripting'); $text.= "
+"; section(2, '7.', 'Nuance description files and scripting'); $text.= "
 <p>
-In developing nuance specifications for long and complex pieces,
-it's useful to be able to express:
+MNM provides a basis for nuance descriptions.
+Ideally, musicians should be able to share these by email,
+upload them to archival sites,
+manage versions on Github, and so on.
+Software systems supporting MNM should be able to
+export and import standardized nuance descriptions.
+For these purposes we need <i>nuance description files</i> (NDFs).
+There is a range of possibilities for the content and format of these files.
+<p>
+With Numula, an NDF is a Python program
+that builds PFTs and performs transformations.
+This has the advantage of being <i>scriptable</i>: it can express
 
 <p>
-<b>Repetition</b>:
-define a dynamic pattern once and apply it 16 times,
+<b>Iteration</b>:
+defining a dynamic pattern once and applying it 16 times,
 rather than repeating the definition 16 times.
 <br>
 <b>Parameterization</b>:
-use variables instead of hard-coding values for PFT primitive parameters,
+using variables instead of hard-coding values for PFT primitive parameters,
 so that a single change can affect many places.
 <br>
 <b>Functions</b>:
-generate PFTs or sets of transformations using functions,
+generating PFTs or sets of transformations using functions,
 possibly with parameters, loops, conditionals, recursion, and so on.
 <p>
-We call these features <i>nuance scripting</i>.
-In our experience, scripting is necessary for complex applications.
-The features are present in all programming languages,
-so the capabilities can be achieved by
-wrapping MNM in such a language:
-i.e., developing an API for describing and layering transformations.
-We did this in Numula using Python;
-other languages could be used as well.
+In our experience, these capabilities are needed to
+describe complex nuance for long works.
+However, describing nuance by a program limits the editing options;
+for example, it's not clear how to display it in
+a graphical score editor.
 <p>
+At the other end of the spectrum,
+an NDF could be a static (non-scriptable) data structure, encoded in JSON.
+This would include two parts:
+a) tagging information:
+for each note (identified perhaps by score time and pitch)
+a list of tags and attributes;
+b) a list of transformations, each with a PFT and a note selector
+(Python syntax, but limited to boolean expressions).
+<p>
+This format would suffice for many purposes;
+it could be displayed in a graphical score editor.
+However, because it lacks scriptability, it's not amenable to editing.
+Perhaps it could be extended with limited scripting features;
+this is an area of future work.
 
-"; section(2, '8.', 'User interfaces for editing nuance'); $text.= "
+"; section(2, '8.', 'User interfaces for editing nuance descriptions'); $text.= "
 <p>
-We now discuss possible user interfaces for creating
-and editing MNM nuance specifications.
+There are many possible user interfaces for creating
+and editing MNM nuance descriptions.
 Desiderata for such interfaces include
 a) access to all MNM features:
 PFTs, transformations, note selectors, and so on;
@@ -1322,7 +1284,8 @@ This could be integrated with a graphical score editor
 such as Musescore or Sibelius;
 transformations would be displayed underneath the
 corresponding part of the score.
-The interface could also convey nuance in the way the score is displayed:
+The interface could also convey nuance by altering and
+morphing the standard components of a score's graphical elements:
 for example, note-head color or size could express dynamics,
 and horizontal position could show adjusted time.
 
@@ -1367,11 +1330,12 @@ and playback are done with single keystrokes (see below).
 
 <p>
 <b>Performative</b>:
-the user inputs nuance gestures by
-performing them on a computer-interfaced instrument or singing them.
-For example, one might play a melody,
-and the system would capture the tempo and volume contours,
-representing them as MNM transformations.
+the user inputs nuance gestures by performing parts of the score
+on a computer-interfaced instrument or by singing.
+For example, one plays a melody,
+and the system captures the tempo and volume contours,
+representing them as MNM transformations
+that are then used in a textual or graphical editor.
 
 <p>
 <b>Conductive</b>:
@@ -1391,17 +1355,17 @@ Nuance specification has several potential applications.
 <b>Composition</b>:
 As a composer writes a piece,
 perhaps using a score editor such as MuseScore or Sibelius,
-they could also develop a nuance specification for the piece.
-The audio rendering function of the score editor could
-use this to produce nuanced renditions of the piece.
-This would facilitate the composition process
-and would allow the composer to convey their musical intentions
+they also develop a nuance specification.
+The audio rendering function of the score editor
+uses this to produce nuanced renditions of the piece.
+This facilitates the composition process
+and allows the composer to convey their musical intentions
 to prospective performers.
 
 <p>
 
 <b>Virtual performance</b>:
-Musicians could create nuanced renditions
+Musicians create nuanced renditions of existing pieces
 using a computer rather than a physical instrument.
 Compared to physical performance, this has several advantages:
 performers are not limited by their physical capabilities,
@@ -1410,30 +1374,30 @@ and multiple performers can collaborate on a rendition.
 
 <p>
 <b>Performance pedagogy</b>:
-A piano teacher's instruction to a student could involve
+A piano teacher's instruction to a student involves
 a nuance specification that guides the student's practice.
-Feedback could be given in various ways.
-For example, as a student practices a piece, they could see a
+Feedback is given in various ways.
+For example, as a student practices a piece, they see a
 \"virtual conductor\" that shows, on a screen,
 a representation of the target nuance.
-Or a \"virtual coach\" could make suggestions
+Or a \"virtual coach\" makes suggestions
 (musical and/or technical) to the student based on
 the differences between their playing and the nuance specification.
 
 <p>
 <b>Ensemble rehearsal and practice</b>:
 When an ensemble (say, a piano duo) rehearses together,
-they could record their interpretive decisions as a nuance specification.
-They could then use this to guide their individual practice
+they record their interpretive decisions as a nuance specification.
+They then use this to guide their individual practice
 (perhaps via a \"virtual conductor\" as described above).
 
 <p>
 <b>Musical collaborations</b>:
 A dance troupe or musical theater group might
 not be able to afford live musicians for rehearsals.
-Instead, the group could develop a specification of the nuance they want,
-use it to synthesize music for rehearsals,
-and give it to the musicians to help them prepare for performance.
+Instead, the group develops a specification of the nuance they want,
+uses it to synthesize music for rehearsals,
+and sends it to the musicians to help them prepare for performance.
 
 <p>
 <b>Automated accompaniment</b>:
@@ -1452,7 +1416,7 @@ providing a framework for sharing and discussing interpretations.
 "; section(2, '10.', 'Numula'); $text.= "
 <p>
 Numula is a Python library for creating nuanced music.
-It consists of several modules; see Figure 5.
+It consists of several modules; see Figure 6.
 These modules can be used separately or in combination,
 and they could be integrated into other systems.
 ";
@@ -1799,7 +1763,11 @@ They defined \"clock factor\" (what we call \"inverse tempo\")
 and observed that the real time between two events depends
 on the integral of this between the two score times.
 They worked out the mathematics of three tempo functions:
-linear, hyperbolic functions of the form $ F(t) = \frac{A}{B-t} $,
+linear, hyperbolic functions of the form
+"; choose(
+'$ F(t) = {A}/{B-t} $',
+'$ F(t) = \frac{A}{B-t} $'
+); $text .= ",
 and exponential (which they call \"equal ratios\"):
 functions of the form $ F(t) = A^t $.
 <p>
@@ -1903,8 +1871,8 @@ These might include attack parameters (such as bow weight)
 and variations in pitch, timbre, or volume during a note;
 the latter could be modeled as PFTs.
 MNM could be used for works with multiple instruments;
-note tags could include the instrument type
-(e.g. \"violin\") and instance (e.g. \"violin 1\").
+note tags could include the instrument type and instance
+(e.g. \"violin\" and \"violin 1\").
 
 <p>
 <b>Integration with music software systems</b>.
@@ -1912,10 +1880,8 @@ MNM could be integrated with
 score editors such as MuseScore (https://musescore.com),
 music analysis systems like Music21 (Cuthbert 2010)
 and music languages such as SuperCollider.
-To allow interoperability between these systems,
-it may be useful to develop a JSON-based file format
-for MNM nuance descriptions.
-
+This would require a standardized nuance description file format,
+as discussed earlier.
 
 "; section(2, '15.', 'Conclusion'); $text.= "
 <p>
@@ -1925,8 +1891,8 @@ MNM is implemented in Numula,
 a Python-based system for describing both scores and nuance.
 Using Numula or other system supporting MNM,
 a musician can create a rendition of a work (perhaps their own composition)
-that matches their conception of it.
-They can play the result using
+that matches their conception of it,
+and can play the result using
 a digital synthesizer or computer-controlled physical instrument.
 <p>
 We used MNM and Numula to create renditions of several advanced piano pieces,
@@ -1934,8 +1900,8 @@ which we had previously learned to play on the (physical) piano.
 We found that it was fairly easy to get a plausible rendition,
 but progressing beyond that point became increasingly difficult.
 Complex nuance descriptions can have hundreds of components and parameters.
-Once the effort of editing a nuance description outweighs the progress,
-we tend to stop working on it.
+Once the effort of editing a nuance description outweighed the progress,
+we tended to stop working on it.
 <p>
 Therefore we gave considerable thought to user interfaces
 for editing nuance.
@@ -1947,22 +1913,22 @@ and the musically better the result will be.
 <p>
 Numula has features (IPA and shorthand notations) that streamline
 the editing process and that largely eliminate the need to program.
-We think these features
-take the textual approach about as far as it can go.
-Making nuance editing workable for most musicians, we think,
+We think that these features
+take the textual approach about as far as it can go,
+and making nuance editing workable for most musicians
 will require a graphical interface extending a score editor,
 possibly augmented with scripting tools.
 Performative and conductive interfaces should also be explored.
 
 <p>
 Thanks to Richard Kraft, who encouraged this work and contributed ideas
-about UI design and the applications of MNM.
+involving terminology, UI design and the applications of MNM.
 
 <h2>References</h2>
 <p>
 <ol>
 <li> Anderson, D.P., and R.J. Kuivila. 1991.
-\"FORMULA: a Programming Language for Expressive Computer Music\",
+\"FORMULA: A Programming Language for Expressive Computer Music\",
 <i>IEEE Computer</i> 24(7), pp 12-21. June 1991.
 
 <li> Bilson, Malcolm. 2005.
@@ -2072,6 +2038,78 @@ Todd, Neil.  1992.
 91, 3540 (1992).
 
 </ol>
+
+<h2>Appendix: details of continuous PFT primitives</h2>
+<p>
+We now detail the primitives described in Section 2.3.1.
+When a primitive is used for tempo control,
+we need the integrals of the function and its reciprocal.
+<p>
+The `Linear` primitive uses the function
+$$ L(s) ax + y_0 $$
+where $ a $ is the slope
+"; choose(
+'$ {y_1 - y_0}/{Δs} $',
+'$ \\frac{y_1 - y_0}{\Delta s} $'
+); $text .= ".
+Its definite integral is
+<p>
+"; choose(
+'$$ ∫_0^x L(s)ds = {ax^2}/2 + xy_0 $$',
+'$$ \int _0^x L(s)ds = \\frac{ax^2}{2} + xy_0 $$'
+); $text .= "
+and the definite integral of its reciprocal is
+<p>
+"; choose(
+'$$ ∫_0^x 1/{L(s)}ds = {\log(ax + y_0)-\log(y_0)}/a $$',
+'$$ \int _0^x \\frac{1}{L(s)}ds = \\frac{\log(ax + y_0)-\log(y_0)}{a} $$'
+); $text .= "
+
+<p>
+The `ShiftedExp` primitive uses the function
+<p>
+"; choose(
+'$$ E(s) = y_0 + {(y_1-y_0)(1-e^{{Cs}/{Δs}})}/{1-e^C} $$',
+'$$ E(s) = y_0 + \\frac{(y_1-y_0)(1-e^{\\frac{Cs}{\Delta s}})}{1-e^C} $$'
+); $text .= "
+<p>
+The definite integral of $ E $ from 0 to $ x $ is
+<p>
+"; choose(
+'$$ ∫_0^x E(s)ds = x(y_0 + {Δy(s_{norm} C - e^{(Cs_{norm})} + 1)}/{C(1-e^C)}) $$',
+'$$ \int_0^x E(s)ds = x(y_0 + \\frac{\Delta y(s_{norm} C - e^{(Cs_{norm})} + 1)}{C(1-e^C)}) $$'
+); $text .= "
+where
+"; choose(
+'$ s_{norm} = x/{Δs} $',
+'$ s_{norm} = \\frac{x}{\Delta s} $'
+); $text .= "
+and
+"; choose(
+'$ Δy = y_1 - y_0 $',
+'$ \Delta y = y_1 - y_0 $'
+); $text .= ".
+<p>
+The indefinite integral of
+"; choose(
+'$ 1/E $',
+'$ \\frac{1}{E} $'
+); $text .= "
+is
+<p>
+"; choose(
+'$$ G(t) = ∫ 1/{E(s)}ds = {(e^C - 1)(sC - log(|\; y_0(e^C-1) + Δy(e^{Cs} - 1)|))} / {Cy_0(e^C-1) - Δy} + constant $$',
+'$$ G(t) = \int \\frac{1}{E(s)}ds = \\frac{(e^C - 1)(sC - log(\lvert y_0(e^C-1) + \Delta y(e^{Ct} - 1)\rvert ))}{Cy_0(e^C-1) - \Delta y} + constant $$'
+); $text .= "
+so the definite integral of $ 1/E $ from 0 to $ x $ is
+<p>
+"; choose(
+'$$ ∫_0^x 1/{E(s)}ds = G(x) - G(0) $$',
+'$$ \int_0^x \\frac{1}{E(s)}ds = G(x) - G(0) $$'
+); $text .= "
+
+<br>
+
 ";
 
 $text .= html_only('
@@ -2081,6 +2119,7 @@ $text .= html_only('
 ');
 
 if (LATEX) {
+    readfile('cmj.txt');
     echo expand_latex($text);
     echo "\\end{document}\n";
 } else {

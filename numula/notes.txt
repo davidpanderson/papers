@@ -210,3 +210,45 @@ MNM Nuance descriptions have two stages
 See figure 1
 
 2.1 Attributes and tags
+------------------------
+
+7. Nuance description files and scripting
+
+MNM provides a basis for nuance descriptions.
+Ideally, musicians should be able to share these by email,
+upload them to archival sites,
+manage versions on Github, and so on.
+be exported and imported
+Software systems supporting MNM should be able to
+export and import standardized nuance descriptions.
+For these purposes we need <i>nuance description files</i> (NDFs),
+There is a range of possibilities for the content and format of these files.
+
+In the case of Numula, an NDF is a Python program
+that builds PDFs and performs transformations.
+This has the advantage of being 'scriptable': it can express
+rep
+param
+funcs
+
+In our experience, scripting capabilities are needed to
+describe complex nuance for long works.
+However, describing nuance by a program limits the editing options;
+for example, it's not clear how to integrate with
+a graphical score editor.
+
+At the other end of the spectrum,
+an NDF could be a static (non-scriptable) data structure, encoded in JSON.
+This would include two parts:
+a) tagging information:
+for each note (identified perhaps by score time and pitch),
+a list of tags and attributes;
+b) a list of transformations,
+each with a PFT and note selector
+(in Python syntax, but limited to boolean expressions).
+
+This format would suffice for many purposes;
+it could be displayed in a graphical score editor.
+However, because it lacks scriptability, it's not amenable to editing.
+It might be possible to add limited scripting features;
+this is an area of future work.

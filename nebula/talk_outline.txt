@@ -1,3 +1,32 @@
+Title
+SETI@home: algorithms and results
+
+Abstract
+SETI@home is a radio SETI sky survey.
+It has three phases, of which two are completed.
+From 2006 to 2020 we recorded baseband data at the Arecibo observatory,
+divided it into chunks, and processed it using home computers -
+at the peak, about a million of them.
+We used this abundance of computing power to increase
+the generality and sensitivity of the search:
+we looked for 5 types of "detections",
+using 15 octaves of frequency resolution,
+and using coherent integration over a wide range of Doppler drift rates.
+This produced a database of about 12 billion detections.
+
+In the 2nd phase we identified and removed RFI,
+then found and ranked "signal candidates":
+group of detections, possibly spread over years,
+that are close in sky position and frequency.
+We used software "birdies" to guide algorithm development
+and estimate overall sensitivity.
+This phase had different computing requirements;
+we used a Linux cluster in Germany.
+
+The 3rd phase is ongoing; we're reobserving
+the 100 highest-ranking signal candidates using the FAST telescope in China.
+We're about halfway through this process and have not yet found an ET signal.
+------------------
 Intro
     radio sky survey
     commensal
@@ -58,3 +87,6 @@ computing for the back end
 What we should have done differently
 
 Advice for future radio sky surveys
+
+Nebula
+    might be useful for sky survey w/ commensal observing
