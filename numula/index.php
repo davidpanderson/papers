@@ -302,7 +302,7 @@ We then discuss related and future work, and offer conclusions.
 <p>
 In the MNM model, a <i>configuration</i>
 is a collection of items such as notes, measures, and pedal usages.
-These items have times.
+Items have associated times.
 MNM uses two notions of time:
 <p>
 <i>Score time</i>: time as notated in a score,
@@ -368,11 +368,11 @@ Note attributes and tags can have various sources.
 Some are derived from the score:
 the start time and duration in score time (`N.s_start` and `N.s_dur`),
 and the pitch `N.pitch` (represented, for example, as a MIDI pitch number).
-If the score has information such as
+If a score has information such as
 slurs, accent marks, dynamic markings, and note stem directions,
 these could be used to automatically assign attributes.
 <p>
-Second, MNM assigns some attributes of a $note `N` automatically,
+Second, MNM assigns some attributes of a $note `N`
 based on its context in the score.
 `N.nchord` is the number of notes
 with the same start time as N, and `N.nchord_pos`
@@ -391,7 +391,7 @@ For example,
 tags could indicate notes in the left and right hands
 of a piano piece.
 In a fugue, tags could indicate that a note is part of the fugue theme,
-or of a particular instance of the theme.
+or a particular instance of the theme.
 Tags could indicate the harmonic function of notes;
 e.g., a note in a dominant chord in a cadence,
 or the 7th in a major seventh chord.
@@ -1215,19 +1215,19 @@ such as adding note tags or changing the nuance structure.
 
 "; section(2, '7.', 'Nuance description files and scripting'); $text.= "
 <p>
-MNM provides a basis for nuance descriptions.
+It's natural to ask for the ability to store nuance data
+in a specialized file -- a
+<i>nuance description file</i> (NDF).
 Ideally, musicians should be able to share these by email,
 upload them to archival sites,
 manage versions on Github, and so on.
 Software systems supporting MNM should be able to
-export and import standardized nuance descriptions.
-For these purposes we need <i>nuance description files</i> (NDFs).
-There is a range of possibilities for the content and format of these files.
+export and import NDFs.
 <p>
+There is a range of possibilities for the content and format of NDFs.
 With Numula, an NDF is a Python program
 that builds PFTs and performs transformations.
-This has the advantage of being <i>scriptable</i>: it can express
-
+This has the advantage of being <i>scriptable</i>: it can express:
 <p>
 <b>Iteration</b>:
 defining a dynamic pattern once and applying it 16 times,
@@ -1241,11 +1241,8 @@ so that a single change can affect many places.
 generating PFTs or sets of transformations using functions,
 possibly with parameters, loops, conditionals, recursion, and so on.
 <p>
-In our experience, these capabilities are needed to
-describe complex nuance for long works.
-However, describing nuance by a program limits the editing options;
-for example, it's not clear how to display it in
-a graphical score editor.
+In our experience, these capabilities are essential for
+describing complex nuance for long works.
 <p>
 At the other end of the spectrum,
 an NDF could be a static (non-scriptable) data structure, encoded in JSON.
@@ -1254,11 +1251,11 @@ a) tagging information:
 for each note (identified perhaps by score time and pitch)
 a list of tags and attributes;
 b) a list of transformations, each with a PFT and a note selector
-(Python syntax, but limited to boolean expressions).
-<p>
-This format would suffice for many purposes;
-it could be displayed in a graphical score editor.
-However, because it lacks scriptability, it's not amenable to editing.
+(a Boolean expression, e.g. in Python syntax).
+This format would suffice for many purposes,
+and its display in a graphical score editor
+would be straightforward.
+However, it lacks scriptability.
 Perhaps it could be extended with limited scripting features;
 this is an area of future work.
 
@@ -1355,7 +1352,7 @@ Nuance specification has several potential applications.
 <b>Composition</b>:
 As a composer writes a piece,
 perhaps using a score editor such as MuseScore or Sibelius,
-they also develop a nuance specification.
+a nuance description is developed in parallel.
 The audio rendering function of the score editor
 uses this to produce nuanced renditions of the piece.
 This facilitates the composition process
@@ -1450,8 +1447,8 @@ for describing scores and various types of PFTs
 (tempo, volume, pedal, and so on).
 These notations require much less typing (and time) than
 describing the scores and PFTs directly in Python.
-Furthermore, they eliminate the need to write Python code,
-making Numula usable by non-programmers.
+Furthermore, they reduce the need to write Python code,
+making Numula more accessable to non-programmers.
 <p>
 Each type of shorthand notation has its own syntax:
 <pre>
@@ -1869,7 +1866,8 @@ MNM could be extended to describe note parameters
 other than duration and initial pitch and volume.
 These might include attack parameters (such as bow weight)
 and variations in pitch, timbre, or volume during a note;
-the latter could be modeled as PFTs.
+for vocal works, it could describe prosody and breathing.
+These time-varying note properties could be modeled as PFTs.
 MNM could be used for works with multiple instruments;
 note tags could include the instrument type and instance
 (e.g. \"violin\" and \"violin 1\").
@@ -1905,24 +1903,24 @@ we tended to stop working on it.
 <p>
 Therefore we gave considerable thought to user interfaces
 for editing nuance.
-The easier an interface is to use --
+If an interface is easy to use --
 especially for small-scale details --
-and the more direct its connection to the music,
-the more time users will invest in the rendition,
-and the musically better the result will be.
+and offers a direct connection to the music,
+users will invest more time in the editing process,
+and a higher quality rendition will result.
 <p>
 Numula has features (IPA and shorthand notations) that streamline
-the editing process and that largely eliminate the need to program.
-We think that these features
-take the textual approach about as far as it can go,
-and making nuance editing workable for most musicians
-will require a graphical interface extending a score editor,
-possibly augmented with scripting tools.
-Performative and conductive interfaces should also be explored.
+the editing process and reduce the need to program.
+However, Numula in its current form is probably not usable
+by non-technical musicians.
+Making nuance editing usable for such musicians will likely
+require a graphical interface extending a score editor,
+possibly augmented with scripting tools
+and with performative and conductive features.
 
 <p>
 Thanks to Richard Kraft, who encouraged this work and contributed ideas
-involving terminology, UI design and the applications of MNM.
+involving terminology, UI design, NDF files, and the applications of MNM.
 
 <h2>References</h2>
 <p>
