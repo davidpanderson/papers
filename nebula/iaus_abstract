@@ -1,0 +1,23 @@
+SETI@home: algorithms and results
+
+SETI@home is a commensal radio SETI sky survey.
+From 2006 to 2020 we recorded baseband data at the Arecibo Observatory,
+divided it into chunks, and processed it using home computers -
+at the peak, about a million of them.
+We used this computing power to increase
+the generality and sensitivity of the search:
+we looked for 5 types of signals with 15 frequency resolutions,
+and used coherent integration over a wide range of Doppler drift rates.
+This produced a database of about 12 billion "detections".
+In the second phase we removed detections
+that were likely radio frequency intererence (RFI),
+then found and ranked "signal candidates":
+groups of detections, possibly spread over years,
+that are close in sky position and frequency.
+We used software-generated "birdies" to guide algorithm development
+and estimate overall sensitivity.
+The final phase is ongoing; with the help of colleagues in China,
+we're reobserving the 100 highest-ranking signal candidates using the
+Five-hundred-meter Aperture Spherical Telescope (FAST) radio telescope.
+
+SETI@home is a commensal radio SETI sky survey.  From 2006 to 2020 we recorded baseband data at the Arecibo Observatory, divided it into chunks, and processed it using home computers - at the peak, about a million of them.  We used this computing power to increase the generality and sensitivity of the search: we looked for 5 types of signals with 15 frequency resolutions, and used coherent integration over a wide range of Doppler drift rates.  This produced a database of about 12 billion "detections".  In the second phase we removed detections that were likely radio frequency intererence (RFI), then found and ranked "signal candidates": groups of detections, possibly spread over years, that are close in sky position and frequency.  We used software-generated "birdies" to guide algorithm development and estimate overall sensitivity.  The final phase is ongoing; with the help of colleagues in China, we're reobserving the 100 highest-ranking signal candidates using the Five-hundred-meter Aperture Spherical Telescope (FAST) radio telescope.

@@ -19,6 +19,7 @@ $pft_primitive = '`PFTPrimitive`';
 
 // https://direct.mit.edu/comj/pages/submission-guidelines
 // https://direct.mit.edu/DocumentLibrary/SubGuides/cmjstyle-2024-5.pdf
+// http://cmjdb.com/index.php/cmj/author/submission/694
 
 // expand backquotes into <code>...</code>
 function expand_html($s) {
@@ -1509,10 +1510,10 @@ For example:
         |2 ...
     ')
 </pre>
-When the `|2` is reached, the shorthand interpreter
-checks that one measure of time has passed in the PFT definition.
+When the shorthand interpreter reaches the `|2`,
+it checks that one measure has passed in the PFT definition.
 This facilitates finding timing errors in long PFT definitions.
-The length of measures (4/4 in this case) is configurable.
+The measure length (4/4 in this case) is configurable.
 
 "; section(3, '10.2', 'Interactive parameter adjustment'); $text.= "
 <p>
@@ -1884,7 +1885,7 @@ and can play the result using
 a digital synthesizer or computer-controlled physical instrument.
 <p>
 We used MNM and Numula to create renditions of several advanced piano pieces,
-which we had previously learned to play on the (physical) piano.
+which we had previously played on the (physical) piano.
 We found that it was fairly easy to get a plausible rendition,
 but progressing beyond that point became increasingly difficult.
 Complex nuance descriptions can have hundreds of components and parameters.
@@ -1898,8 +1899,8 @@ users will invest more time in the editing process,
 and a higher quality rendition will result.
 Numula has features (IPA and shorthand notations) that streamline
 the editing process and reduce the need to program.
-However, Numula in its current form is probably not usable
-by non-technical musicians.
+However, Numula in its current form is probably too complex
+for non-technical musicians.
 Making nuance editing usable for such musicians will likely
 require a graphical interface extending a score editor,
 possibly augmented with scripting tools
@@ -2002,7 +2003,7 @@ Puckette, Miller. 2002.
 <i>The Journal of the Acoustical Society of America</i>, 1998.
 
 <li> Repp, B. 1998.
-\"A microcosm of musical expression. I. Quantitative analysis of pianists' timing in the initial measures of Chopin's Etude in E major\".
+\"A microcosm of musical expression. II. Quantitative analysis of pianists' dynamics in the initial measures of Chopin's Etude in E major\".
 <i>The Journal of the Acoustical Society of America</i>, 1998.
 
 <li>
@@ -2024,14 +2025,14 @@ Todd, Neil.  1992.
 
 </ol>
 
-<h2>Appendix: details of continuous PFT primitives</h2>
+<h2>Appendix: Details of continuous PFT primitives</h2>
 <p>
-We now detail the primitives described in Section 2.3.1.
 When a primitive is used for tempo control,
 we need the integrals of the function and its reciprocal.
+These are given below for the primitives described in Section 2.3.1.
 <p>
 The `Linear` primitive uses the function
-$$ L(s) ax + y_0 $$
+$$ L(s) = as + y_0 $$
 where $ a $ is the slope
 "; choose(
 '$ {y_1 - y_0}/{Δs} $',

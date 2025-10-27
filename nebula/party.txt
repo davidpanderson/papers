@@ -1,0 +1,239 @@
+SETI@home reminiscences
+
+Concept (1995):
+    Dave Gedye
+    Woody Sullivan
+
+First couple of years
+    can we do science?
+    fundraising
+        Planetary society: Charlene Anderson, Lou Friedman
+        CA DIMI program: Steve Berman?
+
+startup
+    getting hardware and data recorder working
+        Jeff, Dan
+    front-end data analysis: Eric
+    client/server framework, graphics: me
+    Windows: Kyle Granger
+    Mac: Charlie Fenton
+    Brad Silen
+
+launch and first few years
+    hardware
+        3 Sparcstations
+        Dan: lots of donations
+        Sun servers, network appliance
+    network
+        SSL link, packet exchange
+    software
+        shared-mem job cache: Eric
+    web
+        Eric Person
+        Tall/short/guys?
+        Eric Heien
+    ports
+        Hiram Clawson
+    Forum moderation
+        rotating moderators
+    media coverage
+        lots of newspapers
+        ABC nightly news
+        West Wing episode
+    1000 years of computing in 1 day
+
+Astropulse, Josh von Korff
+
+United devices (2000)
+    We needed a platform
+        client updates
+    They offered to let us use UD for free (???)
+    BOINC (2002)
+    lawsuit
+        trade secret nonsense
+        UC lawyers
+
+Aside:
+    SETI@home had lots of eyeballs and lots of computing power.
+    Many people over the years saw that as a potential goldmine.
+    There were many startups.
+    They had different schemes for attracting 'users':
+    micropayments, lotteries, or more commonly some kind of cryptocurrency.
+    None of the startups had the resources to pull anything off.
+    And they tended to overlook a key problem:
+    you can't hide data you're computing with on a PC,
+    and biotech companies require privacy.
+
+BOINC transition
+    solved:
+        client update
+        cheaters (replication)
+        heterogeneity: CPU, GPU separate
+    fancier client graphics (STNG)
+    MySQL DB as well as Informix
+    UI was primitive; lost about half our users
+
+Funding
+    SETI Institute
+        animosity from Jill Tarter
+        they created 'Team SETI' to compete with us
+        John Gertz: Zorro guy
+        they wanted our email list
+    Joe Firmage, Ann Druyan
+        grand science plan based on selling modem ISP?
+    We scraped by on Casper money and donations
+
+Advances 2005-2010
+    ALFA receiver, multibeam
+    switch from DLT tape to disk drives
+    revisions to client: more chirp rates, autocorrs
+    enhancements by volunteers
+        GPUs; CPU acceleration; algorithm improvements
+        anonymous platform mechanism
+    
+NTPKR (2010)
+    RFI removal, signal candidate finding
+    incremental back-end analysis:
+        keep track of 'hot spots',
+        re-analyze as new detections arrive
+    problems:
+        couldn't keep up with incoming data
+        no way to evaluate algorithms
+    
+Doldrums (2010-2016)
+    meetings were mostly about
+        Informix issues (running out of fragments, shards, IDs etc.)
+        hardware failures, sysadmin issues
+        fundraising: holiday donations drive
+    we didn't talk about the future
+    I didn't participate much
+
+Nebula (2016)
+    goal:
+        do complete analysis of data (12B detections) in 1 day
+        create visualizations of
+            RFI removal
+            pixels, candidates
+        Let us iteratively improve algorithms
+        
+    data format
+        dump Informix to flat files
+        index them (time, freq) using unix sort, build index file
+
+    initial phase
+        performing brain surgery on NTPKR code
+            eliminate class hierarchy
+            use flat files
+            compare agains NTPKR output
+        this part was hard
+
+    computing resources
+        needed cluster computing:
+            fast access to big data
+            a few thousand CPUs
+                for candidate finding in 16M pixels
+        tried AWS
+            disaster; undergrad revealed key
+        Atlas cluster (Bruce Allen, Hanover)
+            RFI removal on 96-CPU machine, parallel
+            pixel analysis using Condor
+                could do all pixels in a few hours
+        time to move large output data to our servers
+        not 1 day, but pretty close
+
+    period of high productivity (c. 2020-21)
+        weekly meetings in Campbell
+        look at results of Nebula run
+        talk about algorithms
+        I'd go off and change algorithms, write visualizations
+        iterate
+    
+    birdies
+        simulated ET signals
+            model planetary motion,
+            model what the client would produce
+        evaluate algorithms
+            do we remove them as RFI?
+            do they produce high-ranking candidates?
+        use to estimate 'candidate sensitivity':
+            power above which we 'discover' most signals
+            (i.e. they appear in top 100 rank)
+            More meaningful than hardware-level sensitivity
+    
+    harsh realizations
+        only 3% of our observations were slow-moving enough for 128K DFTs
+        we had no real way to find non-barycentric signals
+
+Paper writing (2020 - 2024)
+    Instrument paper: client algorithm, probabilities of detection types
+    Nebula paper: RFI, candidate algorithms; sky coverage; birdies; results
+
+    very rough rough drafts
+    c. 2 year hiatus
+    resumption
+        Tuesdays: I drive to Castro Valley; great food from Angela
+        Fridays: Eric comes to my house in Berkeley
+        extreme productivity, fun
+
+    submitted to Astronomical Journal
+    got detailed, excellent referee reports
+    spent 6 months processing these;
+        radical improvements in both papers
+
+    accepted May 2025
+
+Big picture
+    SETI@home was a major event in the history of science.
+    It directly involved about a million people around the world.
+    They actively participated in a wide range of ways.
+    They learned about radio SETI.
+    For some people it gave them a sense of purpose and value.
+
+    They also paid higher electricity bills.
+    The computing produced carbon emissions that contributed to global warming.
+    By doing this, we created an obligation for ourselves.
+    We needed to do the best science that we could,
+    using the data this computing produced.
+    If we didn't do so, we'd be wasting all this energy and human effort.
+    If we weren't open about the situation, we'd be deceptive.
+
+    For a long time, we were headed in that direction.
+    We sort of drifted along.
+    There was tremendous inertia.
+
+    But eventually we changed course.
+    In the end, I think we did really good science.
+    There was some stuff we didn't have the resources to do -
+    like studying pulsed signals and autocorrs more carefully -
+    but I think we did most of what was possible.
+
+    And I think the 2 papers are excellent.
+    They're ground-breaking.
+    They set a new standard for SETI papers.
+
+    SETI@home was a team effort.
+    We all had different roles, and each role was vital.
+    We all spent about 25 years working on SETI@home:
+    a big fraction of our careers.
+    I think can view this as time well spent.
+    We should all be extremely proud.
+
+Lessons learned
+    don't use relational DBs for very large data
+        millions of items OK, billions not OK
+    if you run a science project
+        have a clear scientific goal from the start
+        write/maintain the abstract of your paper
+    if you run a data-driven project
+        develop your data analysis software as you go
+            don't wait until the end
+            We didn't do this, and as a result we wasted most
+                of our computing power
+        develop ways to evaluate your algorithms
+        develop ways to visualize your data and data products
+    radio SETI sky surveys
+        commensal observing:
+            makes everything hard (range of slew rates)
+            doesn't work w/ high freq resolution
+        need to control telescope
+        if will take about 2 years to cover visible sky
