@@ -14,7 +14,7 @@ startup
     getting hardware and data recorder working
         Jeff, Dan
     front-end data analysis: Eric
-    client/server framework, graphics: me
+    client/server framework, graphics (STNG): me
     Windows: Kyle Granger
     Mac: Charlie Fenton
     Brad Silen
@@ -30,8 +30,8 @@ launch and first few years
         shared-mem job cache: Eric
     web
         Eric Person
-        Tall/short/guys?
         Eric Heien
+    Nathan Chung, Peter Leiser
     ports
         Hiram Clawson
     Forum moderation
@@ -55,7 +55,7 @@ United devices (2000)
 
 Aside:
     SETI@home had lots of eyeballs and lots of computing power.
-    Many people over the years saw that as a potential goldmine.
+    Many people over the years saw that as a potential gold mine.
     There were many startups.
     They had different schemes for attracting 'users':
     micropayments, lotteries, or more commonly some kind of cryptocurrency.
@@ -69,9 +69,9 @@ BOINC transition
         client update
         cheaters (replication)
         heterogeneity: CPU, GPU separate
-    fancier client graphics (STNG)
+    fancier 3-D client graphics
     MySQL DB as well as Informix
-    UI was primitive; lost about half our users
+    clunky UI; lost about half our users
 
 Funding
     SETI Institute
@@ -98,7 +98,7 @@ NTPKR (2010)
         re-analyze as new detections arrive
     problems:
         couldn't keep up with incoming data
-        no way to evaluate algorithms
+        hard to evaluate algorithms
     
 Doldrums (2010-2016)
     meetings were mostly about
@@ -121,7 +121,7 @@ Nebula (2016)
         index them (time, freq) using unix sort, build index file
 
     initial phase
-        performing brain surgery on NTPKR code
+        adapt NTPKR code
             eliminate class hierarchy
             use flat files
             compare agains NTPKR output
@@ -133,7 +133,7 @@ Nebula (2016)
             a few thousand CPUs
                 for candidate finding in 16M pixels
         tried AWS
-            disaster; undergrad revealed key
+            disaster; undergrad put key in github
         Atlas cluster (Bruce Allen, Hanover)
             RFI removal on 96-CPU machine, parallel
             pixel analysis using Condor
@@ -151,14 +151,20 @@ Nebula (2016)
     birdies
         simulated ET signals
             model planetary motion,
-            model what the client would produce
+            model what the client would produce (hard; Eric)
         evaluate algorithms
-            do we remove them as RFI?
-            do they produce high-ranking candidates?
+            do we remove birdies as RFI?
+            do birdies produce high-ranking candidates?
         use to estimate 'candidate sensitivity':
             power above which we 'discover' most signals
             (i.e. they appear in top 100 rank)
             More meaningful than hardware-level sensitivity
+
+    candidate scoring
+        how to combine 3 different scores?
+        spent a lot of time on this
+        I tried optimization; Chinese guy tried ML
+        eventual solution: look at various sums (score variants)
     
     harsh realizations
         only 3% of our observations were slow-moving enough for 128K DFTs
@@ -171,14 +177,14 @@ Paper writing (2020 - 2024)
     very rough rough drafts
     c. 2 year hiatus
     resumption
-        Tuesdays: I drive to Castro Valley; great food from Angela
+        Tuesdays: I drive to Castro Valley
         Fridays: Eric comes to my house in Berkeley
         extreme productivity, fun
 
     submitted to Astronomical Journal
     got detailed, excellent referee reports
     spent 6 months processing these;
-        radical improvements in both papers
+        big improvements in both papers
 
     accepted May 2025
 
@@ -223,17 +229,17 @@ Lessons learned
         millions of items OK, billions not OK
     if you run a science project
         have a clear scientific goal from the start
-        write/maintain the abstract of your paper
+        write/maintain a paper abstract
     if you run a data-driven project
-        develop your data analysis software as you go
+        develop data analysis software as you go
             don't wait until the end
-            We didn't do this, and as a result we wasted most
+            We didn't do this, and as a result we wasted a lot
                 of our computing power
         develop ways to evaluate your algorithms
         develop ways to visualize your data and data products
     radio SETI sky surveys
         commensal observing:
             makes everything hard (range of slew rates)
-            doesn't work w/ high freq resolution
-        need to control telescope
-        if will take about 2 years to cover visible sky
+            doesn't work well w/ high freq resolution
+        need to control telescope;
+        need about 2 years to cover visible sky
