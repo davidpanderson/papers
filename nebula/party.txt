@@ -36,6 +36,7 @@ launch and first few years
         Hiram Clawson
     Forum moderation
         rotating moderators
+        Jord van der Elst
     media coverage
         lots of newspapers
         ABC nightly news
@@ -243,3 +244,17 @@ Lessons learned
             doesn't work well w/ high freq resolution
         need to control telescope;
         need about 2 years to cover visible sky
+
+Matt:
+1. The ALF hack.
+2. Bill Woodcock.
+3. The time the a/c broke over the weekend and I was on pager detail and sped to campus only to be blocked from going up centennial blvd due to a football game.
+4. VIP visits: Jim Gray, Wes Boyd, Tim O'Reilly.
+5. NetApp NAS donation (whole rack of disks and server that normally costed $150K and was 3TB of storage).
+6. SETI Institute also tried to scoop us with their own NTPCkr which failed for the same reasons we'd predicted ours would fail (too much RFI).
+7. Early on showing up to work unshowered, unshaven, and with pink hair to find a news crew would be filming our meeting. By the time I got home that night I had a phone message from my sister in Pennsylvania saying, "when did you dye your hair pink?"
+8. The switch at the PAIX that needed more RAM as the DNS cache was getting corrupted (?). 
+9. The Windows DNS caching that would cause our two data servers to become unbalanced (i.e. we'd have a million workunits to send where id % 2 == 0, but zero where id % 2 == 1).
+10. The way I nailed all the cheaters at the end of SETI@home classic - it would have taken too long to scan the whole database looking for redundant work, but instead I just checked every 100th result that was more than enough to identify obvious cheating.
+11. That one media crew that plugged two 500W lights into our server rack and blew a couple breakers. 
+12. The semester all students returned having discovered kazaa, campus pegged its 100Mb bandwidth limit, and since we were 30% of that they finally forced us to get our own 1Gb link (from Cogent, for $1000/month). 

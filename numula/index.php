@@ -2,8 +2,12 @@
 
 if (array_key_exists('latex', $_GET)) {
     define('LATEX', true);
+    $numula = '(name hidden)';
+    $numula_url = 'URL hidden';
 } else {
     define('LATEX', false);
+    $numula = 'Numula';
+    $numula_url = 'https://github.com/davidpanderson/numula/';
 }
 
 $config = '`Configuration`';
@@ -272,7 +276,7 @@ includes an operation type (e.g., tempo control), a PFT, and a note selector.
 </ol>
 <p>
 The \"reference implementation\" of MNM is a Python
-library called Numula (https://github.com/davidpanderson/numula/),
+library called $numula ($numula_url),
 so we describe MNM in terms of Python data structures and functions.
 MNM could be implemented using other languages or data representations.
 It could be integrated into score editors, music programming languages,
@@ -358,7 +362,7 @@ $text .= "
 <p>
 MNM describes the above entities as abstract classes:
 $config, $note, and $measure.
-In Numula, these are Python classes.
+In $numula, these are Python classes.
 <p>
 A $note `N` has various <i>attributes</i>.
 For example, `N.tags` is a set of textual <i>tags</i>.
@@ -1220,7 +1224,7 @@ Software systems supporting MNM should be able to
 export and import NDFs.
 <p>
 There is a range of possibilities for the content and format of NDFs.
-With Numula, an NDF is a Python program.
+With $numula, an NDF is a Python program.
 Compared with other formats,
 this has the advantage of being <i>scriptable</i>: it can express:
 <p>
@@ -1295,7 +1299,7 @@ or a graphical programming language like Scratch (Resnick 2009).
 <p>
 <b>Textual</b>:
 For example, MNM could be presented as an API in a programming language;
-Numula uses Python for this purpose.
+$numula uses Python for this purpose.
 The user describes nuance by writing code.
 The system might also allow programmatic description of scores.
 Scriptability is inherent in this approach.
@@ -1307,7 +1311,7 @@ Ease of use is a challenge for textual systems.
 First, if we use the native programming language syntax
 (data structure declarations and function calls)
 the amount of typing can be prohibitive.
-Numula addresses this by defining
+$numula addresses this by defining
 textual \"shorthand notations\" for various purposes,
 such as volume and tempo PFTs.
 The second issue is the efficiency of the editing cycle.
@@ -1315,7 +1319,7 @@ If the user has to scroll through a text file,
 locate and edit some text, and then re-run a program,
 this adds up to perhaps a dozen input actions.
 This is cumbersome; syntactic issues can displace musical focus.
-Numula addresses this issue, in part,
+$numula addresses this issue, in part,
 using a feature in which parameter adjustment
 and playback are done with single keystrokes (see below).
 
@@ -1404,30 +1408,30 @@ Such sites could also host user-supplied nuance descriptions,
 allowing people to share and discuss interpretations.
 <p>
 
-"; section(2, '10.', 'Numula'); $text.= "
+"; section(2, '10.', $numula); $text.= "
 <p>
-Numula is a Python library for creating nuanced music.
+$numula is a Python library for creating nuanced music.
 It consists of several modules; see Figure 5.
 These modules can be used separately or in combination,
 and they could be integrated into other systems.
 ";
 figure(
 'numula.png',
-'The components of Numula.'
+"The components of $numula."
 );
 $text .= "
 <p><br><p>
-Numula defines the classes listed earlier in this paper:
+$numula defines the classes listed earlier in this paper:
 $config, $note, PFT, etc.
 The transformation functions described in earlier sections
 are members of the $config class;
 they form the \"MNM engine\".
 A $config, after nuance transformations are applied,
 can be output as a MIDI file.
-For convenience, Numula can be configured to play MIDI output
+For convenience, $numula can be configured to play MIDI output
 using a Pianoteq server controlled by RPCs.
 <p>
-Numula can be used as a stand-alone system for creating nuanced music.
+$numula can be used as a stand-alone system for creating nuanced music.
 Alternatively, it can add nuance capabilities to other systems:
 it can import a MIDI file as a $config object,
 apply a nuance description to it,
@@ -1436,13 +1440,13 @@ and output the result as a MIDI file.
 
 "; section(3, '10.1', 'Shorthand notations'); $text.= "
 <p>
-Numula provides textual <i>shorthand notations</i>
+$numula provides textual <i>shorthand notations</i>
 for describing scores and various types of PFTs
 (tempo, volume, pedal, and so on).
 These notations require much less typing (and time) than
 describing the scores and PFTs directly in Python.
 They also reduce the need to write Python code,
-making Numula more accessable to non-programmers.
+making $numula more accessable to non-programmers.
 <p>
 Each type of shorthand notation has its own syntax:
 <pre>
@@ -1469,7 +1473,7 @@ is on for 1 beat, then off for 4 beats; and
     sh_score('1/4 c5 d e')
 </pre>
 returns a $config with 3 quarter notes starting at middle C.
-Numula's shorthand notation for scores has numerous features
+$numula's shorthand notation for scores has numerous features
 that enable compact representation of complex scores.
 <p>
 The shorthand notations have a common set of features
@@ -1517,16 +1521,16 @@ The measure length (4/4 in this case) is configurable.
 
 "; section(3, '10.2', 'Interactive parameter adjustment'); $text.= "
 <p>
-Numula's original low-level editing cycle was cumbersome;
+$numula's original low-level editing cycle was cumbersome;
 each adjustment required locating and editing a value in the source code,
 re-running the Python program,
 and moving the Pianoteq playback pointer to the relevant time.
 This took a dozen or so input events (keystrokes and mouse clicks).
 <p>
-To streamline low-level editing, Numula provides a feature called
+To streamline low-level editing, $numula provides a feature called
 <i>Interactive Parameter Adjustment</i> (IPA)
 that reduces the cycle to two keystrokes.
-You \"IPA-enable\" a Numula program
+You \"IPA-enable\" a $numula program
 by declaring variables to be adjustable,
 and specifying their role (tempo, volume, and so on).
 You then run the program under an <i>IPA interpreter</i>.
@@ -1539,7 +1543,7 @@ which is read when the IPA interpreter is started.
 
 "; section(2, '11.', 'Examples'); $text.= "
 <p>
-We used Numula to create nuanced renditions
+We used $numula to create nuanced renditions
 of piano pieces from several styles and periods:
 <ol>
 <li> Sonata opus 57 by Beethoven, 3rd movement (1804-1805).
@@ -1551,7 +1555,7 @@ of piano pieces from several styles and periods:
 The sound files and source code are on the Web at
 github.com/davidpanderson/numula/wiki\\#examples
 <p>
-We used Numula shorthand strings for both score and nuance.
+We used $numula shorthand strings for both score and nuance.
 The source code lines counts, and the number of notes in each piece,
 are as follows:
 <pre>
@@ -1567,7 +1571,7 @@ Helps #3    116                 87                  1389
 <p>
 We tried to approximate performances by a skilled human,
 and were at least partly successful.
-MNM and Numula co-evolved with these examples;
+MNM and $numula co-evolved with these examples;
 we added new features and notations as the need arose.
 <p>
 In these examples, we used the nuance structure described above,
@@ -1783,11 +1787,11 @@ They also have features for adding algorithmic nuance,
 such as \"swing\" rhythm.
 These systems offer basic nuance capabilities,
 but lack MNM's ability to represent complex nuance
-and Numula's ability to express it concisely and edit it efficiently.
+and $numula's ability to express it concisely and edit it efficiently.
 <p>
 Music21 (Cuthbert) and Abjad (https://abjad.github.io/)
 are Python-based systems for score representation.
-Like Numula, they offer shorthand notations.
+Like $numula, they offer shorthand notations.
 However, their goals (musical analysis and typesetting respectively)
 do not focus on nuance.
 
@@ -1876,15 +1880,15 @@ and music languages such as SuperCollider.
 <p>
 We have presented Music Nuance Model (MNM),
 a framework for describing nuance in renditions of keyboard works.
-MNM is implemented in Numula,
+MNM is implemented in $numula,
 a Python-based system for describing both scores and nuance.
-Using Numula or other system supporting MNM,
+Using $numula or other system supporting MNM,
 a musician can create a rendition of a work (perhaps their own composition)
 that matches their conception of it,
 and can play the result using
 a digital synthesizer or computer-controlled physical instrument.
 <p>
-We used MNM and Numula to create renditions of several advanced piano pieces,
+We used MNM and $numula to create renditions of several advanced piano pieces,
 which we had previously played on the (physical) piano.
 We found that it was fairly easy to get a plausible rendition,
 but progressing beyond that point became increasingly difficult.
@@ -1897,9 +1901,9 @@ especially for small-scale details --
 and offers a direct connection to the music,
 users will invest more time in the editing process,
 and a higher quality rendition will result.
-Numula has features (IPA and shorthand notations) that streamline
+$numula has features (IPA and shorthand notations) that streamline
 the editing process and reduce the need to program.
-However, Numula in its current form is probably too complex
+However, $numula in its current form is probably too complex
 for non-technical musicians.
 Making nuance editing usable for such musicians will likely
 require a graphical interface extending a score editor,

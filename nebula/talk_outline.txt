@@ -27,23 +27,25 @@ The 3rd phase is ongoing; we're reobserving
 the 100 highest-ranking signal candidates using the FAST telescope in China.
 We're about halfway through this process and have not yet found an ET signal.
 ------------------
-Intro
-    radio sky survey
-    commensal
-    3 stages
-        front end
-        back end
-        reobs
-
 Who I am
     Academic computer scientist interested in distributed computing
     software jack of all trades 
-    I had to learn some signal processing and radio astronomy
+    I had to learn some signal processing and radio astronomy for SETI@home
+
+SETI@home intro
+    radio sky survey
+    commensal
+    3 stages
+        front end (volunteer computing)
+        back end (cluster computing)
+        reobs
 
 History
-    1995 idea
+    1995 idea: David Gedye
     1998 initial funding
-    1999 launch
+        starwave, CA MICRO program, Planetary Society
+        volunteer donations, scrounging from other grants
+    1999 public launch
     2005 switch to BOINC
     2006 ALFA receiver
     2016 start work on Nebula
@@ -52,41 +54,424 @@ History
     2025 reobs in progress
 
 People
-    Dan Werthimer: had been doing SERENDIP at Arecibo
-    Eric Korpela: experiment design
+    Eric Korpela: experiment design, statistics
+    Dan Werthimer: hardware
+    Me: software
     2-3 sysadmins and DB admins
 
-Funding
-    Early
-        Starwave donation
-        CA matching grant
-        Planetary society
-    Volunteer donations
-    money borrowed from other grants
+Data source and recording
+    Arecibo L-band feed array (ALFA)
+    7 beams, 2 polarizations each
+        half-power beam width: 0.05 deg
+    2.5MHz band centered at H1 line 1.42 GHz
+        limited by network bandwidth factors
+        large enough to include shifted signals near 1.42
+    convert to baseband, 2-bit complex samples
+    include pointing info
+        from AO; 5-sec sampling, later 1 sec
+    write to disk, mail disks to Berkeley
+
+    Radar blanking (2.5% of time)
+        hardware: AO system
+        software: correlate data w known radar patterns
+        replace with random noise matching receiver sensitivity
 
 Target signals
+    continuous narrowband signals
+        (not broadband; sister project Astropulse)
+    pulsed narrowband signals
+        unknown period, duty cycle, phase
+    arbitrary repeated waveforms
+
+    transient or (better) long-term
+
+    transmitter
+        in inertial ref frame
+        on the surface of a planet orbiting a star
+        in orbit around a planet
+        in orbit around a star
+        ... with range of parameters
+
+Doppler shift: receiver, transmitter
+    momentary drift rate
+    long-term range
+    rotation, orbit
+    barycentric:
+        transmitter corrects for their motion
+        should be almost drift-free if cancel receiver motion
+    non-barycentric:
+        can vary by ~140KHz
+
+Data splitting
+    divide data by
+        - frequency: 256 9.8 KHz bands (polyphase filter bank)
+        - time: 107 seconds, overlapped by 20 sec
+    workunits
+        data plus pointing info
 
 Detections
+    Spikes
+        power in 1 DFT bin > 24x mean noise power
+        avg 7 per WU
+    Gaussians
+        sequence of DFT bins w/ shape matching telescope motion
+    Pulses
+        sequence of bins with pulse shape
+        (unknown freq, duty cycle, phase)
+    Triplets
+        3 equally-spaced DFT bins above threshold
+    Autocorrelations
+        signal that repeats with a delay up to 7 sec
+        found using autocorrelation
+
+    parameters
+        time (midpoint)
+        beam #
+        sky pos
+        duration
+        power (multiple of mean noise)
+        DFT length
+        freq topo
+        freq bary: adjust for receiver motion
+        probability scores
+            power, goodness of fit
+            negated so higher = better
+
+Frequency resolutions (DFT lengths)
+    15 of them:
+    128K    0.07Hz  13 sec
+    ...
+    8
+
+    shorter is better for fast pulsed signals
+
+    why stop at 128K?
+    if scope is drifting, objects pass through beam in 12 sec
+
+
+Coherent integration
+    steps of .0009 Hz/sec
+        keep signal within a .07Hz bin
+    drift rates out to +- 100Hz/sec
+        (low orbit around large planet)
+    up to 123,000 drift rates
+    (picture from paper 1)
+    gives about 10X better sensitivity
 
 Client
+    baseline smoothing:
+        remove wide-band features > 2 KHz
+        (variations in H1 emissions)
+
+    for each Doppler rate R
+        de-drift data by R
+        for each DFT length L
+            for each segment of length L
+                compute DFT
+                search DFT for spikes
+                if L = 128K search for autocorrs
+                add DFT to PvT array
+            for each freq bin in PvT array
+                search for Gaussians
+                search for pulses
+                    fast folding algorithm
+                search for triplets
+
+Testing/validation of front end
+    client: generate synthetic workunits with chirped sine waves + noise,
+        with a Gaussian envelope corresponding to slew rate
+    splitter:
+        generate full-band synthetic data
+    system:
+        hardware signal injection via transmitter in dish
+    splitter+client:
+        observe Voyager 1, check for spike/pulse/autocorr
+    pointing/timing info:
+        observe Crab pulsar
+
+Volunteer computing
+    Original
+        program combined
+            client/server function
+            screensaver graphics
+            science code
+        problem: update required re-install
+    BOINC
+        general volunteer computing framework
+        separate
+            client (gets/runs jobs)
+            science code
+            graphics code
+        used by various other projects, e.g. Einstein@home, LHC@home
+    we developed and maintained
+        customer support (Skype)
+        message boards
+            moderation
+        leader boards
+            buy GPUs
+        teams
+
+heterogeneity
+    CPU type: Intel, ARM
+    bitness: 32/64
+    CPU features: SSE3, AVX2
+    OS: Win/Mac/Linux/Android
+    GPUs: NVIDIA, AMD, Intel; models, drivers
+
+    anonymous platform mechanism:
+        users can build their own client
+    graph, table
+
+result validation (cheating, overclocking)
+    replication: run each job twice, compare
+    fuzzy comparison
+    adaptive replication
+
+Server capacity
+    web server
+    job dispatcher
+    splitter
+    file upload/download
+    DB server
+
+    originally: 3 desktop Sparcstations
+    add lots of server computers, ~20
+    network storage device
+
+    Network capacity:
+        saturated SSL's 100 Mbps link,
+        got our own 1Gbps link
+
+===================
+Back end
+    RFI removal
+    multiplet (signal candidate) finding and scoring
+
+Uncertainty
+    what detections could be from same source?
+    position uncertainty
+        strong signal could come from anywhere
+        we assume source is in beam half-power disk
+        If a set of detections is in a disk radio theta centered at P,
+        they could all be from a source at P
+    freq
+        receiver drift calculated at beam center; could be 40Hz off
+        between de-chirp rates: 76Hz
+        DFT bin width
+        call it 125 Hz
 
 Sky coverage
+    30% of celestial sphere
+    modes
+        tracking
+            pulsars
+        drift scan
+            12 sec in beam
+        basket-weave scan
+        slewing
+    our algorithms need to handle all of these
+
+quantifying sky coverage
+    to evaluate a signal candidate w/ detections from a sky position
+    we need to know how long we observed that position.
+
+    pixelize the sky w/ HEALpix (equal-area)
+    use resolution w/ 50M pixels (15M visible from Arecibo)
+    about half area of beam
+
+    A beam 'observed a pixel at time t' if its center is
+    within theta of pixel center at t
+
+    sky position samples are 1 Hz; interpolate to not skip pixels
+
+    for pixel P, I(P) is set of time intervals when some beam observed P
+
+Sky coverage as a function of frequency resolution
+    a given DFT length L has a duration T(L)
+    if a spike's DFT bin isn't mostly in an observation interval,
+        it's probably RFI
+    We require at least 2 detections for a candidate.
+    So to find a signal of resolution L we need
+    2 intervals of length at least 2T(L)
+
+    show table
+
+    disappointing conclusion: we observed only 2.24% of the sky
+    with maximum sensitivity
+
+Birdies
+    artificial signals, injected at the level of detections
+    params:
+        sky position
+        power
+        bandwidth
+        bary/nonbary
+            planetary motion
+    compute what spikes would have resulted from such a signal
+    Add these to the detection DB
+
+    Do the RFI algorithms remove birdie detections?
+    Do we find the birdies as high-scoring candidates?
 
 RFI removal
+    long-term: all 14 years
+        frequency zone RFI
+        period zone RFI (pulsed signals)
+    medium-term: ~10min
+        intermittent sources
+        drifting RFI
+            analogous for pulses
+    short-term: detection scale (1ms to 13 sec)
+        multi-beam: same signal in different locations
+            (different beams or same beam if moving fast)
+
+    table
+
+RFI algorithm development
+    run pipeline; remove RFI
+    find top-scoring multiplets
+    examine waterfall plots
+    modify filter params or add filter
+    look at birdie detections flagged as RFI;
+        modify filters to not flag if needed
 
 candidate finding
+    multiplet: group of detections that could plausibly
+        be from a single source
+    categories: spike/Gaussian, pulse/triple, autocorr
+    constraints:
+        must have > 1 detection (all RFI)
+        barycentric:
+            must lie in 250Hz band
+            topocentric freq should change due to rec motion
+        non-bary:
+            must lie in 308KHz band
+            short-term changes in freq and chirp must be slow
+            long-term changes in freq and chirp must be plausible
+        period/delay consistency
+        time disjointness
+            don't include 2 detections if they overlap in time
+        frequency disjointness of multiplets
+            use detections only for 1 multiplet
+
+algorithm
+    for each pixel and category, form set of detections in "pixel disk"
+    scan this in frequency order, look at windows
+    "prune" detections until constraints are satisfied,
+        trying to also maximize score
+
+Scoring multiplets
+    power factor
+        median detection probability score (normalize across types)
+    density factor
+        reward multiplets that are compact in pos and freq
+    time factor
+        look at I(P): set of obs intervals of P
+        look at union I(M) of detection intervals
+        reward multiplets where I(M) mostly coverse I(P)
+
+Evaluating multiplet-finding
+    does each factor rank ET signals higher than noise?
+    how to best combine the 3 factors?
+        fiddle with weights so that birdie multiplets score high
+        this didn't work
+    solution:
+        normalize each factor so 25/75 pctiles are -1, 1
+        'score variant': sum of 1,2 or 3 factors (7 in all)
+        look at top-ranking multiplets in each variant
+
+algorithm development
+    multiple-finding algorithm:
+        find most of non-overlapping detections in birdies
+    scoring function
+        rank birdie multiplets high compared to real ones
+
+Efficiency of the back end
+    goal: run pipeline in ~1 day
+    data
+        dump DB to flat files (CSV)
+        flatten the table hierarchy
+        sort these as needed (w/ 'sort')
+            time (RFI), freq (multiplet)
+        build index files
+    data structures
+        R-trees; query 2-D data (e.g. sky position, or time/freq)
+    parallelism
+        RFI removal: shared-memory MP, parallelize freq band
+        multiplets: by pixel, one per CPU
 
 computing for the back end
     AWS: disaster
     Berkeley private cloud
-    ATLAS
-        Condor for candidate finding
+        $$$
+    ATLAS (Hanover)
         92-core machine for RFI removal
-            parallelize over freq bands
+            c. 15 hours
+        Condor for multiplet finding
+            c. 1.6 days on 2000 nodes
+        a few hours for moving files
 
-What we should have done differently
+Sensitivity
+    picture
+    event sensitivity: hardware and system temperature
+    candidate sensitivity: algorithms and RFI environment
+    either could be larger
+
+    we used birdies to estimate candidate sens for S@h;
+    (for continuous signals).
+    it's a function of signal bandwidth
+
+Re-observations
+    24 hours of FAST time (will ask for more)
+    100 top-ranked candidates
+    record data
+    2.5X more sensitive than Arecibo
+        narrower beams, more collecting area
+    analyze using S@h client, also look at waterfall plots
+
+contributions of S@h
+    multiple signal types
+    multiple freq resolutions
+    coherent integration at lots of drift rates
+    repeated observations over time
+        sporadic signals e.g. rotating planets
+        scintillation of narrowband signals over months
+        search for long-duration non-bary signals
+    use of birdies
+    RFI algorithms
+
+    Nebula software: might be useful for other sky surveys
+
+What we might have done differently
+    front end:
+    include all beams in each workunit
+        signals just below threshold in adjacent beams
+        RFI rejection in client
+            (increases sens since can lower thresholds)
+        allow Stokes param search for circularly polarized signals
+    looks only for Gaussians, not spikes
+        a form of RFI rejection
+    Do Gaussian fitting based on momentary movement, not avg over WU
+
+Back end
+    multiplet-finding algorithm is crude; use AI?
+    better non-bary alg (but need more data)
 
 Advice for future radio sky surveys
+    Don't use a relational database for large data
 
-Nebula
-    might be useful for sky survey w/ commensal observing
+    pointing matters
+        Commensal is impractical
+        want constant slew rate
+            slow enough for highest freq res
+            maybe even slower for Gaussian fit
+
+    15M pixels: observing each for 13.4 seconds would take 6.37 years.
+    With 19 beams (FAST) could reduce to 0.33 years.
+    Should do this twice.
+
+    have a clear science goal; write your abstract
+    write your entire pipeline as soon as possible
+        back-end results may change front end
+    develop visualizations
+    have a way to evaluate algorithms
