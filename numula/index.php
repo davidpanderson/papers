@@ -2,7 +2,7 @@
 
 if (array_key_exists('latex', $_GET)) {
     define('LATEX', true);
-    $numula = '(name hidden)';
+    $numula = 'MNMlib';
     $numula_url = 'URL hidden';
 } else {
     define('LATEX', false);
@@ -79,8 +79,8 @@ function expand_latex($s) {
     $s = str_replace('<br>', "\n", $s);
     $s = str_replace('<b>', "\\textbf{", $s);
     $s = str_replace('</b>', '}', $s);
-    $s = str_replace('<pre>', "\\begin{small}\\begin{singlespace}\\vspace{-0.5em}\\begin{verbatim}", $s);
-    $s = str_replace('</pre>', '\\end{verbatim}\\end{singlespace}\\end{small}\\noindent', $s);
+    $s = str_replace('<pre>', "\\begin{small}\\begin{singlespace}\\vspace{-18px}\\begin{verbatim}", $s);
+    $s = str_replace('</pre>', '\\end{verbatim}\\end{singlespace}\\end{small}\\vspace{-18px}\\noindent', $s);
     $s = str_replace('<i>', "\\textit{", $s);
     $s = str_replace('</i>', '}', $s);
     $s = str_replace('<ol>', '\\begin{enumerate}', $s);
@@ -276,7 +276,11 @@ includes an operation type (e.g., tempo control), a PFT, and a note selector.
 </ol>
 <p>
 The \"reference implementation\" of MNM is a Python
-library called $numula ($numula_url),
+library called $numula
+"; choose(
+"($numula_url)",
+'(for anonymity during peer review, the name has been changed and the Github URL is not shown)'
+); $text .= "
 so we describe MNM in terms of Python data structures and functions.
 MNM could be implemented using other languages or data representations.
 It could be integrated into score editors, music programming languages,
@@ -307,24 +311,21 @@ We then discuss related and future work, and offer conclusions.
 <p>
 In the MNM model, a <i>configuration</i>
 is a collection of items such as notes, measures, and pedal usages.
-Items have associated times.
-MNM uses two notions of time:
+MNM describes these as abstract classes:
+$config, $note, and $measure.
+In $numula, these are Python classes.
 <p>
-<i>Score time</i>: time as notated in a score,
+The items in a configuration have associated start times and durations.
+MNM uses two notions of time:
+<i>Score time</i> is time as notated in a score,
 represented as floating-point numbers.
 The scale is arbitrary;
 our convention is that the unit is a 4-beat measure,
 so the duration of a quarter note is 1/4, or 0.25.
-<p>
- <i>Adjusted time</i>: a transformed version of score time.
+ <i>Adjusted time</i> is a transformed version of score time.
 After an MNM description has been applied to a score,
 adjusted time is real time, measured in seconds.
-<p>
 For clarity, we notate score time as $ s $ and adjusted time as $ t $.
-<p>
-Notes have a start and duration in both score time and adjusted time.
-Measures have a start and duration in score time;
-they may not overlap.
 
 <p>
 MNM starts with an initial configuration $ C_0 $.
@@ -338,15 +339,16 @@ In situations where MNM is used to add nuance to a performance,
 $ C_0 $ could incorporate information from the performance.
 <p>
 The application of a MNM nuance description has two stages; see Figure 1.
-First, tags and attributes are added to items in $ C_0 $,
-producing a configuration $ C_1 $ (see the following section).
+First, tags and attributes (see the following section)
+are added to items in $ C_0 $,
+producing a configuration $ C_1 $.
 Next, a sequence of <i>transformations</i> are applied.
 Each transformation modifies a configuration:
 for example, changing the volumes
 or adjusted times of notes, or adding pedal usages.
 This produces configurations $ C_2, ..., C_n $.
-The fully nuanced result is $ C_n $;
-its data (the volumes and adjusted times of its notes,
+The fully nuanced result is $ C_n $.
+Its data (the volumes and adjusted times of its notes,
 and its pedal usages) can be used to create
 an audio rendition using a synthesizer or computer-controlled
 physical instrument.
@@ -360,10 +362,6 @@ $text .= "
 
 "; section(3, '2.1', 'Attributes and tags'); $text.= "
 <p>
-MNM describes the above entities as abstract classes:
-$config, $note, and $measure.
-In $numula, these are Python classes.
-<p>
 A $note `N` has various <i>attributes</i>.
 For example, `N.tags` is a set of textual <i>tags</i>.
 Note attributes and tags are used to specify
@@ -371,7 +369,7 @@ the set of notes to which a transformation is to be applied.
 This is done using <i>note selector</i> functions, described below.
 <p>
 Note attributes and tags can have various sources.
-Some are derived from the score:
+First, some are derived from the score:
 the start time and duration in score time (`N.s_start` and `N.s_dur`),
 and the pitch `N.pitch` (represented, for example, as a MIDI pitch number).
 If a score has information such as
@@ -504,11 +502,9 @@ Primitives used for these purposes must provide member functions
 <p>
 For example, a volume control function might be defined by the PFT:
 <pre>
-   [
-       Linear(25, 15, 2/1, closed_start = True),
-       Linear(15, 20, 1/1, closed_end = True),
-       Linear(10, 15, 2/1, closed_start = False)
-   ]
+   [ Linear(25, 15, 2/1, closed_start = True),
+     Linear(15, 20, 1/1, closed_end = True),
+     Linear(10, 15, 2/1, closed_start = False) ]
 </pre>
 <p>
 This defines a function that varies linearly
@@ -532,7 +528,6 @@ $text .= "
 The reference implementation of MNM has two continuous PFT primitives,
 `Linear` and `ShiftedExp`.
 Mathematical details are given in an Appendix.
-<p>
 The `Linear` primitive represents a linear function $ F $ with
 $ F(0)=y_0 $
 and
@@ -541,13 +536,12 @@ and
 '$ F(\Delta s)=y_1 $'
 ); $text .= "
 .
-<p>
 The `ShiftedExp` primitive represents a family of
 \"shifted exponential\" functions
 $ F(t) $ that vary from $ y_0 $ to $ y_1 $ over
 "; choose(
-'$ [0, Δs] $',
-'$ [0, \Delta s] $'
+'$ [0, Δs] $.',
+'$ [0, \Delta s] $.'
 ); $text .= "
 The primitive has a curvature parameter C.
 If C is positive, F is concave up,
@@ -578,22 +572,18 @@ Shifted-exponential primitives with different curvatures.
 '\begin{figure}[]
     \begin{subfigure}{0.5\textwidth}
         \includegraphics[clip,width=\columnwidth]{exp2.png}
-        \caption{}
     \end{subfigure}
         \hfill
     \begin{subfigure}{0.5\textwidth}
         \includegraphics[clip,width=\columnwidth]{exp5.png}
-        \caption{}
     \end{subfigure}
         \hfill
     \begin{subfigure}{0.5\textwidth}
         \includegraphics[clip,width=\columnwidth]{exp-2.png}
-        \caption{}
     \end{subfigure}
         \hfill
     \begin{subfigure}{0.5\textwidth}
         \includegraphics[clip,width=\columnwidth]{exp-5.png}
-        \caption{}
     \end{subfigure}
     \caption{Shifted-exponential primitives with different curvatures.}
     \label{fig:figMultipart}
@@ -684,7 +674,7 @@ including continuous variation of articulation using a PFT.
 "; section(3, '3.1', 'Tempo control'); $text.= "
 <p>
 Tempo variation is described by a PFT.
-MNM provides three \"modes\" for the meaning of this PFT:
+MNM provides three \"modes\" for this PFT:
 <p>
 <b>Slowness</b> (or inverse tempo):
 The PFT value is the rate of change of adjusted time
@@ -724,8 +714,7 @@ acting in the given mode:
         s0: float,
         selector: NoteSelector,
         normalize: bool,
-        mode: int           # one of the above modes
-    )
+        mode: int)           # one of the above modes
 </pre>
 If `normalize` is set, the tempo adjustment is scaled
 so that its average value is one;
@@ -763,9 +752,17 @@ compute the average $ A $ of the PFT between the score times of E1 and E2
 (that is,
 the integral of the PFT over this interval divided by the interval size).
 <li>
-Let $ Δt $ be the difference in initial adjusted time between E1 and E2.
-Set the adjusted time of E2 to
-the (updated) adjusted time of E1 plus $ A Δt $.
+Let
+"; choose(
+'$ Δt $',
+'$ \Delta t $'
+); $text .= "
+be the difference in initial adjusted time between E1 and E2.
+Set the adjusted time of E2 to the (updated) adjusted time of E1 plus
+"; choose(
+'$ A Δt $.',
+'$ A \Delta t $.'
+); $text .= "
 </ol>
 ";
 figure(
@@ -789,8 +786,7 @@ adds `pft.value(N.s_start - s0)` to `N.t_start`:
     Configuration.time_shift_pft(
         pft: PFT,
         s0: float = 0,
-        selector: NoteSelector
-    )
+        selector: NoteSelector)
 </pre>
 This can be used to give agogic accents to notes at particular times
 or to shift notes by continuously-varying amounts.
@@ -801,8 +797,7 @@ The following transformation \"rolls\" the chord at the given score time.
         s: float,
         offsets: list[float],
         is_up: bool = True,
-        selector: NoteSelector
-    )
+        selector: NoteSelector)
 </pre>
 The `offsets` argument is a list of time offsets.
 These offsets are added to the adjusted start times of notes
@@ -816,8 +811,7 @@ in time order.
 <pre>
     Configuration.time_adjust_list(
         offsets: list[float],
-        selector: NoteSelector
-    )
+        selector: NoteSelector)
 </pre>
 The `offsets` argument is a list of adjusted-time offsets.
 <p>
@@ -826,8 +820,7 @@ adjusted-time offsets given by a function of the note:
 <pre>
     Configuration.time_adjust_func(
         f: NotetoFloat,
-        selector: NoteSelector
-    )
+        selector: NoteSelector)
 </pre>
 For each note N satisfying the selector,
 this adds `f(N)` to `N.t_start`.
@@ -863,8 +856,7 @@ it can be used to change articulation continuously.
         mode: int,          # one of the above modes
         is_score_time: bool,
         t0: float,
-        selector: NoteSelector
-    )
+        selector: NoteSelector)
 </pre>
 Adjustments can be made either in score time or adjusted time.
 If `score_time` is True, the adjustment is made to score-time durations;
@@ -877,8 +869,7 @@ of selected notes `N` using the adjustment factor `f(N)`.
         f: NotetoFloat,
         mode: int,
         is_score_time: bool,
-        selector: NoteSelector
-    )
+        selector: NoteSelector)
 </pre>
 
 "; section(3, '3.4', 'Layering timing transformations'); $text.= "
@@ -950,8 +941,7 @@ with values described by a PFT, starting at score time $ s_0 $:
     Configuration.pedal_pft(
         pft: PFT,
         type: int,      # sustain, sostenuto, or soft
-        s0: float
-    )
+        s0: float)
 </pre>
 <p>
 When a pedal change is simultaneous with note starts,
@@ -994,8 +984,7 @@ The following transformation applies a virtual sustain pedal:
     Configuration.virtual_sustain_pft(
         pft: PFT,
         s0: float,
-        selector: NoteSelector
-    )
+        selector: NoteSelector)
 </pre>
 If a note N is selected, and the virtual pedal is on at its start time,
 `N.s_dur` is adjusted so that N is sustained at least until the
@@ -1072,8 +1061,7 @@ according to values specified by a PFT:
         mode: int,          # one of the above modes
         pft: PFT,
         s0: float,
-        selector: NoteSelector
-    )
+        selector: NoteSelector)
 </pre>
 <p>
 If a note `N` is selected and is in the domain of the PFT,
@@ -1086,13 +1074,11 @@ Other transformations adjust note volumes without a PFT:
     Configuration.vol_adjust(
         mode: int,
         factor: float,
-        selector: NoteSelector
-    )
+        selector: NoteSelector)
     Configuration.vol_adjust_func(
         mode: int,
         func: NoteToFloat,
-        selector: NoteSelector
-    )
+        selector: NoteSelector)
 </pre>
 These adjust the volumes of the selected notes.
 For `vol_adjust_func()`, the 2nd argument is a function
@@ -1117,7 +1103,6 @@ A typical order:
 transformations with mode `VOL_MULT`,
 followed by transformations with mode `VOL_ADD`,
 then transformations with mode `VOL_SET`.
-</ol>
 
 "; section(2, '6.', 'The process of specifying nuance'); $text.= "
 <p>
@@ -1167,7 +1152,7 @@ or agogic accents on particular melody notes).
 </ol>
 
 <p>
-Layers might apply only to note subsets:
+Layers can apply only to note subsets:
 for example, the left- and right-hand parts,
 an accompaniment, or a melody.
 <p>
@@ -1553,7 +1538,10 @@ of piano pieces from several styles and periods:
 </ol>
 <p>
 The sound files and source code are on the Web at
-github.com/davidpanderson/numula/wiki\\#examples
+"; choose(
+'github.com/davidpanderson/numula/wiki\\#examples',
+'(URL hidden for anonymity during peer review).'
+); $text .= "
 <p>
 We used $numula shorthand strings for both score and nuance.
 The source code lines counts, and the number of notes in each piece,
@@ -1579,7 +1567,6 @@ with layered transformations for short-, medium- and long-term nuance gestures
 in both tempo and dynamics.
 We found that, for these pieces, everything needed to be shaped in some way:
 adjacent notes with identical duration or volume sounded mechanical.
-<p>
 We were surprised by the importance of pauses in tempo nuance:
 to articulate phrase structure at different levels,
 we made widespread use of pauses in the 10 to 100 millisecond range,
@@ -1711,7 +1698,7 @@ and let $ D = D_i $.
 "; section(3, '12.3', 'Applications of nuance inference'); $text.= "
 <p>
 One application of nuance inference is performance style analysis.
-In its most general form,
+In a general form,
 this involves assembling performances of
 multiple works (perhaps from various styles, eras, and countries)
 played by a multiple performers (perhaps from different times,
@@ -1725,16 +1712,15 @@ Alternatively, we could infer the nuance of multiple performances
 by a particular performer,
 and look for characteristic properties in the nuance,
 perhaps varying according to the style of the work
-or across the lifetime of the performer.
+or over the lifetime of the performer.
 
 <p>
 A second application is the study of PFT primitives.
 We have discussed linear and exponential primitives,
 but there are many other possibilities:
 polynomial, trigonometric, and logarithmic functions, spline curves, and so on.
-Ideally, MNM should offer a small \"basis set\" of functions,
-each with a small number of parameters, that together can
-approximate a wide range of performances.
+Ideally, MNM should offer a small \"basis set\" of parameterized functions
+that together can approximate a wide range of performances.
 The process of nuance inference
 may reveal situations where no existing primitive
 closely fits a nuance gesture.
@@ -1762,8 +1748,7 @@ linear, hyperbolic functions of the form
 '$ F(t) = {A}/{B-t} $',
 '$ F(t) = \frac{A}{B-t} $'
 ); $text .= ",
-and exponential (which they call \"equal ratios\"):
-functions of the form $ F(t) = A^t $.
+and exponential functions of the form $ F(t) = A^t $.
 <p>
 Several researchers (Dannenberg, Honing 2005)
 have identified and proposed solutions to the \"vibrato problem\":
@@ -1830,16 +1815,13 @@ of advanced human performances.
 <p>
 <b>Cascading Style Sheets</b>.
 There is an analogy between MNM and Cascading Style Sheets (CSS),
-a system for specifying the appearance of web pages (Lie and Bos, 1997)
+a system for specifying the appearance of web pages (Lie and Bos, 1997).
 Like MNM, a CSS specification
-a) is typically separate from the web page;
-b) can be layered:
-CSS files are applied in a particular order,
-and later files can extend or override the effects of earlier ones;
-and c) can refer to subsets of the HTML elements
+is typically separate from the web page, can be layered,
+and can refer to subsets of the HTML elements
 using \"selectors\" involving element names, classes, and IDs.
 CSS preprocessors like SASS (Mazinanian 2016)
-have features similar to nuance scripting.
+provide features similar to nuance scripting.
 
 "; section(2, '14.', 'Future work'); $text.= "
 <p>
@@ -2043,28 +2025,22 @@ where $ a $ is the slope
 '$ \\frac{y_1 - y_0}{\Delta s} $'
 ); $text .= ".
 Its definite integral is
-<p>
 "; choose(
 '$$ ∫_0^x L(s)ds = {ax^2}/2 + xy_0 $$',
 '$$ \int _0^x L(s)ds = \\frac{ax^2}{2} + xy_0 $$'
 ); $text .= "
 and the definite integral of its reciprocal is
-<p>
 "; choose(
 '$$ ∫_0^x 1/{L(s)}ds = {\log(ax + y_0)-\log(y_0)}/a $$',
 '$$ \int _0^x \\frac{1}{L(s)}ds = \\frac{\log(ax + y_0)-\log(y_0)}{a} $$'
 ); $text .= "
-
 <p>
 The `ShiftedExp` primitive uses the function
-<p>
 "; choose(
 '$$ E(s) = y_0 + {(y_1-y_0)(1-e^{{Cs}/{Δs}})}/{1-e^C} $$',
 '$$ E(s) = y_0 + \\frac{(y_1-y_0)(1-e^{\\frac{Cs}{\Delta s}})}{1-e^C} $$'
 ); $text .= "
-<p>
 The definite integral of $ E $ from 0 to $ x $ is
-<p>
 "; choose(
 '$$ ∫_0^x E(s)ds = x(y_0 + {Δy(s_{norm} C - e^{(Cs_{norm})} + 1)}/{C(1-e^C)}) $$',
 '$$ \int_0^x E(s)ds = x(y_0 + \\frac{\Delta y(s_{norm} C - e^{(Cs_{norm})} + 1)}{C(1-e^C)}) $$'
@@ -2086,13 +2062,11 @@ The indefinite integral of
 '$ \\frac{1}{E} $'
 ); $text .= "
 is
-<p>
 "; choose(
 '$$ G(t) = ∫ 1/{E(s)}ds = {(e^C - 1)(Ct - log(|\; y_0(e^C-1) + Δy(e^{Ct} - 1)|))} / {Cy_0(e^C-1) - Δy} + constant $$',
 '$$ G(t) = \int \\frac{1}{E(s)}ds = \\frac{(e^C - 1)(Ct - log(\lvert y_0(e^C-1) + \Delta y(e^{Ct} - 1)\rvert ))}{Cy_0(e^C-1) - \Delta y} + constant $$'
 ); $text .= "
 so the definite integral of $ 1/E $ from 0 to $ x $ is
-<p>
 "; choose(
 '$$ ∫_0^x 1/{E(s)}ds = G(x) - G(0) $$',
 '$$ \int_0^x \\frac{1}{E(s)}ds = G(x) - G(0) $$'
