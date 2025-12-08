@@ -1,0 +1,99 @@
+why should we do this?
+    my take:
+    - S@h is an important event in the history of science.
+        we should document it for posterity.
+    - for our own benefit
+How to structure it?
+    by theme
+    most material is tagged with author
+    it's OK if 2 people write about the same thing
+How to work?
+    HTML file on github?
+    Latex on overleaf?
+    one big file or file per theme?
+What to do with it?
+    put on S@h web site
+    somewhere else?
+--------------
+Genesis
+    Dave Gedye idea
+    Big Science
+    Woody Sullivan
+    feasibility study
+    formation of team
+
+Data collection
+    Arecibo, SERENDIP, data recorder
+    DLT
+    splitter
+    ALFA
+    move to disks
+
+Front-end software, part 1
+    client, screensaver, server, web
+    Informix
+    people
+        Charlie Fenton, Kyle Granger, Brad Silen
+        Eric Person, Eric Heien
+
+Funding
+    Starwave
+    DIMI
+    Planetary Society
+    Joe Firmage
+    John Gertz
+    Casper, BOINC
+    donation drives
+
+System stuff (hardware/network)
+    server machines
+    closet, then data center
+    SSL link saturation, packet clearing house
+
+System stuff (software)
+    Informix problems; Bob Bankay
+
+Publicity
+    TV, newspapers, newsweek
+    West Wing
+
+Volunteer issues
+    leaderboards
+    teams
+    cheating
+    message boards and moderation
+
+Managerial structure
+    roles, work routines, communication, meetings
+    source-code control: CVS, SVN, Git
+
+Relationship with the SETI community
+    SETI Institute
+    Breakthrough Listen
+    FAST
+
+United Devices debacle
+    lawsuit
+
+Front-end software, part 2
+    BOINC
+    new graphics
+    replication and fuzzy validation
+    'anonymous platform' and user-supplied versions
+    revisions to client
+
+Astropulse
+    Josh von Korff
+
+Back-end software 1
+    NTPKR
+
+Back-end software 2
+    Nebula
+    ATLAS
+    birdies
+    algorithm development and refinement
+        RFI
+        candidate finding and scoring
+
+Re-observation

@@ -13,6 +13,7 @@ First couple of years
 startup
     getting hardware and data recorder working
         Jeff, Dan
+    splitter
     front-end data analysis: Eric
     client/server framework, graphics (STNG): me
     Windows: Kyle Granger

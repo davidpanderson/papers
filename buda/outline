@@ -32,7 +32,7 @@ Supporting Docker-based apps in BOINC
         client: startup
     Selecting and running Docker apps
         detect Docker in the client
-            Win
+            Win: WSL
         report to server
         plan class
         report to app in init_data.xml

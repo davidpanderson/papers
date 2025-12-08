@@ -1537,10 +1537,13 @@ of piano pieces from several styles and periods:
 <li> Three Homages by Robert Helps (1972).
 </ol>
 <p>
-The sound files and source code are on the Web at
 "; choose(
-'github.com/davidpanderson/numula/wiki\\#examples',
-'(URL hidden for anonymity during peer review).'
+'The sound files and source code are on the Web at
+github.com/davidpanderson/numula/wiki\\#examples',
+'Some of these are available as supplementary files:
+694-1915-1-SP.mp3 is Helps\' Homage a Faure,
+694-1916-1-SP.mp3 is the Beethoven,
+and 694-1917-1-SP.mp3 is the Berio.'
 ); $text .= "
 <p>
 We used $numula shorthand strings for both score and nuance.
