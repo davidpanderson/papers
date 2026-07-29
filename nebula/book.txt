@@ -29,7 +29,7 @@ Data collection
     ALFA
     move to disks
 
-Front-end software, part 1
+Front-end software, pre-BOINC
     client, screensaver, server, web
     Informix
     people
@@ -46,7 +46,8 @@ Funding
     donation drives
 
 System stuff (hardware/network)
-    server machines
+    hardware donations
+    server complex
     closet, then data center
     SSL link saturation, packet clearing house
 
@@ -75,7 +76,7 @@ Relationship with the SETI community
 United Devices debacle
     lawsuit
 
-Front-end software, part 2
+Front-end software, post-BOINC
     BOINC
     new graphics
     replication and fuzzy validation
