@@ -1,9 +1,13 @@
 <?php
 
 echo "
-<a href=paper_orig.php>Paper as submitted</a>
+Paper submitted:
+<a href=paper_orig.php>Web</a> |
+<a href=CMJ_submit.pdf>PDF</a>
 <p>
-<a href=paper.php>Revised paper</a>
+Revised paper:
+<a href=paper.php>Web</a> |
+<a href=CMJ_revised.pdf>PDF</a>
 <p>
 <a href=diff.php>Diffs</a>
 <p>

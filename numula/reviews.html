@@ -1,4 +1,13 @@
 <div style="max-width: 600px;">
+<div style="color:blue; font-style:italic">
+I made a number of changes in response to reviewer comments; see below.
+<p>
+I made numerous grammar/spelling fixes.
+<p>
+I removed some text, as suggested by the reviewers.
+The page count (in Overleaf) decreased from 44 to 39.
+</div>
+<p>
 Reviewer A:
 
 <p>
@@ -23,22 +32,34 @@ A more formal statement (precise description, equations) should be added to spec
 
 <p>
 <div style="color:blue; font-style:italic">
-The MNM timing model can be summarized as follows:
+
+I revised the 'MNM model' and 'Tempo control' sections to clarify the
+NMN timing model.
+The model can be summarized as follows:
 
 <ul>
-<li> The components of a Configuration have start times and durations
+<li> Notes have start times and durations
 in both 'score time' and 'adjusted time' units.
 The score times never change.
 Initially the adjusted times are score times.
-<li> A sequence of 'timing adjustments' can be applied to a Configuration.
-Each adjustment modifies the adjusted times and durations of events.
-Adjustments are described by tempo functions defined over score time
+<li>
+A tempo adjustment is described by a tempo function defined over score time
 (not adjusted time!).
-<li> In the final Configuration, after all adjustments have been applied,
+A sequence of timing adjustments can be applied to a Configuration.
+Each adjustment modifies the adjusted times and durations of some or all notes.
+
+<li> In the final Configuration, after all timing adjustments have been applied,
 adjusted time is the real time (in seconds) of events
 such as note starts and ends.
 </ul>
-I revised the 'Tempo control' section to clarify this.
+
+A tempo adjustment maps one adjusted time system to another.
+But its definition doesn't refer to either of these systems;
+it refers only to score time.
+<p>
+There were a few places where I referred to 'time' without
+saying I meant 'adjusted' or 'score'.
+I fixed these.
 </div>
 <p>
 2. It is mentioned that time transformations apply the average value of the function between two time points.
@@ -82,7 +103,7 @@ This might even be simpler and makes aspects of the model more orthogonal and ea
 It may be that synthesizers or your implementation, as a matter of "policy" does not support certain pedal features, but it is often advantageous to separate these policy questions from the formal specification.
 
 <div style="color:blue; font-style:italic">
-The mechanisms both use the word 'pedal' but they're different things.
+Both mechanisms use the word 'pedal' but they're different.
 Virtual sustain pedals let you delay the release of selected notes:
 for example, to sustain the notes in an arpeggio
 and have them released together.
@@ -92,7 +113,6 @@ On the other hand, the (non-virtual) sustain pedal tells
 the synthesis engine that the dampers are up,
 and that - for example - all strings resonate when a note is played.
 </div>
-
 
 <p>
 5. The rule that "if a note at time T is shifted backward in time, pedals active at T are shifted backward by the same amount" suggests that there is something wrong with the formalization and some hack is necessary to make it work as desired.
@@ -106,6 +126,8 @@ Is there a problem that the pedal is following the timing of one note and not th
 Yes, notes with the same score time can end up with different
 performance times:
 for example, if Gaussian jitter is added to start times.
+And performance-time order can differ from score-time order.
+I added text to this effect.
 <p>
 The rule for pedal timing reflects musical pragmatics:
 if you pedal a chord at a particular time,
@@ -187,7 +209,8 @@ The current state of the library is very clearly focused to piano music
 That's what I've used it for so far.
 But (except for pedal-related features) it can be used
 instruments other than piano, and for ensemble works.
-I added text clarifying this.
+I added text clarifying this;
+it's also mentioned in the Future Work section.
 </div>
 
 <p>
