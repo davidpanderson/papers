@@ -109,7 +109,7 @@ function figure($file, $caption, $width=600) {
     $text .= "
 <center>
 <img src=$file width=$width>
-<br>
+<p>
 <i>
 Figure $fig_num: $caption
 </i>
@@ -189,8 +189,7 @@ to craft expressive renditions of musical works.
 This capability has applications in composition, virtual performance,
 and performance pedagogy.
 We discuss the challenges in creating and refining
-complex nuance specifications,
-and the possibility of inferring nuance from human performances.
+complex nuance specifications.
 
 <p>
 
@@ -249,8 +248,7 @@ and the performer's technique and physical limitations.
 <p>
 Music Nuance Model (MNM) is a framework for describing performance nuance.
 It defines a set of <i>transformations</i> that
-can be combined to describe complex nuance precisely and concisely;
-gestures like crescendos are described by single primitives.
+can be combined to describe complex nuance precisely and concisely.
 MNM has several important properties:
 <ol>
 <li>
@@ -261,16 +259,15 @@ It uses a powerful mechanism,
 <i>piecewise functions of time</i> (PFTs),
 to describe time-varying quantities.
 <li>
-MNM can express nuance gestures ranging from long
-(say, an accelerando over 32 measures)
-to short (pauses in the 10 millisecond range
-at the beat or measure level).
+MNM can express nuance gestures ranging from
+short (pauses in the 10 millisecond range)
+to long (say, an accelerando over 32 measures).
 <li>
-Notes can have textual tags
+MNM provides a general way of selecting sets of notes.
+Notes can have textual tags,
 and attributes such as chordal or metric position.
-A <i>note selector</i> is a Boolean-valued function
-of these tags and attributes.
-This provides a general way of selecting subsets of notes.
+A note set is defined by a <i>note selector</i>,
+a Boolean-valued function of these tags and attributes.
 <li>
 MNM allows nuance to be factored into multiple layers.
 Each layer, or <i>transformation</i>,
@@ -279,8 +276,8 @@ includes an operation type (e.g., tempo control), a PFT, and a note selector.
 <p>
 As a way of shaping music,
 MNM is intended to bridge the gap between score editors and DAWs.
-It allows fine-grained control over every note,
-but using high-level constructs familiar to musicians,
+It allows fine-grained control over each note,
+using high-level constructs familiar to musicians,
 expressed in the score time system.
 <p>
 The \"reference implementation\" of MNM is a Python library called $numula
@@ -293,21 +290,17 @@ MNM could be implemented using other languages or data representations.
 It could be integrated into score editors, music programming languages,
 or other music software systems.
 <p>
-MNM has two general areas of use.
-In the first, a musician develops a nuance description for a work,
-using an editing system of some sort.
+MNM is designed to support systems in which a human musician
+(not an AI or algorithm)
+develops a nuance description for a work,
+using an editing interface of some sort.
 We call this <i>nuance specification</i>.
 It can be used, for example,
 to create a virtual performance of a work,
 or to communicate examples of nuance from teacher to student.
-The second area, <i>nuance inference</i>,
-involves taking a score for a work
-and a human performance of the work,
-and finding a nuance description that approximates the performance.
 <p>
-The rest of the paper explores these topics.
-We present examples in which MNM was used to create virtual performances of
-piano works in a range of styles.
+The remainder of this paper describes MNM and presents examples in which
+it was used to create virtual performances of piano works in a range of styles.
 We then discuss related and future work, and offer conclusions.
 
 "; section(2, '2.', 'The MNM model'); $text.= "
@@ -359,15 +352,16 @@ Next, a sequence of <i>transformations</i> are applied.
 Each transformation modifies a configuration:
 for example, changing the volumes
 or adjusted times of notes, or adding pedal usages.
-This produces configurations $ C_2, ..., C_n $.
+This process produces configurations $ C_2, ..., C_n $.
 The fully nuanced result is $ C_n $.
 Its data (the volumes and adjusted times of its notes and pedal usages)
 can be used to create an audio rendition using a synthesizer
 or computer-controlled physical instrument.
 ";
 figure('config2.png',
-    'An MNM nuance description starts with an initial configuration $ C_0 $,
-    adds tags, and applies a sequence of transformations, producing a nuanced result $ C_n $.',
+    'MNM starts with an initial configuration $ C_0 $.
+    Tags are added, resulting in $ C_1 $.
+    Then transformations are applied in sequence, producing a nuanced result $ C_n $.',
     450
 );
 $text .= "
@@ -563,8 +557,9 @@ $ F(t) $ that vary from $ y_0 $ to $ y_1 $ over
 The primitive has a curvature parameter C.
 If C is positive, F is concave up,
 and its change is concentrated in the later part of the interval.
-If C is negative, F is concave down,
-and the change is concentrated in the earlier part of the interval.
+The larger C is, the more the change is shifted to the end.
+Similarly, if C is negative,
+change is concentrated in the earlier part of the interval.
 If C is zero, F is linear.
 Figure 3 shows examples.
 <p>
@@ -609,7 +604,8 @@ Figure 3: Shifted-exponential primitives with different curvatures.
 $fig_num++;
 $text .= "
 <p>
-In developing nuance descriptions for a range of piano pieces,
+In developing nuance descriptions for a range of piano pieces
+(see Examples below),
 we found that these primitives were sufficient
 to express the desired continuous variations in both tempo and volume.
 It would be straightforward to add other primitives.
@@ -642,7 +638,7 @@ This changes the adjusted times of events that start
 at the current score time;
 it does not affect later events.
 It can be used for \"agogic accents\"
-in which melody notes are brought out by
+in which melody notes are emphasized by
 shifting them slightly before or after accompaniment notes.
 
 "; section(3, '2.4', 'Transformations'); $text.= "
@@ -656,10 +652,10 @@ each function corresponds to an operator.
 These functions are listed in the following sections.
 <p>
 The functions have various parameters.
-Most include a PFT describing a quantity
+Most include 1) a PFT describing a quantity
 that varies as a function of score time,
-a score time $ s_0 $ indicating when the transformation starts,
-and a note selector indicating which notes are affected.
+2) a score time $ s_0 $ indicating when the transformation starts,
+and 3) a note selector indicating which notes are affected.
 <p>
 Some transformations get values not from a PFT
 but from a function that maps a $note to a number
@@ -722,7 +718,9 @@ and the result is used as a slowness function.
 <p>
 In all cases, the PFT can also include momentary `Pause` primitives.
 These are like Dirac delta functions, with zero width but positive integral.
-The start times of later events are shifted by the pause duration.
+The primitive's `before` parameter dictates whether
+notes at the current score time are shifted.
+The adjusted start times of later events are shifted by the pause duration.
 In the case of a \"before\" pause at a time $ s $,
 notes that start before $ s $ and end at $ s $ or later are elongated
 to avoid introducing gaps in the sound.
@@ -739,34 +737,13 @@ acting in the given mode:
         normalize: bool,
         mode: int)           # one of the above modes
 </pre>
-If `normalize` is set, the tempo adjustment is scaled
-so that its average value is one;
-in other words, the adjusted times of the start and end points remain fixed,
-but events between them can move.
-This can be used, for example, to apply rubato to
-a particular voice over a given period,
-and have the voice sync up with other voices at the end of that period.
-For example, in a rendition Chopin's Nocturne no. 1
-(see Figure 4),
-we applied a tempo adjustment
-consisting of an accelerando, a ritardando, and two small pauses
-to the right-hand flourish.
-This adjustment was normalized so that the left and right hands
-sync up at the end of the figure.
-";
-figure(
-    'chopin.jpg',
-    "Example from Chopin's Nocturne no. 1.",
-    500
-);
-$text .= "
 <p>
 The implementation of `tempo_adjust_pft()`, somewhat simplified,
 is as follows (see Figure 4):
 <p>
 <ol>
-<li> Make a list of all \"events\" (starts and ends of the selected notes
-and of pedal applications)
+<li> Make a list of all \"events\"
+(starts and ends of the selected notes and of pedal applications)
 ordered by score time.
 Each event $ E $ has a score time $ E_s $ and
 an initial adjusted time $ E_t $.
@@ -795,10 +772,9 @@ figure(
 'Example of tempo adjustment.
 Events $ E1 $ and $ E2 $ have score times 1 and 3,
 and adjusted times determined by earlier transformations.
-In transformation $ i $,
-the interval in adjusted time between the events
-is scaled by the average value of
-the slowness (inverse tempo) function between their score times.'
+The interval in adjusted time between the events
+is scaled by the average value of the slowness (inverse tempo) function
+between their score times.'
 );
 $text .= "
 <p>
@@ -813,6 +789,28 @@ while the second does an accelerando over 32 measures.
 In this case, since the adjustments are multiplicative,
 either order will produce this same result.
 If the adjustments contain pauses, then order matters.
+<p>
+If `normalize` is set, the tempo adjustment is scaled
+so that its average value is one;
+in other words, the adjusted times of the start and end points remain fixed,
+but events between them can move.
+This can be used, for example, to apply rubato to
+a particular voice over a given period,
+and have the voice sync up with other voices at the end of that period.
+For example, in a rendition Chopin's Nocturne No. 1
+(see Figure 4),
+we applied a tempo adjustment
+consisting of an accelerando, a ritardando, and two small pauses
+to the right-hand flourish.
+This adjustment was normalized so that the left and right hands
+sync up at the end of the figure.
+";
+figure(
+    'chopin.jpg',
+    "Example from Chopin's Nocturne No. 1.",
+    500
+);
+$text .= "
 
 "; section(3, '3.2', 'Time shifts'); $text.= "
 <p>
@@ -887,19 +885,16 @@ with three available modes:
 and the next note is `A`.
 
 <p>
-The following transformation adjusts the durations of selected notes
+The following transformation adjusts the adjusted durations of selected notes
 based on a PFT;
 it can be used to change articulation continuously.
 <pre>
     Configuration.dur_adjust_pft(
         pft: PFT,
         mode: int,          # one of the above modes
-        is_score_time: bool,
         t0: float,
         selector: NoteSelector)
 </pre>
-If `is_score_time` is True, the adjustment is made to durations in score time;
-otherwise, to adjusted time.
 <p>
 The following transformation adjusts durations
 of selected notes `N` using the adjustment factor
@@ -908,7 +903,6 @@ given by a function `f(N)`.
     Configuration.dur_adjust_func(
         f: NotetoFloat,
         mode: int,
-        is_score_time: bool,
         selector: NoteSelector)
 </pre>
 
@@ -918,11 +912,10 @@ PFT-based tempo transformations without pauses commute,
 so the order in which they're applied doesn't matter.
 Other transformations generally don't commute.
 The recommended order of transformations is
-1) articulation transformations that change score time;
-2) tempo transformations;
-3) pause transformations;
-4) shift transformations;
-5) articulation transformations that change adjusted time.
+1) tempo transformations;
+2) pause transformations;
+3) shift transformations;
+4) articulation transformations.
 
 "; section(2, '4.', 'Pedal control'); $text.= "
 <p>
@@ -1610,8 +1603,8 @@ We found that, for these pieces, everything needed to be shaped in some way:
 adjacent notes with identical duration or volume sounded mechanical.
 We were surprised by the importance of pauses in tempo nuance:
 to articulate phrase structure at different levels,
-we made widespread use of pauses in the 10 to 100 millisecond range,
-before and/or after the beat.
+we made widespread use of pauses in the range of 10 to 100 milliseconds,
+both before and after the beat.
 <p>
 
 "; section(2, '12.', 'Related work'); $text.= "
@@ -1633,13 +1626,11 @@ and exponential functions of the form $ F(t) = A^t $.
 <p>
 Jaffe (1985) proposed 'time maps' for describing
 the relationship between timing systems.
-These are more limited than MNM's mechanisms;
+These are more limited than MNM's timing mechanisms:
 they do not allow for discontinuities (pauses),
 and they map all events at a given source time to the same target time
 (disallowing, for example, agogic accents).
-Time maps allow different ensemble voices to drift
-independently and then synch up after some period;
-this can be done in MNM using normalized tempo adjustments.
+In general, they do not support timing control at the note level.
 <p>
 Several researchers (Dannenberg, Honing 2005)
 have identified and proposed solutions to the \"vibrato problem\":

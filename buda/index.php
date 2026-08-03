@@ -16,7 +16,7 @@ June 1, 2025
 
 "Volunteer computing" is the use of consumer digital devices,
 such as desktop and laptop computers, tablets, and smartphones,
-for high-throughput scientific computing.
+for high-throughput computing.
 The pool of such devices is heterogeneous:
 it includes computers with many types and versions
 of operating systems (Windows, MacOS, Linux)

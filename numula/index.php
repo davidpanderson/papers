@@ -11,6 +11,8 @@ Revised paper:
 <p>
 <a href=diff.php>Diffs</a>
 <p>
+<a href=paper.php?latex=1>Latex</a> |
+<p>
 <a href=reviews.html>Review response</>
 ";
 ?>
