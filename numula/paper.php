@@ -162,7 +162,7 @@ html_only(
 		table.prec-form-char td:first-child	{ text-align: right }
 	</style>
 </head>
-<body style="background-color: black; color:white">
+<body style="background-color: white; color:black">
 <div style="margin-left: 30; width: 680; font-size:16px; font-family:Trebuchet MS; line-height:1.4" align=justify>
 <center>
 <h1>Modeling performance nuance</h1>

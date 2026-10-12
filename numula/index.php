@@ -13,6 +13,7 @@ Revised paper:
 <p>
 <a href=paper.php?latex=1>Latex</a> |
 <p>
-<a href=reviews.html>Review response</>
+Review response:
+<a href=reviews.html>Web</> | <a href=review_response.pdf>PDF</> 
 ";
 ?>
