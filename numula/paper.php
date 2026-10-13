@@ -1872,9 +1872,14 @@ $text .= html_only('
 ');
 
 if (LATEX) {
-    readfile('cmj.tex');
+    readfile('numula_cmj.tex');
     echo expand_latex($text);
-    echo "\\end{document}\n";
+
+    echo "
+\bibliographystyle{cmj}
+\bibliography{numula}
+\\end{document}
+";
 } else {
     echo expand_html($text);
 }
