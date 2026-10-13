@@ -1,0 +1,46 @@
+\begin{thebibliography}{7}
+\newcommand{\enquote}[1]{``#1''}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{Available online at }
+
+\bibitem[{Anonymous(2008)}]{Ano08}
+Anonymous. 2008.
+\newblock \emph{Reference suppressed for anonymity during peer review}.
+
+\bibitem[{Atig, Dalmont, and Gilbert(2004)}]{AtDa04}
+Atig, M., J.-P. Dalmont, and J.~Gilbert. 2004.
+\newblock \enquote{Termination Impedance of Open-Ended Cylindrical Tubes at
+  High Sound Pressure Level.}
+\newblock \emph{Comptes Rendus M\'{e}canique} 332:299--304.
+
+\bibitem[{Belevitch(1968)}]{Bele68}
+Belevitch, V. 1968.
+\newblock \emph{Classical Network Theory}.
+\newblock San Francisco: Holden Day.
+
+\bibitem[{Castine et~al.(2024)Castine, Keislar, Harris, and
+  Rundall}]{test4authors}
+Castine, P., et~al. 2024.
+\newblock \enquote{Testing BibTex with Four Authors.}
+\newblock \urlprefix\url{www.nowhere.xyz/path/four-authors.pdf}.
+\newblock Accessed March 2024.
+
+\bibitem[{Theremin(1999)}]{Ther99}
+Theremin, L. 1999.
+\newblock \enquote{How To Build a Theremin.}
+\newblock In \emph{Proceedings of the International Computer Music Conference},
+  pp. 1--2.
+
+\bibitem[{Vergez and Rodet(2000)}]{VeRo00}
+Vergez, C., and X.~Rodet. 2000.
+\newblock \enquote{A New Algorithm for Nonlinear Propagation of Sound Waves:
+  Application to a Physical Model of a Trumpet.}
+\newblock \emph{Journal of Signal Processing} 4:79--88.
+
+\bibitem[{Zicarelli(2000)}]{Zica02}
+Zicarelli, D. 2000.
+\newblock \enquote{How I Learned to Love a Program That Does Nothing.}
+\newblock \emph{Computer Music Journal} 26(4):44--51.
+
+\end{thebibliography}

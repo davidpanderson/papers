@@ -1,0 +1,330 @@
+ %
+%-----------------------------------------------------------
+%% Computer Music Journal LaTeX template
+%%
+%% September  2009
+%% Author: Cornelia Kreutzer, University of Limerick
+
+
+
+%---Document preamble
+%
+\documentclass[letterpaper, 12pt]{article}
+
+\usepackage{cmjStyle} %use CMJ style
+\usepackage{natbib} %natbib package, necessary for customized cmj BibTeX style
+\bibpunct{(}{)}{;}{a}{}{, } %adapt style of references in text
+\doublespacing
+\raggedright % use this to remove spacing and hyphenation oddities
+\setlength{\parskip}{2ex}
+\parindent 24pt
+\urlstyle{same} % make url tags have the same font
+\setcounter{secnumdepth}{-1} % remove section numbering
+\usepackage{epstopdf}
+\usepackage{amsmath,amssymb,amsbsy,bm,upgreek,nicefrac}
+\usepackage{todonotes,microtype}
+
+%% ----------------------------------------------------------------------------------------------------------------------------------------
+%% AUTHORS NOTE THE FOLLOWING:
+%% You should not need any additional packages beyond those already listed above.
+%% If you cannot resist the temptation to use further packages, add them under these lines, 
+%% including a brief description of each package and where you used it. 
+%% But consider that those packages will almost certainly be removed before sending your manuscript
+%% to MIT Press for production.
+
+
+% Use the Figures subfolder for image files
+\graphicspath{{./Figures/}}
+
+%% ----------------------------------------------------------------------------------------------------------------------------------------
+%% CMJ page headers and footers
+%%
+%% For initial submission use \lhead{\small Anonymous}
+%% Once accepted for publication, use author[s]' family name[s] for \lhead modeled on the following examples
+%%		One author:	\lhead{\small Doe}
+%%		Two authors:	\lhead{\small Doe and Blow}
+%%		Three authors:	\lhead{\small Doe, Blow, and Wang}
+%%		Four or more:	\lhead{\small Doe et al.}
+%%
+\lhead{\small Anonymous}
+
+% Once accepted, update the left-hand section of the footer (including volume number if known).
+%\lfoot{\small \emph{Computer Music Journal} Vol. N}
+
+%% ----------------------------------------------------------------------------------------------------------------------------------------
+
+%% The package endfloat moves all floats (figures, tables...) to the end of the manuscript, as required for the final version of a CMJ article.
+%% AUTHORS: leave commented out when submitting to CMJ for editing
+%% MS EDITOR: uncomment it and the callout commands prior when submitting for production to MIT Press. 
+%% \usepackage{endfloat}
+%% \renewcommand{\figureplace}{%
+%%	\begin{center}
+%%		\textbf{<<TYPE: INSERT \figurename~\thepostfig\ ABOUT HERE.>>}
+%%	\end{center}}
+%% \renewcommand{\tableplace}{%
+%%	\begin{center}
+%%		\textbf{<<TYPE: INSERT \tablename~\theposttbl\ ABOUT HERE.>>}
+%%	\end{center}}
+
+%% Display or Hide markups for production
+%% (Editor: Hide markups for Just Accepted stage of Early Access, but provide MIT Press with a second copy with markups) 
+%\newcommand{\productionmarkup}[1]{}  						% Markup hidden for JA
+\newcommand{\productionmarkup}[1] {\textbf{<<#1>>}}		% Production markup displayed
+
+
+%---Document----------
+\begin{document}
+
+{\cmjTitle Insert Your Article's Title Here}
+\vspace*{24pt}
+
+[In the initial submission, omit all the following kinds of author information to ensure anonymity during peer review.
+After acceptance, please add all the author information. As of 2026, CMJ no longer includes full postal addresses.]
+
+% Author: name
+
+%{\cmjAuthor GivenName FamilyName}	
+                                                                                                                  % List all authors here
+						      % e.g.:
+					              {\cmjAuthor Jane Doe\textsuperscript{*}, Joe Bloggs\textsuperscript{\dag}, and Hong Gil-dong\textsuperscript{\S}} 
+					              % East Asian authors might prefer FamilyName GivenName, in which case
+                                                         % add a temporary note for the editor saying which name order you have used:
+ 						      % \\ <<Editor, please note that the third author uses FamilyName GivenName order. >>
+
+
+ 
+% One-line location: institution (if any), city (optional), state or province (optional), country (required).
+% For multiple authors at different locations, use a separate line for each location, and use asterisks, etc. to indicate which authors are at which location. 
+% e.g.:
+ \begin{cmjAuthorAddress}
+	*Berkeley, California, USA	 \\
+	{\dag	}University of Glasgow, UK \\
+	{\S}Yonsei University, Seoul, Korea \\
+	jdoe@email.com, j\_blow@email.com, g-d.hong@email.com \\
+	http://optional-url-if-there-is-a-website-directly-related-to-your-article
+ \end{cmjAuthorAddress}
+
+[You should not need any LaTeX packages beyond what are included in the template .tex document.
+If you feel you absolutely need additional packages, separate them from default CMJ packages and add comments
+explaining why you have added them.
+Be sure to read the instructions in the comments of the template .tex document.]
+
+\begin{abstract}
+Insert abstract here, typically about 150--200 words.
+\end{abstract}
+
+\section{Introduction}
+Introductory body text comes here. The title can be "Introduction,"  "Background," or perhaps something more interesting.
+Replace this template's introductory text with the text for your article.
+
+Starting each sentence on a new line in the LaTeX source can be helpful for the editors in preparing an article for submission to MIT Press.
+
+Use of additional packages, beyond what are included in this template and the cmjStyle.sty documents, should not be necessary and is discouraged. 
+
+For other style questions, see the instructions for authors at https://direct.mit.edu/comj/pages/submission-guidelines and previously published articles at https://direct.mit.edu/comj/issue.  
+Most issues include a freely downloadable feature article.  
+Questions may be directed to cmj-editor@mit.edu; please start the subject line with [CMJ MS].
+
+\parskip 18pt
+
+%------------------------------------------------
+%
+% format for Heading-A style
+\section{Format for Heading-A Style}
+\label{sec:headA}
+
+Insert body text here.  
+Use the Heading-A style for headings of major sections.
+Note that CMJ does not use section numbers for any level of heading.
+You can, however, refer to sections by name.
+In LaTeX, the {\tt nameref} directive is helpful, to reference other sections.
+For instance, this sentence refers to something that will be discussed later in the \nameref{sec:fig} section.
+
+\vspace*{24pt}
+
+% format for Heading-B style
+\subsection{Format for Heading-B Style}
+\label{sec:headB}
+
+Insert body text here.  
+Use the Heading-B style for headings of subsections.
+
+% format for Heading-C style
+\subsubsection{Format for Heading-C Style}
+\label{sec:headC}
+
+Insert body text here.
+Use the Heading-C style for headings of sub-subsections.
+
+\section{Figures}
+\label{sec:fig}
+
+In the initial manuscript submission, you should include figures inline with the text for ease of reading during the review process. 
+All figures will need to be sufficiently high-resolution and meet the specifications under ``Art'' at https://direct.mit.edu/comj/pages/submission-guidelines,  preferably in the initial submission but at least following acceptance.
+As of 2025, figures are no longer required to be grayscale (monochrome); full-color figures are welcome.
+Figures must be referenced in the text, either directly in the text or as a parenthetic aside, e.g.,~``(see Figure~\ref{fig:fig1}).''
+Do not reference figures with terms of relative location like ``above'' or ``below,'' however.
+When an article is typeset, figures are never embedded in the text and you do not know exactly where the image will appear in relation to your text.
+For the review process, simply place the LaTeX figure definition immediately after the first paragraph referring to the image.
+
+% include figures in text with captions for initial submission, like this:
+\begin{figure}
+    \begin{center}
+    \includegraphics{Fig1_templateExample}
+    	% No need for file extensions here! 
+    	% This is useful at final submission, when MIT Press and LaTeX need different image formats for the same image
+    	% This template is already set up to look for image files in the Figures subdirectory, so that's where to put your image files. 
+	% 
+    \caption{Insert Figure caption here. 
+    	Figure captions should include enough information to give casual readers some idea what the figure is about, without repeating every detail from your article. 
+	Typically, anything from one to three sentences may be appropriate, although this may vary.}
+    \label{fig:fig1}
+    \end{center}
+\end{figure}
+
+Also note that for the final version of your article, MIT Press requires your artwork in either PDF (vector graphics) or TIFF (raster) formats.
+On the other hand, LaTeX usually only supports PDF, PNG, and JPEG formats for images.
+The upshot of this is that authors using LaTeX might need to submit images in two formats.
+The good news is that most LaTeX implementations provide utilities for converting from the formats used by MIT Press to those used by LaTeX.
+
+As noted in the caption to Figure~\ref{fig:fig1}, captions should provide sufficient explanatory information to be understood even by those readers who may be scanning the artwork before studying your text in depth.
+On the other hand, you don't want to repeat your text word-for-word in the caption, and the caption will probably omit some details.
+
+
+\subsection{Multipart Figures} 
+
+Multipart figures must be submitted as separate images. 
+So, if you have Figures 2a, 2b, and 2c, each of those should be a separate image file with ``2a,'' ``2b,'' etc. in the file name. 
+Do not include the part labels ``a,'' ``b,'' etc. in the actual images; the typesetter will add these in a standard style consistent across all articles and all issues of CMJ.
+
+Also, CMJ style does not allow for subcaptions (that is, captions for the individual subfigures). 
+Instead, include any necessary information about the subfigures in the main figure caption, following the example in Figure~\ref{fig:figMultipart}.
+
+\begin{figure}[]
+    \begin{subfigure}{0.2\textwidth}
+        \includegraphics[clip,width=\columnwidth]{Fig2a_rotatededRightExample}
+        \caption{} % NOTE: no caption for the subfigure beyond the default (a), (b), (c), etc.
+    \end{subfigure}
+	\hfill
+    \begin{subfigure}{0.2\textwidth}
+        \includegraphics[clip,width=\columnwidth]{Fig2b_upsideDownExample}
+        \caption{}
+    \end{subfigure}
+	\hfill
+    \begin{subfigure}{0.2\textwidth}
+        \includegraphics[clip,width=\columnwidth]{Fig2c_rotatedLeft-Example}
+        \caption{} % NOTE: no caption for the subfigure beyond the default (a), (b), (c), etc.
+    \end{subfigure}
+    \caption{Example of a multipart figure using variations of Figure~\ref{fig:fig1}. 
+    The examples here are a simple rotation (a), an upside-down version (b), and a counter-clockwise rotation (c).}
+    \label{fig:figMultipart}
+\end{figure}
+
+
+\section{Tables}
+
+Tables must also be cited in the text, as with Table~\ref{tab:myTable}. Tables in \emph{CMJ} do not have ``captions'' as such. A table has a title, which should be concise. If absolutely necessary for understanding the table, additional information can be included in a footer, although that is not required. When typeset, tables will not have vertical rules.
+
+% include tables in text with captions for initial submission, like this:
+\begin{table}
+\caption{Sample Table with Title}
+\centering
+\begin{tabular}{lccr}
+  \hline
+  \textbf{Column} & \textbf{Headers} & \textbf{Might Look} & \textbf{Like This}  \\
+  \hline
+  one & 2 & 3 & IV \\
+  five & 6 & 7 & VIII \\
+  nine & 10 & 11 & XII \\
+   \hline
+\end{tabular}
+\caption*{\textnormal{\emph{\small Although table footers are often not necessary, the source code shows how to generate one using an unnumbered caption in LaTeX. Keep the actual title short and only use a footer if more detail is needed.}}}
+\label{tab:myTable}
+\end{table}%
+
+
+% equations
+\section{Equations}
+You can insert short equations and mathematical expressions inline with the text like this: $a^2 + b^2 = c^2$.
+
+For longer equations and for complex where lists, you can use the LaTeX \texttt{equation} environment, as in the following example:
+\begin{equation}
+	\label{radupdate}
+		\Psi_{N}^{n+1} = m_{N}^{(-)}\Psi_{N-1}^{n}+m_{N}^{(0)}\Psi_{N}^{n} + q_{N}\Psi_{N}^{n-1}
+\end{equation}
+where
+\begin{eqnarray*}
+	m_{N}^{(-)} &=& \frac{\lambda^2}{2\tau}\left(S_{N+1}+2S_{N}+S_{N-1}\right) ,\\
+	m_{N}^{(0)} &=& \frac{1}{\tau}\left(2-\frac{\lambda^2}{2}\left(S_{N+1}+2S_{N}+S_{N-1}\right)\right) ,\\
+	q_{N} &=& \frac{1}{\tau}\left(\frac{\gamma^2 k^2}{2h}\left(S_{N+1}+S_{N}\right)\left(\frac{\alpha_{1}}{k}-\alpha_{2}\right)-1\right) ,
+\end{eqnarray*}
+and where 
+\begin{equation*}
+	\tau = \frac{\gamma^2 k^2}{2h}\left(S_{N+1}+S_{N}\right)\left(\frac{\alpha_{1}}{k}+\alpha_{2}\right)+1 .
+\end{equation*}
+
+Equations do not need to be numbered.
+You can use the {\tt equation*} environment to avoid numbering.
+If you refer to the same equation in different parts of your text, however, you will need to use equation numbers.
+\emph{CMJ} style for citing equations is ``Equation~\ref{radupdate}'' (note capitalized ``Equation'' and the nonbreaking space before the number). 
+Using the \textbackslash eqref\{\} directive from the amsmath package breaks CMJ style, so we ask authors not to use it (or to redefine the macro to match \emph{CMJ} style, but that's probably more effort than it's worth).
+
+\pagebreak[1]
+\section{Code Examples}
+Most code examples require the width of a full page, whereas, in the final typeset copy used by \emph{CMJ}, the body text is set in two columns and there is no practicable way to insert full-page-width code in the middle of a page. 
+For this reason, code examples are almost always rendered as figures, as in Figure~\ref{fig:code}.
+Figures, on the other hand, can extend over the width of an entire page. 
+
+\begin{figure}
+    % You can use the verbatim environment for inserting source code examples.
+    % Note, that this will print out text in the document exactly as you type it here in the .tex file. That means you can add empty spaces, tabs, blank lines here and they will be printed out like this in the document.). 
+    %For greater control over code formatting, you may want to look at the listing package.
+    %
+    \begin{Verbatim}[fontfamily=courier, xleftmargin=\parindent]
+    Use this style for program code, 
+    for example:
+    main() {
+        printf("Hello World\n");    
+    }
+    % Extended code examples that are likely to be too wide 
+    % for the two-column page layout used by CMJ should be 
+    % prepared as figures, using text rather than an image format. 
+    \end{Verbatim}
+    \caption{Example for including a code sample. 
+	You may also a package for ``pretty printing'' (e.g.,~the \texttt{listing} package).
+	But remember that \emph{CMJ} is printed in black-and-white, so anything involving color must be avoided.}
+\label{fig:code}
+\end{figure}
+
+%use of references
+\section{Citations and Using References}
+
+Some examples for citing references in the text follow.
+%author name in sentence, single authors
+Single authors, listed separately in text: for instance, \citet{Ano08} or \citet{Bele68}.
+%author name in sentence, multiple authors
+Multiple authors, in text: \citet{VeRo00}; \citet{AtDa04}.
+Parenthetic citations: \citep{Ther99, AtDa04, test4authors}.
+Note that in the last example \emph{CMJ} style lists citations in chronological order, 
+
+Citation as a single parenthetic note, including supplementary information: \citep[see also][which includes detailed diagrams]{Zica02}.
+
+Please don't type parentheses around a \texttt{citet{}} directive when you want a citation in parentheses---that's what the \texttt{citep{}} family of directives are there for.
+
+When making your final submission, please review all the references in your .bib file to make sure they are complete and accurate. 
+
+Please consult the enclosed .bst file and the BibTeX documentation for further examples. 
+
+%other questions of style
+\section{Other Points of Style}
+
+For other style questions, visit \url{https://direct.mit.edu/comj/pages/submission-guidelines} to see the submission guidelines and previously published articles at \url{https://direct.mit.edu/comj/issue}.  
+Most issues include a freely downloadable feature article.  
+Questions may be directed to cmj-editor@mit.edu; please start the subject line with ``[CMJ MS]''.
+
+
+%References
+\bibliographystyle{cmj}
+\bibliography{cmjbib}
+
+\end{document}
