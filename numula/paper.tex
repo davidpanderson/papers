@@ -83,6 +83,7 @@
 \begin{cmjAuthorAddress}
 Space Sciences Laboratory \\
 University of California, Berkeley \\
+Berkeley, California, USA \\
 davea@berkeley.edu \\
 https://github.com/davidpanderson/numula/wiki
 \end{cmjAuthorAddress}
@@ -214,7 +215,7 @@ In the MNM model, a \textit{configuration}
 represents a musical work, for a single instrument or an ensemble.
 It is a collection of timed items such as notes, measures, and pedal usages.
 MNM describes these as abstract classes:
-\texttt{Configuration}, \texttt{Note}, \texttt{Measure}, and \texttt{PedalUsage}.
+\texttt{Config}, \texttt{Note}, \texttt{Measure}, and \texttt{PedalUsage}.
 In Numula, these are Python classes.
 The items in a configuration have associated start times and durations.
 MNM uses two notions of time:
@@ -235,7 +236,7 @@ the final adjusted time is real time, measured in seconds.
 Events with the same score time can have different adjusted times,
 and score-time order can differ from adjusted-time order.
 
-For clarity, I notate score time as $ s $ and adjusted time as $ t $.
+For clarity, score time will be notated as $ s $ and adjusted time as $ t $.
 
 MNM starts with an initial configuration $ C_0 $.
 This might come from a score editor,
@@ -246,7 +247,7 @@ adjusted times equal score times,
 and notes have a default volume.
 
 Applying a MNM nuance description to a configuration has two stages;
-see Figure 1.
+see Figure \ref{fig:fig1}.
 First, tags and attributes (see the following section)
 are added to items in $ C_0 $,
 producing a configuration $ C_1 $.
@@ -329,7 +330,7 @@ or automatically by the software system in which MNM is embedded.
 \subsection{Note selectors}
 
 A \textit{note selector} is a Boolean-valued function of a \texttt{Note}.
-A note selector $ F $ identifies a set of notes within a \texttt{Configuration},
+A note selector $ F $ identifies a set of notes within a \texttt{Config},
 namely the notes $ N $ for which $ F(N) $ is True.
 I use Python syntax for note selectors.
 For example, the function
@@ -422,7 +423,7 @@ from 15 to 20 over one measure,
 then from 10 to 15 over two measures.
 Its value at the start of the 4th measure is 20
 because of the closure arguments;
-see Figure 2.
+see Figure \ref{fig:fig2}.
 
 \begin{figure}
     \begin{center}
@@ -454,7 +455,7 @@ The larger C is, the more the change is shifted to the end.
 Similarly, if C is negative,
 change is concentrated in the earlier part of the interval.
 If C is zero, F is linear.
-Figure 3 shows examples.
+Figure \ref{fig:exp} shows examples.
 
 \begin{figure}[]
     \begin{subfigure}{0.5\textwidth}
@@ -473,7 +474,7 @@ Figure 3 shows examples.
         \includegraphics[clip,width=\columnwidth]{exp-5.png}
     \end{subfigure}
     \caption{FIgure 3: Shifted-exponential primitives with different curvatures.}
-    \label{fig:figMultipart}
+    \label{fig:exp}
 \end{figure}
 
 In developing nuance descriptions for a range of piano pieces
@@ -517,9 +518,9 @@ shifting them slightly before or after accompaniment notes.
 
 An MNM specification includes a sequence of \textit{transformations}.
 There is no limit on the number of transformations.
-Each transformation acts on a \texttt{Configuration}, changing it in some way.
+Each transformation acts on a \texttt{Config}, changing it in some way.
 A transformation includes an "operator" indicating what it does.
-I notate transformations as member functions of the \texttt{Configuration} class;
+I notate transformations as member functions of the \texttt{Config} class;
 each function corresponds to an operator.
 These functions are listed in the following sections.
 
@@ -602,16 +603,21 @@ starting at score time $ s_0 $,
 according to the tempo function specified by the PFT,
 acting in the given mode:
 \begin{small}\begin{singlespace}\vspace{-18px}\begin{verbatim}
-    Configuration.tempo_adjust_pft(
+    class TempoMode(enum):
+        SLOWNESS = 1
+        TEMPO = 2
+        PSEUDO_TEMPO = 3
+
+    Config.tempo_adjust_pft(
         pft: PFT,
         s0: float,
         selector: NoteSelector,
         normalize: bool,
-        mode: int)           # one of the above modes
+        mode: TempoMode)
 \end{verbatim}\end{singlespace}\end{small}\vspace{-18px}\noindent
 
 The implementation of \texttt{tempo\_adjust\_pft()}, somewhat simplified,
-is as follows (see Figure 4):
+is as follows (see Figure \ref{fig:tempo}):
 
 \begin{enumerate}
 \item Make a list of all "events"
@@ -642,7 +648,7 @@ and adjusted times determined by earlier transformations.
 The interval in adjusted time between the events
 is scaled by the average value of the slowness (inverse tempo) function
 between their score times.}
-    \label{fig:fig3}
+    \label{fig:tempo}
     \end{center}
 \end{figure}
 
@@ -666,7 +672,7 @@ This can be used, for example, to apply rubato to
 a particular voice over a given period,
 and have the voice sync up with other voices at the end of that period.
 For example, in a rendition Chopin's Nocturne No. 1
-(see Figure 4),
+(see Figure \ref{fig:chopin}),
 I applied a tempo adjustment
 consisting of an accelerando, a ritardando, and two small pauses
 to the right-hand flourish.
@@ -677,7 +683,7 @@ sync up at the end of the figure.
     \begin{center}
     \includegraphics[width=120mm]{chopin.jpg}
     \caption{Example from Chopin's Nocturne No. 1.}
-    \label{fig:fig4}
+    \label{fig:chopin}
     \end{center}
 \end{figure}
 
@@ -690,7 +696,7 @@ The following transformation,
 for notes N that satisfy the selector and lie in the domain of the PFT,
 adds \texttt{pft.value(N.s\_start - s0)} to \texttt{N.t\_start}:
 \begin{small}\begin{singlespace}\vspace{-18px}\begin{verbatim}
-    Configuration.time_shift_pft(
+    Config.time_shift_pft(
         pft: PFT,
         s0: float = 0,
         selector: NoteSelector)
@@ -700,7 +706,7 @@ or to shift notes by continuously varying amounts.
 
 The following transformation "rolls" the chord at the given score time.
 \begin{small}\begin{singlespace}\vspace{-18px}\begin{verbatim}
-    Configuration.roll(
+    Config.roll(
         s: float,
         offsets: list[float],
         is_up: bool = True,
@@ -716,7 +722,7 @@ The following transformation adds offsets
 to the adjusted start times of notes satisfying the selector,
 in order of increasing score time.
 \begin{small}\begin{singlespace}\vspace{-18px}\begin{verbatim}
-    Configuration.time_adjust_list(
+    Config.time_adjust_list(
         offsets: list[float],
         selector: NoteSelector)
 \end{verbatim}\end{singlespace}\end{small}\vspace{-18px}\noindent
@@ -725,7 +731,7 @@ The \texttt{offsets} argument is a list of adjusted-time offsets.
 The following transformation adds
 adjusted-time offsets given by a function of the note:
 \begin{small}\begin{singlespace}\vspace{-18px}\begin{verbatim}
-    Configuration.time_adjust_func(
+    Config.time_adjust_func(
         f: NotetoFloat,
         selector: NoteSelector)
 \end{verbatim}\end{singlespace}\end{small}\vspace{-18px}\noindent
@@ -733,7 +739,9 @@ For each note N satisfying the selector,
 this adds \texttt{f(N)} to \texttt{N.t\_start}.
 For example, the following adds Gaussian jitter to note start times:
 \begin{small}\begin{singlespace}\vspace{-18px}\begin{verbatim}
-    time_adjust_func(lambda n: 0.01*random.normal(), None)
+    time_adjust_func(
+        lambda n: 0.01*random.normal(),
+        None)
 \end{verbatim}\end{singlespace}\end{small}\vspace{-18px}\noindent
 Adding such jitter can make renditions sound more human.
 
@@ -756,9 +764,14 @@ The following transformation adjusts the adjusted durations of selected notes
 based on a PFT;
 it can be used to change articulation continuously.
 \begin{small}\begin{singlespace}\vspace{-18px}\begin{verbatim}
-    Configuration.dur_adjust_pft(
+    class ArticulationMode(enum):
+        ABSOLUTE = 1
+        MULTIPLICATIVE = 2
+        RELATIVE = 3
+
+    Config.dur_adjust_pft(
         pft: PFT,
-        mode: int,          # one of the above modes
+        mode: ArticulationMode,
         t0: float,
         selector: NoteSelector)
 \end{verbatim}\end{singlespace}\end{small}\vspace{-18px}\noindent
@@ -767,9 +780,9 @@ The following transformation adjusts durations
 of selected notes \texttt{N} using the adjustment factor
 given by a function \texttt{f(N)}.
 \begin{small}\begin{singlespace}\vspace{-18px}\begin{verbatim}
-    Configuration.dur_adjust_func(
+    Config.dur_adjust_func(
         f: NotetoFloat,
-        mode: int,
+        mode: ArticulationMode,
         selector: NoteSelector)
 \end{verbatim}\end{singlespace}\end{small}\vspace{-18px}\noindent
 
@@ -833,9 +846,14 @@ with values ranging from 127 to 64.
 The following transformation applies a pedal of the given type,
 with values described by a PFT, starting at score time $ s_0 $:
 \begin{small}\begin{singlespace}\vspace{-18px}\begin{verbatim}
-    Configuration.pedal_pft(
+    class PedalType(enum):
+        SUSTAIN = 1
+        SOSTENUTO = 2
+        SOFT = 3
+
+    Config.pedal_pft(
         pft: PFT,
-        type: int,      # sustain, sostenuto, or soft
+        type: PedalType,
         s0: float)
 \end{verbatim}\end{singlespace}\end{small}\vspace{-18px}\noindent
 
@@ -846,20 +864,26 @@ For sustain and sostenuto pedals,
 one may also need to specify a momentary lifting of the pedal.
 MNM handles both requirements using the closure attributes
 of PFT primitives.
-Suppose that P0 and P1 are consecutive primitives;
-P0 ends and P1 begins at time t,
+Suppose that $P_0$ and $P_1$ are consecutive primitives;
+$P_0$ ends and $P_1$ begins at time t,
 and one or more notes start at t.
-The semantics of the PFT depend on the closure of P0 and P1 as follows
-(\texttt{P1.y0} denotes the initial value of P1):
+The semantics of the PFT depend on the closure of $P_0$ and $P_1$ as
+shown in Table \ref{table:pedal},
+where $P_1 (0)$ denotes the initial value of $P_1$.
 
-\begin{small}\begin{singlespace}\vspace{-18px}\begin{verbatim}
-end of P0   start of P1     Semantics
--------------------------------------
-open        open            lift pedal, play notes, pedal=P1.y0
-open        closed          lift pedal, pedal=P1.y0, play notes
-closed      open            play notes
-closed      closed          play notes, pedal=P1.y0
-\end{verbatim}\end{singlespace}\end{small}\vspace{-18px}\noindent
+\begin{table}
+\begin{tabular}{l l l}
+End of $P_0$ &  Start of $P_1$  &   Actions at $t$ \\
+\hline
+open    &    open     &       lift pedal, play notes, pedal=$P_1 (0)$ \\
+open    &    closed   &       lift pedal, pedal=$P_1 (0)$, play notes \\
+closed  &    open     &       play notes \\
+closed  &    closed   &       play notes, pedal=$P_1 (0)$ \\
+
+\end{tabular}
+\caption{The meaning of a pedal PFT depends on the closure of its segments.}
+\label{table:pedal}
+\end{table}
 
 \subsection{Virtual sustain pedals}
 
@@ -874,7 +898,7 @@ is specified by the same type of PFT as for standard pedals,
 but the only allowed values are 0 (pedal off) or 1 (pedal on).
 The following transformation applies a virtual sustain pedal:
 \begin{small}\begin{singlespace}\vspace{-18px}\begin{verbatim}
-    Configuration.virtual_sustain_pft(
+    Config.virtual_sustain_pft(
         pft: PFT,
         s0: float,
         selector: NoteSelector)
@@ -885,7 +909,7 @@ pedal is released.
 
 One can use virtual sustain pedals, for example,
 to sustain an accompaniment figure without affecting the melody.
-In the Chopin example in Figure 4,
+In the Chopin example in Figure \ref{fig:chopin},
 I used a virtual sustain pedal to sustain the chords in the left hand
 without blurring the right-hand melody.
 This would be impossible in a physical performance.
@@ -944,10 +968,15 @@ The following transformation adjusts the volume of selected notes
 according to values specified by a PFT:
 
 \begin{small}\begin{singlespace}\vspace{-18px}\begin{verbatim}
-    Configuration.vol_adjust_pft(
-        mode: int,          # one of the above modes
+    class VolMode(enum):
+        VOL_MULT = 1
+        VOL_ADD = 2
+        VOL_SET = 3
+
+    Config.vol_adjust_pft(
         pft: PFT,
-        s0: float,
+        t0: float,
+        mode: VolMode,
         selector: NoteSelector)
 \end{verbatim}\end{singlespace}\end{small}\vspace{-18px}\noindent
 
@@ -958,12 +987,12 @@ This can be used to shape the dynamics of a voice or of the piece as a whole.
 
 Other transformations adjust note volumes without a PFT:
 \begin{small}\begin{singlespace}\vspace{-18px}\begin{verbatim}
-    Configuration.vol_adjust(
-        mode: int,
+    Config.vol_adjust(
+        mode: VolMode,
         factor: float,
         selector: NoteSelector)
-    Configuration.vol_adjust_func(
-        mode: int,
+    Config.vol_adjust_func(
+        mode: VolMode,
         func: NoteToFloat,
         selector: NoteSelector)
 \end{verbatim}\end{singlespace}\end{small}\vspace{-18px}\noindent
@@ -973,8 +1002,10 @@ that maps a \texttt{Note} to an adjustment factor.
 For example, in a piece with 4/4 measures,
 the following transformations de-emphasize notes on weak beats:
 \begin{small}\begin{singlespace}\vspace{-18px}\begin{verbatim}
-    config.vol_adjust(VOL_MULT, 0.9, lambda n: n.measure_offset == 2/4)
-    config.vol_adjust(VOL_MULT, 0.8, lambda n: n.measure_offset in [1/4, 3/4])
+    config.vol_adjust(VOL_MULT, 0.9,
+        lambda n: n.measure_offset == 2/4)
+    config.vol_adjust(VOL_MULT, 0.8,
+        lambda n: n.measure_offset in [1/4, 3/4])
     config.vol_adjust(VOL_MULT, 0.7,
         lambda n: n.measure_offset not in [0, 1/4, 2/4, 3/4]
     )
@@ -1144,7 +1175,7 @@ with their PFTs shown graphically as functions of time.
 The mouse is used to drag and drop nuance primitives,
 and to adjust their parameters.
 This interface could be integrated with a graphical score editor
-such as Musescore or Sibelius;
+such as MuseScore or Sibelius;
 transformations would be displayed underneath the
 corresponding part of the score.
 The interface might also convey nuance by altering
@@ -1289,7 +1320,7 @@ allowing people to share and discuss interpretations.
 \section{Numula}
 
 Numula is a Python library for creating nuanced music.
-It consists of several modules; see Figure 6.
+It consists of several modules; see Figure \ref{fig:components}.
 These modules can be used separately or in combination,
 and they could be integrated into other systems.
 
@@ -1297,23 +1328,23 @@ and they could be integrated into other systems.
     \begin{center}
     \includegraphics[width=120mm]{numula.png}
     \caption{The components of Numula.}
-    \label{fig:fig5}
+    \label{fig:components}
     \end{center}
 \end{figure}
 
 Numula defines the classes listed earlier in this paper:
-\texttt{Configuration}, \texttt{Note}, PFT, etc.
+\texttt{Config}, \texttt{Note}, PFT, etc.
 The transformation functions described in earlier sections
-are members of the \texttt{Configuration} class;
+are members of the \texttt{Config} class;
 they form the "MNM engine".
-A \texttt{Configuration}, after nuance transformations are applied,
+A \texttt{Config}, after nuance transformations are applied,
 can be output as a MIDI file.
 For convenience, Numula can be configured to play MIDI output
 using a Pianoteq server controlled by RPCs.
 
 Numula can be used as a stand-alone system for creating nuanced music.
 Alternatively, it can add nuance capabilities to other systems:
-it can import a MIDI file as a \texttt{Configuration} object,
+it can import a MIDI file as a \texttt{Config} object,
 apply a nuance description to it,
 and output the result as a MIDI file.
 
@@ -1352,7 +1383,7 @@ is on for 1 beat, then off for 4 beats; and
 \begin{small}\begin{singlespace}\vspace{-18px}\begin{verbatim}
     sh_score('1/4 c5 d e')
 \end{verbatim}\end{singlespace}\end{small}\vspace{-18px}\noindent
-returns a \texttt{Configuration} with 3 quarter notes starting at middle C.
+returns a \texttt{Config} with 3 quarter notes starting at middle C.
 Numula's shorthand notation for scores has numerous features
 that enable compact representation of complex scores.
 
@@ -1493,7 +1524,7 @@ In general, they do not support timing control at the note level.
 \cite{Dannenbert1997} and \cite{Honing2005})
 identified and proposed solutions to the "vibrato problem":
 the timing of some musical features
-(vibrato, or in our context things like trills and octave tremolos)
+(like vibrato, trills, and octave tremolos)
 should not be affected by tempo changes.
 The distinction between tempo and time-shifting is discussed in
 \cite{Honing2001}.
