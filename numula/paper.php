@@ -1798,126 +1798,7 @@ Thanks to Richard Kraft, who encouraged this work and contributed ideas
 involving terminology, UI design, NDF files, and the applications of MNM.
 
 <h2>References</h2>
-<p>
-<ol>
-<li> Anderson, D.P., and R.J. Kuivila. 1991.
-\"FORMULA: A Programming Language for Expressive Computer Music\",
-<i>IEEE Computer</i> 24(7), pp 12-21. June 1991.
-
-<li> Bilson, Malcolm. 2005.
-\"Knowing the score: do we know how to read Urtext editions and how can this lead to expressive and passionate performance?\" (documentary film).
-<i>Cornell University Press</i>.
-YouTube: https://youtu.be/mVGN\\_YAX03A
-
-<li>
-Cancino-Chacon, C., M. Grachten, W. Goebl, G. Widmer.
-\"Computational Models of Expressive Music Performance: A Comprehensive and Critical Review\".
-<i>Frontiers in Digital Humanities</i>, October 2018.
-
-<li>
-Cuthbert, M.S. and A. Christopher.  2010.
-\"music21: A Toolkit for Computer-Aided Musicology and Symbolic Music Data.\"
-<i>11th International Society for Music Information Retrieval Conference</i>,
-August 9-13 2010, Utrecht, Netherlands. pp. 637-642.
-
-<li> Dannenberg, R. 1997.
-\"Time Warping of Compound Events and Signals\".
-<i>Computer Music Journal</i> 21(3), pp. 61-70.
-
-<li>
-Friberg, A.  1991.
-\"Generative Rules for Music Performance: A Formal Description of a Rule System\".
-<i>Computer Music Journal</i> 15(2).
-
-<li>
-Friberg, A. and J. Sundberg. 1999.
-\"Does music performance allude to locomotion? A model of final ritardandi derived from measurements of stopping runners\".
-<i>The Journal of the Acoustical Society of America</i>
-105(3), pp. 1469-1484.  March 1999.
-
-<li>
-Friberg, A., T. Gulz, C. Wettebrandt. 2023.
-Computer Tools for Modeling Swing in a Jazz Ensemble.
-<i>Computer Music Journal</i> 47(1), pp. 85-109.
-
-<li>
-Honing, Henkjan. 2001.
-\"From Time to Time: The Representation of Timing and Tempo\".
-<i>Computer Music Journal</i>, 25(3), pp. 50-61.
-
-<li>
-Honing, Henkjan. 2005.
-\"The Vibrato Problem: Comparing Two Solutions\".
-<i>Computer Music Journal</i> 19(3) Autumn 2005.
-
-<li>
-Jaffe, David. 1985.
-Ensemble Timing in Computer Music.
-<i>Computer Music Journal</i> 9(4), Winter 1985,
-pp. 38-48.
-
-<li>
-Kirke, A. and E. Miranda. 2009.
-\"A Survey of Computer Systems for Expressive Music Performance\".
-<i>ACM Computing Surveys</i> 42(1). December 2009.
-
-<li>
-Lie, Hakon and B. Bos. 1997.
-Cascading style sheets.
-<i>World Wide Web Journal</i> 2. pp. 75-123. 
-
-<li>
-Mazinanian, D. and N. Tsantalis. 2016.
-\"An Empirical Study on the Use of CSS Preprocessors\",
-<i>IEEE 23rd International Conference on Software Analysis, Evolution, and Reengineering</i>, Osaka, Japan, pp. 168-178.
-
-<li> McCartney, J. 2002.
-\"Rethinking the Computer Music Language: SuperCollider\".
-<i>Computer Music Journal</i>
-26(4), pp. 61-68.
-
-<li> Nienhuys, H-W, and J. Nieuwenhuizen. 2003.
-\"LilyPond, a system for automated music engraving.\"
-<i>Proceedings of the xiv colloquium on musical informatics</i>. Vol. 1. Firenza: Tempo Reale.
-
-<li>
-Polansky, L., P. Burk and D. Rosenboom. 1990.
-\"HMSL (Hierarchical Music Specification Language): A Theoretical Overview\".
-<i>Perspectives of New Music</i>
-Vol. 28, No. 2 (Summer, 1990), pp. 136-178 .
-
-<li>
-Puckette, Miller. 2002.
-\"Max at Seventeen\".
-<i>Computer Music Journal</i> 26(4): pp. 31-43.
-
-<li> Repp, B. 1998.
-\"A microcosm of musical expression. I. Quantitative analysis of pianists' timing in the initial measures of Chopin's Etude in E major\".
-<i>The Journal of the Acoustical Society of America</i>, 1998.
-
-<li> Repp, B. 1998.
-\"A microcosm of musical expression. II. Quantitative analysis of pianists' dynamics in the initial measures of Chopin's Etude in E major\".
-<i>The Journal of the Acoustical Society of America</i>, 1998.
-
-<li>
-Resnick, M. et al. 2009.
-\"Scratch: Programming for All\".
-<i>Communications of the ACM</i>
-52(11), pp. 60-67.
-
-<li>
-Rogers, J. and J. Rockstroh. 1978.
-\"Score Time and Real Time\".
-<i>Proceedings of The 1978 International Computer Music Conference</i>,
-pp. 332-354.
-
-<li>
-Todd, Neil.  1992.
-\"The dynamics of dynamics: A model of musical expression\".
-<i>The Journal of the Acoustical Society of America</i>.
-91, 3540 (1992).
-
-</ol>
+\bibliography{numula}
 
 <h2>Appendix: Details of continuous PFT primitives</h2>
 <p>
@@ -1991,7 +1872,7 @@ $text .= html_only('
 ');
 
 if (LATEX) {
-    readfile('cmj.txt');
+    readfile('cmj.tex');
     echo expand_latex($text);
     echo "\\end{document}\n";
 } else {

@@ -1,0 +1,81 @@
+%
+%-----------------------------------------------------------
+%% Computer Music Journal LaTeX template
+%%
+%% September  2009
+%% Author: Cornelia Kreutzer, University of Limerick
+
+
+
+%---Document preamble
+%
+\documentclass[letterpaper, 12pt]{article}
+
+\usepackage{cmjStyle} %use CMJ style
+\usepackage{natbib} %natbib package, necessary for customized cmj BibTeX style
+\bibpunct{(}{)}{;}{a}{}{, } %adapt style of references in text
+\doublespacing
+\raggedright % use this to remove spacing and hyphenation oddities
+\setlength{\parskip}{2ex}
+\parindent 24pt
+\urlstyle{same} % make url tags have the same font
+\setcounter{secnumdepth}{-1} % remove section numbering
+\usepackage{epstopdf}
+\usepackage{amsmath,amssymb,amsbsy,bm,upgreek,nicefrac}
+\usepackage{todonotes,microtype}
+
+%% ----------------------------------------------------------------------------------------------------------------------------------------
+%% AUTHORS NOTE THE FOLLOWING:
+%% You should not need any additional packages beyond those already listed above.
+%% If you cannot resist the temptation to use further packages, add them under these lines,
+%% including a brief description of each package and where you used it.
+%% But consider that those packages will almost certainly be removed before sending your manuscript
+%% to MIT Press for production.
+
+
+% Use the Figures subfolder for image files
+\graphicspath{{./Figures/}}
+
+%% ----------------------------------------------------------------------------------------------------------------------------------------
+%% CMJ page headers and footers
+%%
+%% For initial submission use \lhead{\small Anonymous}
+%% On accepted for publication, use real author surnames for \lhead modeled on the following examples
+%%              One author:     \lhead{\small Keislar}
+%%              Two authors:    \lhead{\small Keislar and Castine}
+%%              Three authors:  \lhead{\small Keislar, Castine, and Rundall}
+%%              Four or more:   \lhead{\small Keislar et al.}
+%%
+\lhead{\small Anderson}
+
+% Once accepted and the issue number is set, update the left-hand section of the footer to include volume and number
+\lfoot{\small \emph{Computer Music Journal} Vol:No}
+
+%% ----------------------------------------------------------------------------------------------------------------------------------------
+
+%% The package endfloat moves all floats (figures, tables...) to the end of the manuscript, as required for the final version of a CMJ article.
+%% AUTHORS: leave commented out when submitting to CMJ for editing
+%% MS EDITOR: uncomment it and the callout commands prior when submitting for production to MIT Press.
+% \usepackage{endfloat}
+% \renewcommand{\figureplace}{%
+%       \begin{center}
+%               \textbf{<<TYPE: INSERT \figurename~\thepostfig\ ABOUT HERE.>>}
+%       \end{center}}
+% \renewcommand{\tableplace}{%
+%       \begin{center}
+%               \textbf{<<TYPE: INSERT \tablename~\theposttbl\ ABOUT HERE.>>}
+%       \end{center}}
+
+%% Display or Hide markups for production
+%% (Hide markups for Just Accepted stage of Early Access, but provide MIT Press with a second copy with markups)
+%\newcommand{\productionmarkup}[1]{}                                           % Markup hidden for JA
+\newcommand{\productionmarkup}[1] {\textbf{<<#1>>}}             % Production markup displayed
+
+
+%---Document----------
+\begin{document}
+
+{\cmjTitle Modeling performance nuance}
+\vspace*{24pt}
+
+\section{Abstract}
