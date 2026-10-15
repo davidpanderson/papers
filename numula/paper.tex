@@ -91,8 +91,9 @@ https://github.com/davidpanderson/numula/wiki
 \begin{abstract}
 
 Music Nuance Model (MNM) is
-a framework for describing performance nuance
-(timing, articulation, dynamics, and pedaling) in notated music.
+a framework for describing nuance
+(timing, articulation, dynamics, and piano pedaling)
+in the performance of notated music.
 MNM can concisely express complex nuance,
 such as that of human performances,
 thus allowing musicians -- composers and performers --
@@ -100,13 +101,14 @@ to craft expressive renditions of musical works.
 This capability has applications in composition, virtual performance,
 and performance pedagogy.
 I discuss the challenges in creating and refining
-complex nuance specifications.
+complex nuance specifications,
+and I describe Numula, a Python implementation of MNM.
 
 \end{abstract}
 
 \section{Introduction}
 
-This paper involves "performance nuance" in notated music;
+This paper involves ``performance nuance'' in notated music;
 by this I mean the differences between a rendition of a piece
 and the score on which it's based.
 Nuance has a central role in Western classical music:
@@ -148,7 +150,7 @@ and c) they're incomplete:
 they describe the broad strokes of the composer's intention,
 but not the details of a rendition.
 Indeed, Western music notation cannot express basic aspects of nuance,
-such as the different volumes of notes in a chord.
+such as the different volumes of notes in a chord notated on a single staff.
 
 In a typical human performance,
 nuance is guided by additional factors:
@@ -157,16 +159,14 @@ stylistic conventions as understood by the performer,
 and the performer's technique and physical limitations.
 
 Music Nuance Model (MNM) is a framework for describing performance nuance.
-It defines a set of \textit{transformations} that
+It defines a set of transformations that
 can be combined to describe complex nuance precisely and concisely.
 MNM has several important properties:
 \begin{enumerate}
 \item
 MNM can express nuance gestures that are continuous
-(crescendos and accelerandos)
-and/or discrete (accents and pauses).
-It uses a powerful mechanism,
-\textit{piecewise functions of time} (PFTs),
+(crescendos and accelerandos) or discrete (accents and pauses).
+It uses a versatile mechanism, ``piecewise functions of time'',
 to describe time-varying quantities.
 \item
 MNM can express nuance gestures ranging from
@@ -176,38 +176,37 @@ to long (say, an accelerando over 32 measures).
 MNM provides a general way of selecting sets of notes.
 Notes can have textual tags,
 and attributes such as chordal or metric position.
-A note set is defined by a \textit{note selector},
+A note set is defined by a ``note selector'',
 a Boolean-valued function of these tags and attributes.
 \item
 MNM allows nuance to be factored into multiple layers.
-Each layer, or \textit{transformation},
-includes an operation type (e.g., tempo control), a PFT, and a note selector.
+Each layer, or transformation,
+includes an operation type (e.g., tempo control),
+a piecewise function of time, and a note selector.
 \end{enumerate}
 
 As a way of shaping music,
 MNM is intended to bridge the gap between score editors and DAWs.
 It allows fine-grained control over each note,
-using high-level constructs familiar to musicians,
-expressed in the score time system.
+using high-level constructs familiar to musicians.
 
-The "reference implementation" of MNM is a Python library called Numula,
+The ``reference implementation'' of MNM is a Python library called Numula,
 so I describe MNM in terms of Python data structures and functions.
 MNM could be implemented using other languages or data representations.
 It could be integrated into score editors, music programming languages,
 or other music software systems.
 
 MNM is designed to support systems in which a human musician
-(not an AI or algorithm)
-develops a nuance description for a work,
+(not an AI or algorithm) develops a nuance description for a work,
 using an editing interface of some sort.
 I call this \textit{nuance specification}.
-It can be used, for example,
-to create a virtual performance of a work,
+It can be used, for example, to create a virtual performance of a work,
 or to communicate examples of nuance from teacher to student.
 
-The remainder of this paper describes MNM and presents examples in which
-it was used to create virtual performances of piano works in a range of styles.
-I then discuss related and future work, and offer conclusions.
+In the remainder of this paper I describe MNM and present examples in which
+I used Numula to create virtual performances of piano works in a range of styles.
+I then compare MNM to previous related work,
+propose future work, and offer conclusions.
 
 \section{The MNM model}
 
@@ -223,8 +222,8 @@ MNM uses two notions of time:
 \textit{Score time} is time as notated (metrically) in a score,
 represented as floating-point numbers.
 The scale is arbitrary;
-our convention is that the unit is a 4-beat measure,
-so the duration of a quarter note is 1/4, or 0.25.
+our convention is that the unit of duration is four quarter notes,
+so a quarter note is 1/4, or 0.25.
 Score time is fixed,
 and nuance adjustments are expressed in terms of score time.
 
@@ -251,7 +250,7 @@ see Figure \ref{fig:fig1}.
 First, tags and attributes (see the following section)
 are added to items in $ C_0 $,
 producing a configuration $ C_1 $.
-Next, a sequence of \textit{transformations} are applied.
+Next, a sequence of transformations are applied.
 Each transformation modifies a configuration:
 for example, changing the volumes
 or adjusted times of notes, or adding pedal usages.
@@ -283,7 +282,7 @@ A \texttt{Note} \texttt{N} has various \textit{attributes}.
 For example, \texttt{N.tags} is a set of textual \textit{tags}.
 Note attributes and tags are used to specify
 the set of notes to which a transformation is to be applied.
-This is done using \textit{note selector} functions, described below.
+This is done using ``note selector'' functions, described below.
 
 Note attributes and tags have various sources.
 Some are derived from the score:
@@ -298,7 +297,7 @@ MNM assigns other attributes of a \texttt{Note} \texttt{N} based on its context 
 \texttt{N.nchord} is the number of notes
 with the same start time as N, and \texttt{N.nchord\_pos}
 is N's pitch order in this set (0 = lowest, 1 = 2nd lowest, etc.).
-Tags "\texttt{top}" or "\texttt{bottom}" are added if N
+Tags \texttt{top} or \texttt{bottom} are added if N
 has the highest or lowest pitch of notes starting at the same time.
 If a note N lies within a measure M, N has two additional attributes:
 \texttt{N.measure} is a reference to M,
@@ -313,14 +312,14 @@ or of a particular instance of the theme.
 Tags could indicate the harmonic function of notes;
 e.g., a note in a dominant chord in a cadence,
 or the 7th in a major seventh chord.
-Attribute and tags could used to identify hierarchical
+Attribute and tags could be used to identify hierarchical
 structural components of a work.
 For example, one could tag notes in the development section of a Sonata.
 
 Like notes, measures can have tags.
 By convention, these include a string describing the measure's
 duration and metric structure.
-For example, the tag "\texttt{2+2+3/8}" might indicate a 7/8 measure
+For example, the tag \texttt{2+2+3/8} might indicate a 7/8 measure
 grouped as 2+2+3 eighths.
 
 MNM does not specify or restrict how attributes and tags are assigned.
@@ -359,8 +358,9 @@ In MNM, these variations are described as functions of score time.
 They are specified as a sequence of \textit{primitives},
 each of which describes a function defined
 either on a time interval or at a single time.
-A function defined in this way is called a \textit{piecewise function of time}
-(PFT).
+A function defined in this way, as a sequence of primitives,
+is called a \textit{piecewise function of time} (PFT).
+The domain of a PFT is a connected interval, with no gaps.
 
 In the reference implementation of MNM,
 PFT primitives are objects with types derived from a base class \texttt{PFTPrimitive}.
@@ -389,7 +389,7 @@ MNM uses PFT for various purposes, including tempo, articulation,
 volume, time shifts, and pedaling.
 When a PFT describes tempo, one needs
 the definite integral of the function or of its reciprocal
-(see the section "Timing" below).
+(see the section Timing below).
 Thus, primitives used in tempo PFTs must provide member functions
 \begin{small}\begin{singlespace}\vspace{-18px}\begin{verbatim}
     integral(s: float): float               # integral of F from 0 to s
@@ -445,7 +445,7 @@ and
 $ F(\Delta s)=y_1 $
 .
 The \texttt{ShiftedExp} primitive represents a family of
-"shifted exponential" functions
+``shifted exponential'' functions
 $ F(t) $ that vary from $ y_0 $ to $ y_1 $ over
 $ [0, \Delta s] $.
 The primitive has a curvature parameter C.
@@ -491,7 +491,7 @@ MNM provides momentary primitives for several purposes.
 \end{verbatim}\end{singlespace}\end{small}\vspace{-18px}\noindent
 This represents a volume adjustment for notes that start
 at a particular score time;
-see the "Dynamics" section below.
+see the Dynamics section below.
 The surrounding interval segments must be open at the corresponding end.
 
 \begin{small}\begin{singlespace}\vspace{-18px}\begin{verbatim}
@@ -510,7 +510,7 @@ There can be pauses both before and after a given time.
 This changes the adjusted times of events that start
 at the current score time;
 it does not affect later events.
-It can be used for "agogic accents"
+It can be used for ``agogic accents''
 in which melody notes are emphasized by
 shifting them slightly before or after accompaniment notes.
 
@@ -519,7 +519,7 @@ shifting them slightly before or after accompaniment notes.
 An MNM specification includes a sequence of \textit{transformations}.
 There is no limit on the number of transformations.
 Each transformation acts on a \texttt{Config}, changing it in some way.
-A transformation includes an "operator" indicating what it does.
+A transformation includes an ``operator'' indicating what it does.
 I notate transformations as member functions of the \texttt{Config} class;
 each function corresponds to an operator.
 These functions are listed in the following sections.
@@ -566,7 +566,7 @@ including continuous variation of articulation using a PFT.
 
 A tempo variation is described by a PFT
 (a function defined over score time).
-MNM provides three "modes" for this PFT:
+MNM provides three modes for this PFT:
 
 \textbf{Slowness} (or inverse tempo):
 The PFT value is the rate of change of adjusted time
@@ -594,7 +594,7 @@ These are like Dirac delta functions, with zero width but positive integral.
 The primitive's \texttt{before} parameter dictates whether
 notes at the current score time are shifted.
 The adjusted start times of later events are shifted by the pause duration.
-In the case of a "before" pause at a time $ s $,
+In the case of a ``before'' pause at a time $ s $,
 notes that start before $ s $ and end at $ s $ or later are elongated
 to avoid introducing gaps in the sound.
 
@@ -620,7 +620,7 @@ The implementation of \texttt{tempo\_adjust\_pft()}, somewhat simplified,
 is as follows (see Figure \ref{fig:tempo}):
 
 \begin{enumerate}
-\item Make a list of all "events"
+\item Make a list of all events
 (starts and ends of the selected notes and of pedal applications)
 ordered by score time.
 Each event $ E $ has a score time $ E_s $ and
@@ -665,7 +665,7 @@ either order will produce this same result.
 If the adjustments contain pauses, then order matters.
 
 If \texttt{normalize} is set, the tempo adjustment is scaled
-so that its average value is one;
+so that its average value is 1.0;
 in other words, the adjusted times of the start and end points remain fixed,
 but events between them can move.
 This can be used, for example, to apply rubato to
@@ -704,7 +704,7 @@ adds \texttt{pft.value(N.s\_start - s0)} to \texttt{N.t\_start}:
 This can be used to give agogic accents to notes at particular times
 or to shift notes by continuously varying amounts.
 
-The following transformation "rolls" the chord at the given score time.
+The following transformation ``rolls'' the chord at the given score time.
 \begin{small}\begin{singlespace}\vspace{-18px}\begin{verbatim}
     Config.roll(
         s: float,
@@ -806,7 +806,7 @@ the dampers are lifted so that
 notes continue to sound after their key is released,
 and all strings vibrate sympathetically.
 If the pedal is gradually raised, the dampers are gradually lowered.
-Pianists use this "half pedaling" (or more generally, fractional pedaling)
+Pianists use this ``half pedaling'' (or more generally, fractional pedaling)
 to create various effects.
 
 \textbf{Sostenuto pedal}: like the sustain pedal,
@@ -820,7 +820,7 @@ reducing loudness and softening the timbre.
 Fractional pedaling can also be used; its effects vary between pianos.
 
 Pedaling, including fractional pedaling,
-is critical to the sound of most performances,
+is critical to the sound of most piano performances,
 but few composers notate it at all, much less completely and precisely.
 Notation of fractional pedal is rare.
 Most MIDI piano synthesizers implement all three pedal types.
@@ -938,15 +938,18 @@ However, virtual sustain PFTs can overlap standard pedal PFTs.
 
 \section{Dynamics}
 
+MNM can describe the initial volumes of notes.
+In its current form it does not describe volume changes within notes;
+see the ``Future work'' section.
+
 In MNM, the volume of a note is represented by a floating-point number
 in [0..1] (soft to loud).
-This may be mapped linearly to a MIDI velocity [0..127];
+This may be mapped (perhaps linearly) to a MIDI velocity [0..127];
 the perceived loudness depends on the synthesis engine and other factors.
 Notes initially have volume 0.5.
 
 MNM provides three modes of volume adjustment.
-In each case there is an adjustment factor A,
-which may vary with time.
+In each case there is an adjustment factor A, which may vary with time.
 
 \texttt{VOL\_MULT}: the note volume is multiplied by A,
 which typically is in [0..2].
@@ -954,17 +957,20 @@ This maps the default volume (0.5) to the full range [0..1].
 These adjustments are commutative.
 
 \texttt{VOL\_ADD}: A is added to the note volume.
-A is typically around 0.1 or 0.2.
-This is useful for bringing out melody notes when the overall volume is low.
+A may be positive or negative;
+its magnitude is typically around 0.1 or 0.2.
+This mode is useful for bringing out melody notes
+when the overall volume is low.
 
 \texttt{VOL\_SET}: the note volume is set to A/2.
 A is in [0..2].
 The division by 2 means that the scale is the same as for \texttt{VOL\_MULT}.
 
-Multiple volume adjustments can result in levels outside [0..1],
-in which case a warning is generated and the volume is truncated.
+Multiple volume adjustments can result in levels lower than 0 or greater than 1,
+in which case a warning is generated and the volume is truncated
+to 0 or 1, respectively.
 
-The following transformation adjusts the volume of selected notes
+The following transformation adjusts the (initial) volume of selected notes
 according to values specified by a PFT:
 
 \begin{small}\begin{singlespace}\vspace{-18px}\begin{verbatim}
@@ -1025,8 +1031,8 @@ then transformations with mode \texttt{VOL\_SET}.
 
 I designed MNM to enable a human musician (composer or performer)
 to manually create a nuance description for a work.
-I call this process \textit{nuance specification}.
-It's analogous to practicing the work on a physical instrument.
+This ``nuance specification'' process
+is analogous to practicing the work on a physical instrument.
 You (the musician)
 start by forming a mental model of how you want the piece to sound.
 You create a rough draft of a nuance description.
@@ -1036,7 +1042,7 @@ to bring it closer to your mental model
 
 I created nuance specifications for piano pieces in several styles,
 with the goal of achieving expressive and human-like virtual performances
-(see "Examples" below).
+(see Examples below).
 This section
 describes some principles and techniques that I found useful.
 
@@ -1072,14 +1078,13 @@ Layers can apply only to note subsets:
 for example, the left- and right-hand parts,
 an accompaniment, or a melody.
 
-For pedal control, I typically use
-a PFT for the standard sustain pedal,
-and PFTs for virtual sustain pedals that affect only some voices,
+For pedal control, a PFT is usually used for the standard sustain pedal.
+Other PFTs can be used for virtual sustain pedals that affect only some voices,
 typically accompaniment.
 
 \subsection{Refining nuance specifications}
 
-You create an initial "rough draft"
+You create an initial ``rough draft''
 of tempo and volume changes based on score markings and
 musical intuition.
 This is followed by an iterative refinement process.
@@ -1091,10 +1096,7 @@ At the lowest level, this involves an editing cycle:
 for example, a parameter of a PFT primitive.
 \end{enumerate}
 
-This cycle may repeat hundreds of times,
-so it should ideally be streamlined.
-I found that I continued to edit nuance
-only as long as the reward exceeded the effort.
+This cycle may repeat hundreds of times.
 
 You also need a high-level editing strategy.
 I found the following guidelines useful:
@@ -1170,7 +1172,7 @@ graphical, textual, performative, and conductive.
 
 \textbf{Graphical}:
 Nuance transformations might, for example,
-be displayed as "tracks",
+be displayed as ``tracks'',
 with their PFTs shown graphically as functions of time.
 The mouse is used to drag and drop nuance primitives,
 and to adjust their parameters.
@@ -1197,7 +1199,7 @@ or a graphical programming language like Scratch (Resnick 2009).
 For example, MNM could be presented as an API in a programming language;
 Numula uses Python for this purpose.
 The user describes nuance by writing code.
-The system might also allow programmatic description of scores.
+The system might also allow algorithmic specification of scores.
 Scriptability is inherent in this approach.
 Alternatively, an existing system for textual score specification,
 such as Lilypond (Nienhuys 2003),
@@ -1208,7 +1210,7 @@ First, if one uses the native programming language syntax
 (data structure declarations and function calls),
 the amount of typing can be prohibitive.
 Numula addresses this by defining
-textual "shorthand notations" for various purposes,
+textual ``shorthand notations'' for various purposes,
 such as volume and tempo PFTs.
 The second issue is the efficiency of the editing cycle.
 If the user has to scroll through a text file,
@@ -1220,22 +1222,17 @@ Numula addresses this issue, in part,
 using a feature in which parameter adjustment
 and playback are done with single keystrokes (see below).
 
-
-
 \textbf{Performative}:
-the user inputs nuance gestures by performing parts of the score
+the user inputs nuance gestures implicitly by performing parts of the score
 on a computer-interfaced instrument or by singing.
 For example, one plays a melody,
 and the system captures the tempo and volume contours,
 representing them as MNM transformations
 that are then used in a textual or graphical editor.
 
-
-
 \textbf{Conductive}:
-the user inputs nuance gestures by "conducting" them in some way,
+the user inputs nuance gestures explicitly by ``conducting'' them in some way,
 perhaps using a mouse, touch screen, or a baton-like input device.
-
 
 Each of these approaches has strengths and weaknesses.
 They potentially can be combined.
@@ -1246,10 +1243,7 @@ and add smaller ones.
 
 \section{Applications of nuance specification}
 
-
-
 Nuance specification has several potential applications.
-
 
 \textbf{Composition}:
 As a composer writes a piece,
@@ -1261,9 +1255,6 @@ This facilitates the composition process
 and allows the composer to convey their musical intentions
 to prospective performers.
 
-
-
-
 \textbf{Virtual performance}:
 Musicians create nuanced renditions of existing pieces
 using a computer rather than a physical instrument.
@@ -1272,44 +1263,35 @@ performers are not limited by their physical capabilities,
 they can return to working on a piece without having to relearn it,
 and multiple performers can collaborate on a rendition.
 
-
-
 \textbf{Performance pedagogy}:
 A piano teacher's instruction to a student involves
 a nuance specification that guides the student's practice.
 Feedback might be given in various ways.
 For example, as a student practices a piece, they see a
-"virtual conductor" showing, on a screen,
+``virtual conductor'' showing, on a screen,
 a representation of the target nuance.
-Or a "virtual coach" makes suggestions
+Or a ``virtual coach'' makes suggestions
 (musical or technical) to the student based on
 the differences between their playing and the nuance specification.
-
-
 
 \textbf{Ensemble rehearsal and practice}:
 When an ensemble (say, a piano duo) rehearses together,
 they record their interpretive decisions as a nuance specification.
 They then use this to guide their individual practice
-(perhaps via a "virtual conductor" as described above).
-
-
+(perhaps via a ``virtual conductor'' as described above).
 
 \textbf{Musical collaborations}:
-A dance troupe or musical theater group might
-not be able to afford live musicians for rehearsals.
+A dance troupe or musical theater group who
+wishes to perform to live music might
+not be able to afford performers for rehearsals.
 Instead, the group develops a specification of the nuance they want,
 uses it to synthesize music for rehearsals,
 and sends it to the musicians to help them prepare for performance.
-
-
 
 \textbf{Automated accompaniment}:
 a computer system might better track a human performer
 given a description of the nuance
 the performer is likely to use.
-
-
 
 \textbf{Sharing and archival of nuance descriptions}:
 Web sites like IMSLP (https://imslp.org)
@@ -1327,20 +1309,20 @@ and they could be integrated into other systems.
 \begin{figure}
     \begin{center}
     \includegraphics[width=120mm]{numula.png}
-    \caption{The components of Numula.}
+    \caption{The components of Numula when used for virtual performance.}
     \label{fig:components}
     \end{center}
 \end{figure}
 
 Numula defines the classes listed earlier in this paper:
-\texttt{Config}, \texttt{Note}, PFT, etc.
+\texttt{Config}, \texttt{Note}, \texttt{PFT}, etc.
 The transformation functions described in earlier sections
 are members of the \texttt{Config} class;
-they form the "MNM engine".
+they form the ``MNM engine''.
 A \texttt{Config}, after nuance transformations are applied,
 can be output as a MIDI file.
 For convenience, Numula can be configured to play MIDI output
-using a Pianoteq server controlled by RPCs.
+using a Pianoteq server controlled by remote procedure calls.
 
 Numula can be used as a stand-alone system for creating nuanced music.
 Alternatively, it can add nuance capabilities to other systems:
@@ -1366,7 +1348,7 @@ For example,
 returns a volume-control PFT representing a crescendo
 from \textit{\textbf{pp}} to \textit{\textbf{mf}} over 2 beats,
 then a diminuendo to \textit{\textbf{pp}} over 4 beats
-(\texttt{pp} and \texttt{mf} are constants representing 0.45 and 1.11 respectively);
+(\texttt{pp} and \texttt{mf} are constants representing 0.45 and 1.11 respectively).
 \begin{small}\begin{singlespace}\vspace{-18px}\begin{verbatim}
     sh_tempo('60 8/4 80 p.03 4/4 60')
 \end{verbatim}\end{singlespace}\end{small}\vspace{-18px}\noindent
@@ -1381,9 +1363,10 @@ returns a PFT for a pedal that's off for 1 beat,
 changes linearly from off to on over 1 beat,
 is on for 1 beat, then off for 4 beats; and
 \begin{small}\begin{singlespace}\vspace{-18px}\begin{verbatim}
-    sh_score('1/4 c5 d e')
+    sh_score('1/4 c4 d e 1/2 [c e g c]')
 \end{verbatim}\end{singlespace}\end{small}\vspace{-18px}\noindent
-returns a \texttt{Config} with 3 quarter notes starting at middle C.
+returns a \texttt{Config} with 3 quarter notes starting at middle C,
+followed by a half-note chord.
 Numula's shorthand notation for scores has numerous features
 that enable compact representation of complex scores.
 
@@ -1416,8 +1399,8 @@ including a shorthand notation string:
 \end{verbatim}\end{singlespace}\end{small}\vspace{-18px}\noindent
 
 \textbf{Measure checking}:
-a shorthand string can contain "measure markers"
-which are used to error-check timing.
+a shorthand string can contain ``measure markers''
+vertical bars that are used to error-check timing.
 For example:
 \begin{small}\begin{singlespace}\vspace{-18px}\begin{verbatim}
     sh_vol(' \
@@ -1442,7 +1425,7 @@ This took a dozen or so input events (keystrokes and mouse clicks).
 To streamline low-level editing, Numula provides a feature called
 \textit{Interactive Parameter Adjustment} (IPA)
 that reduces the cycle to two keystrokes.
-You "IPA-enable" a Numula program
+You ``IPA-enable'' a Numula program
 by declaring variables to be adjustable
 and specifying their role (tempo, volume, and so on).
 You then run the program under an \textit{IPA interpreter}.
@@ -1455,7 +1438,7 @@ which is read when the IPA interpreter is started.
 
 \section{Examples}
 
-I used Numula to create nuanced renditions
+I used Numula and Pianoteq to create nuanced renditions
 of piano pieces from several styles and periods:
 \begin{enumerate}
 \item Sonata opus 57 by Beethoven, 3rd movement (1804-1805).
@@ -1480,7 +1463,7 @@ Helps, Homage a Rachmaninoff &   94         &         99          &        1470 
 Helps, Homage a Ravel &   116         &        87           &       1389 \\
 
 \end{tabular}
-\caption{Line and note counts of examples}
+\caption{Line and note counts of musical examples.}
 \label{table:lines}
 \end{table}
 
@@ -1505,7 +1488,7 @@ Previous work related to MNM falls into several areas.
 
 \textbf{Timing:}
 \cite{Rogers1978} formalized the meaning of continuous tempo change.
-They defined "clock factor" (what I call "inverse tempo")
+They defined ``clock factor'' (what I call ``inverse tempo'')
 and observed that the real time between two events depends
 on the integral of this function between the two score times.
 They worked out the mathematics of three tempo functions:
@@ -1522,7 +1505,7 @@ and they map all events at a given source time to the same target time
 In general, they do not support timing control at the note level.
 
 \cite{Dannenbert1997} and \cite{Honing2005})
-identified and proposed solutions to the "vibrato problem":
+identified and proposed solutions to the ``vibrato problem'':
 the timing of some musical features
 (like vibrato, trills, and octave tremolos)
 should not be affected by tempo changes.
@@ -1539,7 +1522,7 @@ Score editors such as MuseScore and Sibelius have basic nuance features:
 you can put a crescendo mark into a score,
 and the program's playback feature will play a crescendo.
 They also have features for adding algorithmic nuance,
-such as "swing" rhythm.
+such as ``swing'' rhythm.
 These systems offer basic nuance capabilities
 but lack MNM's ability to represent complex nuance
 and Numula's ability to express it concisely and edit it efficiently.
@@ -1587,7 +1570,7 @@ a system for specifying the appearance of web pages \citep{Lie1997}.
 Like MNM, a CSS specification
 is typically separate from the web page, can be layered,
 and can refer to sets of HTML elements
-using "selectors" involving element names, classes, and IDs.
+using ``selectors'' involving element names, classes, and IDs.
 CSS preprocessors like SASS \citep{Maxinanian2016}
 provide features similar to nuance scripting.
 
@@ -1620,7 +1603,7 @@ are needed to accurately describe particular performances.
 MNM grew out of the example pieces listed earlier.
 As it is used for more works, in a range of styles,
 extensions to the model will undoubtedly be needed.
-In particular, MNM could be extended to handle the "vibrato problem"
+In particular, MNM could be extended to handle the ``vibrato problem''
 described above, involving trills and other ornaments.
 If the real-time rate of trill notes is fixed,
 then the number of trill notes can vary with tempo.
@@ -1637,13 +1620,15 @@ for vocal works, MNM could describe prosody and breathing.
 These time-varying note properties might be modeled as PFTs.
 MNM could be used for works with multiple instruments,
 with note tags specifying the instrument type and instance
-(e.g. "violin" and "violin 1").
+(e.g. ``violin'' and ``violin 1'').
 
 \textbf{Integration with music software systems}.
 MNM could be integrated with 
 score editors such as MuseScore (https://musescore.com),
 music analysis systems like Music21 \citep{Cuthbert2010},
 and music languages such as SuperCollider \citep{McCartney2002}.
+Numula could be extended to import MusicXML files,
+increasing its interoperability.
 
 \section{Conclusion}
 
